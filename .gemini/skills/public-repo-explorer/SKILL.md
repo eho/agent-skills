@@ -1,13 +1,20 @@
 ---
-name: Public Repo Explorer
-description: Instructs the agent on how to efficiently browse public GitHub repositories using a local shallow clone.
+name: public-repo-explorer
+description: Instructs the agent on how to efficiently browse public GitHub repositories using a local shallow clone. Use this skill when the user asks you to scan, examine, or extract information from a public Git repository.
+license: MIT
+metadata:
+  author: eho
+  version: '1.0.0'
+
 ---
 
-# SKILL: Public Repo Explorer
+# Public Repo Explorer
 
-**Description:** Use this skill when the user asks you to scan, examine, or extract information from a public Git repository.
+## Overview
 
-## Execution Steps:
+Use this skill when the user asks you to scan, examine, or extract information from a public Git repository.
+
+## Workflow
 
 1. **Create a Temporary Workspace:**
    - Create a temporary directory on the user's machine to hold the repository safely without cluttering their main workspace. 

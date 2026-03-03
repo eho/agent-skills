@@ -1,6 +1,9 @@
 ---
 name: skill-curator
 description: Curate and catalog agent skills from GitHub repositories or URLs. Use when you need to research a repository for available agent skills, extract their metadata (name, description, install command), and update a central catalog like README.md.
+metadata:
+  author: eho
+  version: '1.0.0'
 ---
 
 # Skill Curator

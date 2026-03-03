@@ -34,12 +34,12 @@ A curated list of agent skills from the community that I find useful.
 | [**AWS Serverless EDA**](https://github.com/zxkane/aws-skills/tree/main/plugins/serverless-eda/skills/aws-serverless-eda/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS serverless and event-driven architecture expert based on Well-Architected Framework. |
 | [**AWS Cost Operations**](https://github.com/zxkane/aws-skills/tree/main/plugins/aws-cost-ops/skills/aws-cost-operations/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS cost optimization, monitoring, and operational best practices. |
 | [**AWS CDK Development**](https://github.com/zxkane/aws-skills/tree/main/plugins/aws-cdk/skills/aws-cdk-development/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS Cloud Development Kit (CDK) expert for building cloud infrastructure with TypeScript/Python. |
-| [**AWS Agentic AI**](https://github.com/zxkane/aws-skills/tree/main/plugins/aws-agentic-ai/skills/aws-agentic-ai/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS Bedrock AgentCore comprehensive expert for deploying and managing all AgentCore services. |
 
 ## Workflows & Tools
 
 | Skill Name | Source | Description |
 | :--- | :--- | :--- |
+| [**PRD**](https://github.com/snarktank/ralph/blob/main/skills/prd/SKILL.md) | [snarktank](https://github.com/snarktank/ralph) | Generate a Product Requirements Document (PRD) for a new feature. |
 | [**PDF**](https://github.com/anthropics/skills/blob/main/skills/pdf/SKILL.md) | [Anthropic](https://github.com/anthropics/skills) | Use this skill whenever the user wants to do anything with PDF files. |
 | [**GitHub**](https://github.com/callstackincubator/agent-skills/tree/main/skills/github/SKILL.md) | [Callstack](https://github.com/callstackincubator/agent-skills) | GitHub workflow patterns for Pull Requests, code reviews, and branching strategies. |
 | [**Expo Deployment**](https://github.com/expo/skills/tree/main/plugins/expo-deployment/skills/expo-deployment/SKILL.md) | [Expo](https://github.com/expo/skills) | Deploying Expo apps to iOS App Store, Android Play Store, web hosting, and API routes. |
