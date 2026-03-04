@@ -1,6 +1,6 @@
 ---
 name: skill-curator
-description: Curate and catalog agent skills from GitHub repositories or URLs. Use when you need to research a repository for available agent skills, extract their metadata (name, description, install command), and update a central catalog like README.md.
+description: Curate and catalog agent skills from GitHub repositories or URLs. You MUST use this skill whenever the user asks you to add a skill, curate skills, catalog an agent tool, or update a central catalog/README with a list of skills.
 metadata:
   author: eho
   version: '1.0.0'
@@ -17,7 +17,7 @@ This skill automates the process of discovering, extracting, and cataloging agen
 ### 1. Research & Discovery
 Use the most appropriate tool to explore the target repository. If you are equipped with the "Public Repo Explorer" skill, perform a local shallow clone. Otherwise, use tools like the GitHub MCP server to browse the remote files.
 - You MUST explicitly locate the actual `SKILL.md` files to identify valid skills. Use comprehensive search tools (e.g., `find_by_name` or `grep_search` if local, or MCP search) across the entire codebase.
-- Do not guess the directory structure based on folder names. Skills can be deeply nested (e.g., `plugins/expo-app-design/skills/layout/SKILL.md`). A folder is only a valid skill if it contains a `SKILL.md` file directly inside it.
+- **Why?** Do not guess the directory structure based on folder names, because skills can be deeply nested (e.g., `plugins/expo-app-design/skills/layout/SKILL.md`). A folder is only a valid skill if it contains a `SKILL.md` file directly inside it.
 
 ### 2. Metadata Extraction
 For each identified `SKILL.md` file, extract:
@@ -40,10 +40,9 @@ Update the workspace `README.md` using the established table format. The Source 
 
 ## Examples
 
-### User Request
-"Add the skills from https://github.com/example/agent-skills to my catalog."
-
-### Agent Response
+**Example 1:**
+*Input:* "Add the skills from https://github.com/example/agent-skills to my catalog."
+*Action:*
 1. Discover `SKILL.md` files recursively in the repository.
 2. Find skills like `image-optimizer` at `packages/ui/skills/image-optimizer/SKILL.md`.
 3. Extract name and description from the frontmatter.
