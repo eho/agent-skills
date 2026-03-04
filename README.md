@@ -48,6 +48,7 @@ A curated list of agent skills from the community that I find useful.
 | [**Expo CI/CD Workflows**](https://github.com/expo/skills/tree/main/plugins/expo-deployment/skills/expo-cicd-workflows/SKILL.md) | [Expo](https://github.com/expo/skills) | Helps understand and write EAS workflow YAML files for Expo projects. |
 | [**Public Repo Explorer**](https://github.com/eho/agent-skills/blob/main/skills/public-repo-explorer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Instructs the agent on how to efficiently browse public GitHub repositories using a local shallow clone. |
 | [**Skill Curator**](https://github.com/eho/agent-skills/blob/main/skills/skill-curator/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Curate and catalog agent skills from GitHub repositories or URLs. |
+| [**User Story Implementer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-implementer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Implement a single user story or task from a PRD or task list. |
 
 ## Installation
 
