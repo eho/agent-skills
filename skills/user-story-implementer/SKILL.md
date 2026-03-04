@@ -3,7 +3,7 @@ name: user-story-implementer
 description: Implement a single user story or task from a PRD or task list. Executes a single Ralph Loop iteration by reading the PRD, checking progress, completing exactly one user story/task, and appending the result. You MUST use this skill when asked to "implement a user story", "run one iteration", "do the next task", "execute a ralph loop iteration", or "complete a task from the PRD".
 metadata:
   author: eho
-  version: '1.0.1'
+  version: '1.0.2'
 ---
 
 # Instructions
@@ -21,10 +21,16 @@ Your objective is to complete exactly **one** user story or task from the provid
    - Ensure you fulfill all of the listed Acceptance Criteria.
    - Write unit tests or perform browser verification if required by the Acceptance Criteria.
    - If the user story is too large to complete in one iteration, complete a logical, meaningful chunk of it.
-5. **Log Progress**: Append a summary of what you just accomplished to the progress log file.
+5. **Self-Review**: Before considering the task complete, perform a thorough self-review:
+   - **Requirements**: Verify that the implemented solution aligns exactly with the user story.
+   - **Acceptance Criteria**: Check that every single acceptance criterion is fully met.
+   - **Test Coverage**: Ensure all significant logic and edge cases are covered by tests.
+   - **Code Quality**: Review the code changes for correctness, styling, and potential bugs.
+   If anything is missing or incorrect, return to the Execution step to address it before proceeding.
+6. **Log Progress**: Append a summary of what you just accomplished to the progress log file.
    - **Append-only**: Never remove entries from or otherwise rewrite the history of the progress log. **Why?** Re-writing the file risks losing historical context of what previous iterations accomplished and can cause conflicts.
    - Do not edit the PRD or task list file itself. Treat it as read-only.
-6. **Commit Code**: Once your user story or chunk is complete, you must commit your changes.
+7. **Commit Code**: Once your user story or chunk is complete, you must commit your changes.
    - Commit your changes to the **current branch**, unless said otherwise.
    - **Do not use** `git add -A` or `git commit -a`. You must select files manually (e.g., `git add src/file1.ts src/file2.css`) to ensure you only commit the files relevant to the specific logical chunk of work you just finished. **Why?** Blind commits might accidentally include unrelated changes or broken code left over from exploration.
 
@@ -51,5 +57,6 @@ If no specific marker string was provided to you by the user for this loop, appe
 2. Read `progress.txt` to see what was done previously.
 3. Implement the feature.
 4. Write tests to verify the Acceptance Criteria in US-002.
-5. Append `Completed US-002: Add priority selector to task edit` to `progress.txt`.
-6. Run `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
+5. Review the user story, acceptance criteria, test coverage, and code to ensure everything is complete.
+6. Append `Completed US-002: Add priority selector to task edit` to `progress.txt`.
+7. Run `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
