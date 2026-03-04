@@ -4,7 +4,7 @@ description: "Generate a Product Requirements Document (PRD) for a new feature. 
 user-invocable: true
 metadata:
   author: snarktank, eho
-  version: '1.0.0'
+  version: '1.0.1'
   original_source: "https://github.com/snarktank/ralph/blob/main/skills/prd/SKILL.md"
 ---
 

@@ -3,7 +3,7 @@ name: user-story-implementer
 description: Implement a single user story or task from a PRD or task list. Executes a single Ralph Loop iteration by reading the PRD, checking progress, completing exactly one user story/task, and appending the result. You MUST use this skill when asked to "implement a user story", "run one iteration", "do the next task", "execute a ralph loop iteration", or "complete a task from the PRD".
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '1.0.1'
 ---
 
 # Instructions

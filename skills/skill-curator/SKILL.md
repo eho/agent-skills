@@ -3,7 +3,7 @@ name: skill-curator
 description: Curate and catalog agent skills from GitHub repositories or URLs. You MUST use this skill whenever the user asks you to add a skill, curate skills, catalog an agent tool, or update a central catalog/README with a list of skills.
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '1.0.1'
 ---
 
 # Skill Curator

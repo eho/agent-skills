@@ -4,7 +4,7 @@ description: Instructs the agent on how to efficiently browse public GitHub repo
 license: MIT
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '1.0.1'
 
 ---
 
