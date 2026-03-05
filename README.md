@@ -50,6 +50,7 @@ A curated list of agent skills from the community that I find useful.
 | [**Skill Curator**](https://github.com/eho/agent-skills/blob/main/skills/skill-curator/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Curate and catalog agent skills from GitHub repositories or URLs. |
 | [**User Story Implementer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-implementer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Implement a single user story or task from a PRD or task list. |
 | [**User Story Reviewer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-reviewer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Review an implemented user story or task for completeness, test coverage, and code quality. |
+| [**qmd**](https://github.com/levineam/qmd-skill/blob/main/SKILL.md) | [levineam](https://github.com/levineam/qmd-skill) | Local hybrid search for markdown notes and docs. Use when searching notes, finding related content, or retrieving documents from indexed collections. |
 
 ## Installation
 
