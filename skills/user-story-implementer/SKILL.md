@@ -3,7 +3,7 @@ name: user-story-implementer
 description: Implement a single user story or task from a PRD or task list. Executes a single Ralph Loop iteration by reading the PRD, checking progress, completing exactly one user story/task, and appending the result. You MUST use this skill when asked to "implement a user story", "run one iteration", "do the next task", "execute a ralph loop iteration", or "complete a task from the PRD".
 metadata:
   author: eho
-  version: '1.0.2'
+  version: '1.0.3'
 ---
 
 # Instructions
@@ -20,11 +20,13 @@ Your objective is to complete exactly **one** user story or task from the provid
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story. 
    - Ensure you fulfill all of the listed Acceptance Criteria.
    - Write unit tests or perform browser verification if required by the Acceptance Criteria.
+   - Update any relevant documentation (e.g., design docs, architecture diagrams, CLI usage guides) as features are added, updated, or deleted.
    - If the user story is too large to complete in one iteration, complete a logical, meaningful chunk of it.
 5. **Self-Review**: Before considering the task complete, perform a thorough self-review:
    - **Requirements**: Verify that the implemented solution aligns exactly with the user story.
    - **Acceptance Criteria**: Check that every single acceptance criterion is fully met.
    - **Test Coverage**: Ensure all significant logic and edge cases are covered by tests.
+   - **Documentation**: Verify that design docs, architecture diagrams, or CLI usage instructions were updated if necessary.
    - **Code Quality**: Review the code changes for correctness, styling, and potential bugs.
    If anything is missing or incorrect, return to the Execution step to address it before proceeding.
 6. **Log Progress**: Append a summary of what you just accomplished to the progress log file.

@@ -4,8 +4,9 @@ description: "Generate a Product Requirements Document (PRD) for a new feature. 
 user-invocable: true
 metadata:
   author: snarktank, eho
-  version: '1.0.1'
+  version: '1.0.2'
   original_source: "https://github.com/snarktank/ralph/blob/main/skills/prd/SKILL.md"
+  notes: "Added testing and documentation requirements to acceptance criteria from original skill"
 ---
 
 # PRD Generator
@@ -89,6 +90,7 @@ Each story should be small enough to implement in one focused session.
 - [ ] Typecheck/lint passes
 - [ ] **[Logic/Backend]** Write unit tests covering core logic
 - [ ] **[UI stories only]** Verify in browser using dev-browser skill
+- [ ] **[Documentation]** Update design docs or CLI usage guide if applicable
 ```
 
 **Important:** 
@@ -96,6 +98,9 @@ Each story should be small enough to implement in one focused session.
 - **Testing Requirements:** EVERY user story MUST have comprehensive testing as part of its acceptance criteria:
   - For logic/backend changes: Explicitly require unit tests covering the new functionality.
   - For any story with UI changes: Always include "Verify in browser using dev-browser skill" as the testing requirement.
+- **Documentation Requirements:** INCLUDE requirements to keep documentation up to date:
+  - For structural/architectural changes: Explicitly require updating design docs to reflect added, updated, or deleted features.
+  - For CLI tools: Explicitly require documenting CLI usage.
 
 ### 4. Functional Requirements
 Numbered list of specific functionalities:
@@ -245,6 +250,7 @@ Before saving the PRD:
 - [ ] Incorporated user's answers
 - [ ] User stories are small and specific
 - [ ] Every user story includes explicit testing requirements (unit tests or browser verification) in acceptance criteria
+- [ ] Documentation requirements (design docs, CLI usage) are included in acceptance criteria where applicable
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Saved to `tasks/prd-[feature-name].md`
