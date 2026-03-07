@@ -146,7 +146,7 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 - **Format:** Markdown (`.md`)
 - **Location:** `tasks/`
 - **Filename:** `prd-[feature-name].md` (kebab-case)
-- **Progress Log:** Also create an empty file at `tasks/progress-[feature-name].txt` to track implementation progress.
+- **Progress Log:** Also create an empty file at `tasks/progress-[feature-name].md` to track implementation progress.
 
 ---
 
@@ -252,4 +252,4 @@ Before saving the PRD:
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Saved to `tasks/prd-[feature-name].md`
-- [ ] Created empty `tasks/progress-[feature-name].txt`
+- [ ] Created empty `tasks/progress-[feature-name].md`

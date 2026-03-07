@@ -16,7 +16,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 
 ## Workflow
 
-1. **Identify the Target**: Determine which feature and user story you are reviewing. If multiple PRDs exist in `tasks/` (e.g., `tasks/prd-feature-a.md` and `tasks/prd-feature-b.md`), identify the correct one based on user instructions or recent context. Check the feature-specific progress log (e.g., `tasks/progress-[feature-name].txt`) to find the most recently implemented task.
+1. **Identify the Target**: Determine which feature and user story you are reviewing. If multiple PRDs exist in `tasks/` (e.g., `tasks/prd-feature-a.md` and `tasks/prd-feature-b.md`), identify the correct one based on user instructions or recent context. Check the feature-specific progress log (e.g., `tasks/progress-[feature-name].md`) to find the most recently implemented task.
 2. **Read the Requirements**: Locate the specific PRD (e.g., `tasks/prd-[feature-name].md`) and carefully read the user story description and **every single Acceptance Criterion**.
 3. **Analyze the Implementation**: Review the code changes made for this specific user story.
    - Use file reading tools and `git diff` to understand what was changed.
@@ -24,7 +24,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 5. **Report & Fix**: 
    - If there are gaps, report them explicitly and **fix the implementation**. Only proceed to the next step once all gaps are resolved.
    - If you modify code, make sure to commit the changes, referencing the original user story.
-6. **Sign off**: If the implementation is flawless (or once you have fixed all gaps), append a review sign-off to the feature-specific progress log (e.g., `tasks/progress-[feature-name].txt`).
+6. **Sign off**: If the implementation is flawless (or once you have fixed all gaps), append a review sign-off to the feature-specific progress log (e.g., `tasks/progress-[feature-name].md`).
 
 ## Review Dimensions
 
@@ -49,11 +49,11 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 **Example 1:**
 *Input:* "Review the Task Priority feature's recent implementation."
 *Action:*
-1. Locate files: `tasks/prd-task-priority.md` and `tasks/progress-task-priority.txt`.
-2. Find the most recent task in `tasks/progress-task-priority.txt`. Let's say it's "US-003: Add priority selector to task edit".
+1. Locate files: `tasks/prd-task-priority.md` and `tasks/progress-task-priority.md`.
+2. Find the most recent task in `tasks/progress-task-priority.md`. Let's say it's "US-003: Add priority selector to task edit".
 3. Read `tasks/prd-task-priority.md` to find US-003 and note the acceptance criteria: Dropdown in modal, shows current priority, saves immediately, type-checks pass.
 4. Review the recent Git commits to see the code changes in `TaskEdit.tsx` and `TaskEdit.test.tsx`.
 5. Notice that changes were made to save immediately, but no tests verify the immediate save functionality.
 6. Notice that the `docs/architecture.md` was not updated to mention the new API endpoint used for saving.
 7. Fix the gaps: Write the missing test and update the documentation. Commit the changes.
-8. Append `Reviewed US-003: Added missing immediate-save test and updated architecture doc.` to `tasks/progress-task-priority.txt`.
+8. Append `Reviewed US-003: Added missing immediate-save test and updated architecture doc.` to `tasks/progress-task-priority.md`.

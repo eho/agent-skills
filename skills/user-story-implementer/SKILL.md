@@ -17,7 +17,7 @@ Your objective is to complete exactly **one** user story or task from the provid
 1. **Identify Scope**: Determine which feature or PRD you are working on. If multiple PRDs exist in `tasks/` (e.g., `tasks/prd-feature-a.md` and `tasks/prd-feature-b.md`), identify the correct one based on user instructions or recent context.
 2. **Locate Files**: 
    - **PRD**: Identify the specific PRD (e.g., `tasks/prd-[feature-name].md`).
-   - **Progress Log**: Use a feature-specific progress log (e.g., `tasks/progress-[feature-name].txt`). If it doesn't exist, create it in the `tasks/` directory. If working on a legacy project, fallback to `progress.txt` or `PRD.md` if clearly intended.
+   - **Progress Log**: Use a feature-specific progress log (e.g., `tasks/progress-[feature-name].md`). If it doesn't exist, create it in the `tasks/` directory.
 3. **Review Progress**: Read the progress log to understand which user stories or tasks have already been accomplished by previous iterations.
 4. **Pick a Task**: Read the PRD and select the **next uncompleted User Story** or task. Pay specific attention to its **Acceptance Criteria**.
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story. 
@@ -58,11 +58,11 @@ If no specific marker string was provided to you by the user for this loop, appe
 **Example 1:**
 *Input:* "Implement the next task for the Task Priority feature"
 *Action:*
-1. Locate files: `tasks/prd-task-priority.md` and `tasks/progress-task-priority.txt`.
+1. Locate files: `tasks/prd-task-priority.md` and `tasks/progress-task-priority.md`.
 2. Read `tasks/prd-task-priority.md` and find the first User Story without a `[x]`. Let's say it's "US-002: Add priority selector".
-3. Read `tasks/progress-task-priority.txt` to see what was done previously.
+3. Read `tasks/progress-task-priority.md` to see what was done previously.
 4. Implement the feature.
 5. Write tests to verify the Acceptance Criteria in US-002.
 6. Review the user story, acceptance criteria, test coverage, and code to ensure everything is complete.
-7. Append `Completed US-002: Add priority selector to task edit` to `tasks/progress-task-priority.txt`.
+7. Append `Completed US-002: Add priority selector to task edit` to `tasks/progress-task-priority.md`.
 8. Run `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
