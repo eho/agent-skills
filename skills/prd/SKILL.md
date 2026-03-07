@@ -2,10 +2,8 @@
 name: prd
 description: "Generate a Product Requirements Document (PRD) for a new feature. Use when planning a feature, starting a new project, or when asked to create a PRD. Triggers on: create a prd, write prd for, plan this feature, requirements for, spec out."
 metadata:
-  author: snarktank, eho
-  version: '1.0.2'
-  original_source: "https://github.com/snarktank/ralph/blob/main/skills/prd/SKILL.md"
-  notes: "Added testing and documentation requirements to acceptance criteria from original skill"
+  author: eho
+  version: '1.0.3'
 ---
 
 # PRD Generator
@@ -148,6 +146,7 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 - **Format:** Markdown (`.md`)
 - **Location:** `tasks/`
 - **Filename:** `prd-[feature-name].md` (kebab-case)
+- **Progress Log:** Also create an empty file at `tasks/progress-[feature-name].txt` to track implementation progress.
 
 ---
 
@@ -253,3 +252,4 @@ Before saving the PRD:
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Saved to `tasks/prd-[feature-name].md`
+- [ ] Created empty `tasks/progress-[feature-name].txt`
