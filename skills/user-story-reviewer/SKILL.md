@@ -18,20 +18,23 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 
 ## Workflow
 
-1. **Identify the Target PR**: Run `gh pr list --state open --limit 1` to find the next open pull request that needs review, or review a specific PR if the user provided an ID/URL.
+1. **Identify the Target PR**:
+   - If the user specified a PR number or URL in their input, use that PR.
+   - Otherwise, run `gh pr list --state open --limit 1` to find the next open pull request that needs review.
 2. **Read the Requirements (The Issue)**:
    - Identify the linked issue. Usually, the PR body will contain `Closes #<issue-number>`.
    - Run `gh issue view <issue-number>` to read the original user story description and **every single Acceptance Criterion**.
 3. **Analyze the Implementation**: Review the code changes made in the Pull Request.
    - Run `gh pr diff <pr-number>` to view the changes.
    - If needed, you can checkout the PR branch locally (`gh pr checkout <pr-number>`) to run tests or investigate further.
-4. **Conduct the Review**: Evaluate the implementation across the key dimensions (see Review Dimensions below).
-5. **Report & Fix**: 
-   - If there are gaps:
-     - You can either fix the gaps yourself (if you have the PR branch checked out): modify the code, commit, and push (`git push`).
-     - Or, you can add a review comment requesting changes: `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong>"`.
-   - Only proceed to the next step once all gaps are resolved.
-6. **Sign off (Approve PR)**: If the implementation is flawless (or once you have fixed all gaps and pushed them), approve the Pull Request: `gh pr review <pr-number> --approve --body "Reviewed and all acceptance criteria are met."`.
+4. **Conduct the Review**: Evaluate the implementation across the key dimensions (see Review Dimensions below). Document any gaps or issues found.
+5. **Report & Fix**:
+   - If there are NO gaps, proceed to step 6.
+   - If there ARE gaps:
+     - **Fix yourself if the gap is small and clear** (e.g., missing a single test, typo in comment, adding 1-2 lines of code). Checkout the PR branch with `gh pr checkout <pr-number>`, make the fix, commit with `git add <specific-files>` (not `git add .`), and push.
+     - **Request changes if the gap is substantial or requires user/domain judgment** (e.g., missing entire feature, incorrect architecture, unclear requirements): Run `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong and why>"`.
+   - Only proceed to step 6 once all gaps are resolved.
+6. **Sign off (Approve PR)**: Approve the Pull Request with a concrete summary: `gh pr review <pr-number> --approve --body "Reviewed and verified:\n- All acceptance criteria met\n- Tests passing\n- Code quality acceptable\n- Documentation updated (if applicable)"`.`
 
 ## Review Dimensions
 
@@ -47,7 +50,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 - Run the tests locally to ensure they actually pass.
 
 ### 3. Documentation & Code Quality
-- Were design documents, architecture diagrams, or CLI usage instructions updated to reflect this new feature, if applicable?
+- **Documentation**: Check if the project has a README, API docs, or user guide. If this feature adds user-facing functionality (new command, option, UI element, etc.), those docs MUST be updated. If it's an internal refactor or non-user-facing change, documentation updates are optional.
 - Is the code clean, readable, and following the project's established style guidelines?
 - Did the implementation introduce any obvious security or performance issues?
 
@@ -61,7 +64,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 3. Run `gh issue view 12` and note the acceptance criteria: Dropdown in modal, shows current priority, saves immediately, type-checks pass.
 4. Run `gh pr diff 13` to review the code changes in `TaskEdit.tsx` and `TaskEdit.test.tsx`.
 5. Notice that changes were made to save immediately, but no tests verify the immediate save functionality.
-6. Check out the PR: `gh pr checkout 13`.
-7. Fix the gaps: Write the missing test and update the documentation. 
-8. Commit and push the changes: `git add . && git commit -m "test: add immediate save test" && git push`.
-9. Approve the PR: `gh pr review 13 --approve --body "Reviewed. Added missing immediate-save test. All acceptance criteria now met."`.
+6. Check out the PR: `gh pr checkout 13`. This is a small, clear gap (missing test), so fix it yourself.
+7. Write the missing test in `TaskEdit.test.tsx` and update the README if needed.
+8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
+9. Approve the PR: `gh pr review 13 --approve --body "Reviewed and verified:\n- All acceptance criteria met\n- Added missing immediate-save test\n- Documentation updated\n- Tests passing"`.

@@ -19,16 +19,18 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 1. **Identify the Next Task**: Instead of reading a progress markdown file, run `gh issue list --state open --label "user-story" --limit 1` to grab the next available issue. Note the issue number, title, and body (which contains the Acceptance Criteria).
 2. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
 3. **Branching**: Follow standard Git flow. Create and checkout a new branch based on the issue number: `git checkout -b feature/us-<issue-number>`.
-4. **Execute**: Implement the code, configuration, or changes required to complete that single user story. 
+4. **Execute**: Implement the code, configuration, or changes required to complete that single user story.
    - Ensure you fulfill all of the listed Acceptance Criteria in the GitHub issue body.
    - Write unit tests or perform browser verification if required.
    - Update any relevant documentation.
-   - If the user story is too large to complete in one iteration, complete a logical, meaningful chunk of it.
-5. **Handling Blockers**: If you encounter missing requirements or technical blockers, add a comment to the issue detailing the blocker using `gh issue comment <issue-number> --body "<Details>"`, add a `blocked` label using `gh issue edit <issue-number> --add-label "blocked"`, and stop the current iteration or move on to the next available issue.
-6. **Self-Review**: Before considering the task complete, perform a thorough self-review:
-   - Verify that the implemented solution aligns exactly with the user story and all acceptance criteria.
-   - Ensure all significant logic and edge cases are covered by tests.
-   - If anything is missing or incorrect, return to the Execution step to address it.
+   - **Important**: If you cannot complete the entire story within ~2 hours of effort, or if you identify missing requirements or technical blockers during implementation, do NOT continue. Move to step 5 (Handling Blockers) instead.
+5. **Handling Blockers**: If you encounter missing requirements, ambiguity, or blockers that prevent completion, add a comment to the issue detailing the blocker using `gh issue comment <issue-number> --body "<Details>"`, add a `blocked` label using `gh issue edit <issue-number> --add-label "blocked"`, and stop work on this issue.
+6. **Self-Review**: Before considering the task complete, perform this specific checklist:
+   - [ ] For each Acceptance Criterion listed in the issue, is there code implementing it? (Check each one individually.)
+   - [ ] Are there new tests? Run them locally to verify they pass.
+   - [ ] Do the tests exercise the core feature (not just superficial checks)?
+   - [ ] Do the tests cover the happy path AND relevant error cases?
+   - If all checkboxes pass, proceed to step 7. If any fail, return to step 4 to address gaps.
 7. **Commit Code**: Once your user story or chunk is complete, you must commit your changes to your feature branch.
    - Do not use `git commit -a`. Select files manually.
 8. **Pull Request & Linking**: 

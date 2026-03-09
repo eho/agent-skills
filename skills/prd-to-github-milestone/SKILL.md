@@ -17,10 +17,35 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
 1. **Parse PRD**: Read the specified PRD file (e.g., `docs/PRD.md` or `tasks/prd-[feature].md`). Extract all User Stories and their complete details, including Titles, Descriptions, Acceptance Criteria, Technical Notes, Data Models, dependencies, and any other relevant context.
 2. **Identify Dependencies**: If the PRD outlines dependencies between user stories, note them. You will add these as comments or task lists in the issues.
 3. **Idempotency Check**: Before creating an issue, check if an issue already exists for a given user story using `gh issue list --search "in:title <User Story Title>"`. This prevents creating duplicate issues if the skill is run multiple times.
-4. **Create Issues**: Loop through the extracted stories. For each uncreated story, run `gh issue create --title "<Title>" --body "<Full Details>"` and assign the appropriate labels. **Crucially, ensure the entire context for the user story from the PRD is included in the body, and append a link/reference to the PRD file (e.g., `[Original PRD](docs/PRD.md)`) so agents can easily navigate back to the full PRD.**
-5. **Link Dependencies**: If there are dependencies, update the newly created issues to link them (e.g., add a comment or update the body to say "Depends on #<IssueNumber>").
-6. **Link to Milestone**: Check if the user stories in the PRD are organized by milestone. If so, use that milestone name for those user stories. Otherwise, use the PRD feature name as the milestone name. The `gh issue create` command supports passing a milestone using the `--milestone "<Milestone Title>"` flag. However, the milestone must exist first. If it does not exist, you can create it using the GitHub API: `gh api repos/{owner}/{repo}/milestones -f title="<Milestone Title>"`. Note that you will need to determine the `{owner}` and `{repo}` from the context or the `gh repo view` command. Alternatively, after creating issues, you can edit them to add the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
-7. **Output Mapping**: Generate a final summary mapping the PRD's User Story IDs/Titles to their new GitHub Issue Numbers and URLs. Present this to the user as an immediate reference.
+4. **Create Issues**: Loop through the extracted stories. For each uncreated story, format the issue body as follows:
+   ```
+   ## Description
+   <User Story Description>
+
+   ## Acceptance Criteria
+   - [ ] <Criterion 1>
+   - [ ] <Criterion 2>
+   ...
+
+   ## Technical Notes
+   <Any technical details>
+
+   ## Original PRD
+   [Link to PRD](docs/PRD.md)
+   ```
+   Run `gh issue create --title "<Story ID>: <Title>" --body "<Formatted Body>"` and assign the label `user-story`. If there are dependencies noted from Step 2, also add them to the issue body as a "Dependencies" section.
+5. **Link Dependencies**: After creating all issues, if there are dependencies between user stories, add a comment to dependent issues listing their blockers: `gh issue comment <issue-number> --body "Depends on: #<blocker-issue-number>"`.
+6. **Create & Link to Milestone**:
+   - Determine the milestone name: Check if the PRD explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the PRD feature name.
+   - Create the milestone first (ensures it exists): `gh api repos/$(gh repo view --json nameWithOwner -q) milestones -f title="<Milestone Title>"`.
+   - Link all created issues to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
+7. **Output Mapping**: Generate a markdown table and present to user:
+   ```
+   | Story ID | Title | Issue # | URL |
+   |----------|-------|---------|-----|
+   | US-001 | User Login | #12 | https://github.com/.../issues/12 |
+   | US-002 | User Logout | #13 | https://github.com/.../issues/13 |
+   ```
 
 ## Examples
 
