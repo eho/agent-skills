@@ -51,6 +51,7 @@ A curated list of agent skills from the community that I find useful.
 | [**User Story Implementer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-implementer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Implement a single user story or task from a PRD or task list. |
 | [**User Story Reviewer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-reviewer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Review an implemented user story or task for completeness, test coverage, and code quality. |
 | [**qmd**](https://github.com/levineam/qmd-skill/blob/main/SKILL.md) | [levineam](https://github.com/levineam/qmd-skill) | Local hybrid search for markdown notes and docs. Use when searching notes, finding related content, or retrieving documents from indexed collections. |
+| [**Algorithmic Art**](https://github.com/anthropics/skills/blob/main/skills/algorithmic-art/SKILL.md) | [Anthropic](https://github.com/anthropics/skills) | Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. |
 
 ## Installation
 
