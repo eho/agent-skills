@@ -35,7 +35,17 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - Do not use `git commit -a`. Select files manually.
 8. **Pull Request & Linking**: 
    - Push the branch: `git push -u origin HEAD`.
-   - Create a Pull Request using `gh pr create --title "feat: <issue-title>" --body "Closes #<issue-number>\n\n### Summary\n<Summary of work done>"`. Include `Closes #<issue-number>` so merging the PR automatically closes the issue.
+   - Create a Pull Request using a heredoc to ensure newlines render correctly:
+     ```bash
+     gh pr create --title "feat: <issue-title>" --body "$(cat <<'EOF'
+     Closes #<issue-number>
+
+     ### Summary
+     <Summary of work done>
+     EOF
+     )"
+     ```
+     Include `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
 ## Loop Completion Mechanism
 
@@ -60,4 +70,13 @@ If no specific marker string was provided to you by the user for this loop, prin
 5. Review the code to ensure it meets Acceptance Criteria in Issue #12.
 6. Commit: `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
 7. Push: `git push -u origin HEAD`.
-8. Create PR: `gh pr create --title "feat: Add priority selector" --body "Closes #12\n\nAdded priority selector to task edit."`.
+8. Create PR:
+   ```bash
+   gh pr create --title "feat: Add priority selector" --body "$(cat <<'EOF'
+   Closes #12
+
+   ### Summary
+   Added priority selector to task edit.
+   EOF
+   )"
+   ```
