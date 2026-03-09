@@ -1,30 +1,37 @@
 ---
 name: user-story-reviewer
-description: Review an implemented user story or task for completeness, test coverage, and code quality. Use this when asked to QA, review a task, verify implementation, or as a follow-up to the user-story-implementer skill.
+description: Review an implemented user story or task (via GitHub Pull Request) for completeness, test coverage, and code quality. Use this when asked to QA, review a PR, verify implementation, or as a follow-up to the user-story-implementer skill.
 metadata:
   author: eho
-  version: '1.0.1'
+  version: '2.0.0'
 ---
 
 # User Story Reviewer
 
-You are acting as an autonomous QA and code review sub-agent. Your job is to thoroughly review a recently implemented user story against its original requirements in the Product Requirements Document (PRD).
+You are acting as an autonomous QA and code review sub-agent. Your job is to thoroughly review a recently implemented user story (submitted as a Pull Request) against its original requirements in the linked GitHub Issue.
+
+**PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) for this skill to function.
 
 ## The Objective
 
-Too often, implementations miss subtle acceptance criteria, lack meaningful test coverage, or fail to update documentation. Your objective is to proactively identify such gaps. You will not mark a user story as "reviewed" until it fully passes all checks.
+Too often, implementations miss subtle acceptance criteria, lack meaningful test coverage, or fail to update documentation. Your objective is to proactively identify such gaps. You will not approve a Pull Request until it fully passes all checks.
 
 ## Workflow
 
-1. **Identify the Target**: Determine which feature and user story you are reviewing. If multiple PRDs exist in `tasks/` (e.g., `tasks/prd-feature-a.md` and `tasks/prd-feature-b.md`), identify the correct one based on user instructions or recent context. Check the feature-specific progress log (e.g., `tasks/progress-[feature-name].md`) to find the most recently implemented task.
-2. **Read the Requirements**: Locate the specific PRD (e.g., `tasks/prd-[feature-name].md`) and carefully read the user story description and **every single Acceptance Criterion**.
-3. **Analyze the Implementation**: Review the code changes made for this specific user story.
-   - Use file reading tools and `git diff` to understand what was changed.
-4. **Conduct the Review**: Evaluate the implementation across three key dimensions (see Review Dimensions below).
+1. **Identify the Target PR**: Run `gh pr list --state open --limit 1` to find the next open pull request that needs review, or review a specific PR if the user provided an ID/URL.
+2. **Read the Requirements (The Issue)**:
+   - Identify the linked issue. Usually, the PR body will contain `Closes #<issue-number>`.
+   - Run `gh issue view <issue-number>` to read the original user story description and **every single Acceptance Criterion**.
+3. **Analyze the Implementation**: Review the code changes made in the Pull Request.
+   - Run `gh pr diff <pr-number>` to view the changes.
+   - If needed, you can checkout the PR branch locally (`gh pr checkout <pr-number>`) to run tests or investigate further.
+4. **Conduct the Review**: Evaluate the implementation across the key dimensions (see Review Dimensions below).
 5. **Report & Fix**: 
-   - If there are gaps, report them explicitly and **fix the implementation**. Only proceed to the next step once all gaps are resolved.
-   - If you modify code, make sure to commit the changes, referencing the original user story.
-6. **Sign off**: If the implementation is flawless (or once you have fixed all gaps), append a review sign-off to the feature-specific progress log (e.g., `tasks/progress-[feature-name].md`).
+   - If there are gaps:
+     - You can either fix the gaps yourself (if you have the PR branch checked out): modify the code, commit, and push (`git push`).
+     - Or, you can add a review comment requesting changes: `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong>"`.
+   - Only proceed to the next step once all gaps are resolved.
+6. **Sign off (Approve PR)**: If the implementation is flawless (or once you have fixed all gaps and pushed them), approve the Pull Request: `gh pr review <pr-number> --approve --body "Reviewed and all acceptance criteria are met."`.
 
 ## Review Dimensions
 
@@ -37,7 +44,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 - Are there newly added unit, integration, or browser tests?
 - Do the tests *actually* exercise the core logic of the new feature, or are they superficial?
 - Do the tests cover both the "happy path" and relevant error/edge cases?
-- Run the tests to ensure they actually pass.
+- Run the tests locally to ensure they actually pass.
 
 ### 3. Documentation & Code Quality
 - Were design documents, architecture diagrams, or CLI usage instructions updated to reflect this new feature, if applicable?
@@ -47,13 +54,14 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 ## Examples
 
 **Example 1:**
-*Input:* "Review the Task Priority feature's recent implementation."
+*Input:* "Review the latest open PR."
 *Action:*
-1. Locate files: `tasks/prd-task-priority.md` and `tasks/progress-task-priority.md`.
-2. Find the most recent task in `tasks/progress-task-priority.md`. Let's say it's "US-003: Add priority selector to task edit".
-3. Read `tasks/prd-task-priority.md` to find US-003 and note the acceptance criteria: Dropdown in modal, shows current priority, saves immediately, type-checks pass.
-4. Review the recent Git commits to see the code changes in `TaskEdit.tsx` and `TaskEdit.test.tsx`.
+1. Run `gh pr list --state open --limit 1`. Returns PR #13: "feat: Add priority selector".
+2. Read the PR body and find `Closes #12`.
+3. Run `gh issue view 12` and note the acceptance criteria: Dropdown in modal, shows current priority, saves immediately, type-checks pass.
+4. Run `gh pr diff 13` to review the code changes in `TaskEdit.tsx` and `TaskEdit.test.tsx`.
 5. Notice that changes were made to save immediately, but no tests verify the immediate save functionality.
-6. Notice that the `docs/architecture.md` was not updated to mention the new API endpoint used for saving.
-7. Fix the gaps: Write the missing test and update the documentation. Commit the changes.
-8. Append `Reviewed US-003: Added missing immediate-save test and updated architecture doc.` to `tasks/progress-task-priority.md`.
+6. Check out the PR: `gh pr checkout 13`.
+7. Fix the gaps: Write the missing test and update the documentation. 
+8. Commit and push the changes: `git add . && git commit -m "test: add immediate save test" && git push`.
+9. Approve the PR: `gh pr review 13 --approve --body "Reviewed. Added missing immediate-save test. All acceptance criteria now met."`.
