@@ -16,7 +16,7 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 
 ## Workflow
 
-1. **Identify the Next Task**: Instead of reading a progress markdown file, run `gh issue list --state open --label "user-story" --limit 1 --order asc` to grab the next available issue in creation order (lowest issue number first, matching PRD story order). Note the issue number, title, and body (which contains the Acceptance Criteria).
+1. **Identify the Next Task**: Instead of reading a progress markdown file, run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` to grab the next available issue in creation order (lowest issue number first, matching PRD story order). Note the issue number, title, and body (which contains the Acceptance Criteria).
 2. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
 3. **Branching**: Follow standard Git flow. Create and checkout a new branch based on the issue number: `git checkout -b feature/us-<issue-number>`.
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story.
@@ -39,7 +39,7 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 
 ## Loop Completion Mechanism
 
-When you run `gh issue list --state open --label "user-story" --limit 1 --order asc` and find **no open issues**, you must signal the end of the loop.
+When you run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` and find **no open issues**, you must signal the end of the loop.
 
 If no specific marker string was provided to you by the user for this loop, print out:
 `[RALPH_LOOP_DONE_MARKER]`
@@ -53,7 +53,7 @@ If no specific marker string was provided to you by the user for this loop, prin
 **Example 1:**
 *Input:* "Implement the next task"
 *Action:*
-1. Run `gh issue list --state open --label "user-story" --limit 1 --order asc`. Returns Issue #12: "Add priority selector".
+1. Run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"`. Returns Issue #12: "Add priority selector".
 2. Assign: `gh issue edit 12 --add-assignee "@me"`.
 3. Branch: `git checkout -b feature/us-12`.
 4. Implement the feature and write tests.
