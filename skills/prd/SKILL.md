@@ -78,7 +78,8 @@ Each story should be small enough to implement in one focused session.
 
 **Format:**
 ```markdown
-### US-001: [Title]
+### [PREFIX]-001: [Title]
+*(Where [PREFIX] is a short 3-10 letter abbreviation derived from the feature or PRD name)*
 **Description:** As a [user], I want [feature] so that [benefit].
 
 **Acceptance Criteria:**
@@ -168,7 +169,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 
 ## User Stories
 
-### US-001: Add priority field to database
+### PRI-001: Add priority field to database
 **Description:** As a developer, I need to store task priority so it persists across sessions.
 
 **Acceptance Criteria:**
@@ -177,7 +178,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Typecheck passes
 - [ ] Write unit tests for priority default value and valid options
 
-### US-002: Display priority indicator on task cards
+### PRI-002: Display priority indicator on task cards
 **Description:** As a user, I want to see task priority at a glance so I know what needs attention first.
 
 **Acceptance Criteria:**
@@ -186,7 +187,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Typecheck passes
 - [ ] Verify in browser using dev-browser skill
 
-### US-003: Add priority selector to task edit
+### PRI-003: Add priority selector to task edit
 **Description:** As a user, I want to change a task's priority when editing it.
 
 **Acceptance Criteria:**
@@ -196,7 +197,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 - [ ] Typecheck passes
 - [ ] Verify in browser using dev-browser skill
 
-### US-004: Filter tasks by priority
+### PRI-004: Filter tasks by priority
 **Description:** As a user, I want to filter the task list to see only high-priority items when I'm focused.
 
 **Acceptance Criteria:**
