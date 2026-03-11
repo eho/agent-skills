@@ -1,6 +1,6 @@
 ---
 name: user-story-implementer
-description: Implement a single user story or task from a GitHub Issue backlog. Executes a single Ralph Loop iteration by fetching the next open issue, assigning it, implementing the code, creating a branch and PR, and moving on. You MUST use this skill when asked to "implement a user story", "run one iteration", "do the next task", "execute a ralph loop iteration", or "complete a task from the backlog".
+description: Implement a single user story or task from a GitHub Issue backlog. Executes a single iteration by fetching the next open issue, assigning it, implementing the code, creating a branch and PR, and moving on. You MUST use this skill when asked to "implement a user story", "run one iteration", "do the next task", or "complete a task from the backlog".
 metadata:
   author: eho
   version: '2.0.0'
@@ -8,7 +8,7 @@ metadata:
 
 # Instructions
 
-You are acting as an autonomous sub-agent to implement a user story or task managed via GitHub Issues, often as part of a single iteration of a task execution loop.
+You are acting as an autonomous sub-agent to implement a user story or task managed via GitHub Issues.
 
 Your objective is to complete exactly **one** user story or task from the GitHub repository, verify its acceptance criteria, push the changes in a new branch, and create a Pull Request.
 
@@ -16,7 +16,7 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 
 ## Workflow
 
-1. **Identify the Next Task**: Instead of reading a progress markdown file, run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` to grab the next available issue in creation order (lowest issue number first, matching PRD story order). Note the issue number, title, and body (which contains the Acceptance Criteria).
+1. **Identify the Next Task**: Run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` to grab the next available issue in creation order (lowest issue number first, matching PRD story order). Note the issue number, title, and body (which contains the Acceptance Criteria).
 2. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
 3. **Branching**: Follow standard Git flow. Create and checkout a new branch based on the issue number: `git checkout -b feature/us-<issue-number>`.
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story.
@@ -47,16 +47,6 @@ Your objective is to complete exactly **one** user story or task from the GitHub
      ```
      Include `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
-## Loop Completion Mechanism
-
-When you run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` and find **no open issues**, you must signal the end of the loop.
-
-If no specific marker string was provided to you by the user for this loop, print out:
-`[RALPH_LOOP_DONE_MARKER]`
-
-**CRITICAL WARNING**:
-- Complete exactly **one** user story or task per invocation. Do not attempt to complete multiple user stories.
-- If all user stories are done, you MUST output the completion marker so the loop knows to stop.
 
 ## Examples
 

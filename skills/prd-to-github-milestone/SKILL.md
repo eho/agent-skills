@@ -1,6 +1,6 @@
 ---
 name: prd-to-github-milestone
-description: Parses a Product Requirements Document (PRD) to extract User Stories and creates corresponding GitHub Issues. It can optionally link them to a GitHub Milestone. This skill acts as a setup phase to move from markdown-based tracking to GitHub-native issue tracking.
+description: Parses a Product Requirements Document (PRD) to extract User Stories and creates corresponding GitHub Issues. It can optionally link them to a GitHub Milestone. This skill acts as a setup phase for GitHub-native issue tracking. Make sure to use this skill whenever the user asks to "send the PRD to GitHub", "create issues from the PRD", "setup the milestone", or mentions turning requirements into actionable GitHub issues.
 metadata:
   author: eho
   version: '1.0.0'
