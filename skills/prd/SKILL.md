@@ -74,7 +74,7 @@ Each story needs:
 - **Description:** "As a [user], I want [feature] so that [benefit]"
 - **Acceptance Criteria:** Verifiable checklist of what "done" means
 
-Each story should be small enough to implement in one focused session.
+**Important Strategy:** Minimize the number of user stories while ensuring each story is not too big for an AI agent to complete effectively in one focused session. Avoid over-fragmenting features into too many tiny stories, but do not combine unrelated complex tasks.
 
 **Format:**
 ```markdown
@@ -147,7 +147,6 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 - **Format:** Markdown (`.md`)
 - **Location:** `tasks/`
 - **Filename:** `prd-[feature-name].md` (kebab-case)
-- **Progress Log:** Also create an empty file at `tasks/progress-[feature-name].md` to track implementation progress.
 
 ---
 
@@ -247,10 +246,9 @@ Before saving the PRD:
 
 - [ ] Asked clarifying questions with lettered options
 - [ ] Incorporated user's answers
-- [ ] User stories are small and specific
+- [ ] User stories are minimized in number but each remains small enough for an AI agent to complete effectively
 - [ ] Every user story includes explicit testing requirements (unit tests or browser verification) in acceptance criteria
 - [ ] Documentation requirements (design docs, CLI usage) are included in acceptance criteria where applicable
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Saved to `tasks/prd-[feature-name].md`
-- [ ] Created empty `tasks/progress-[feature-name].md`
