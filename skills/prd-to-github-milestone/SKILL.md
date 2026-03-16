@@ -36,7 +36,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    ```
    Example: `https://github.com/eho/test-example/blob/main/tasks/prd-example.md`
 
-   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6.
+   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6. Scripts are at `./scripts/` relative to the skill root — if not found, locate with `find . -path '*/prd-to-github-milestone/scripts' -type d | head -1`.
    ```bash
    # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
    cat <<'EOF' > issue_body.md

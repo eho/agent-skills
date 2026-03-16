@@ -35,7 +35,7 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - Do not use `git commit -a`. Select files manually.
 8. **Pull Request & Linking**: 
    - Push the branch: `git push -u origin HEAD`.
-   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings:
+   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings. Scripts are at `./scripts/` relative to the skill root — if not found, locate with `find . -path '*/user-story-implementer/scripts' -type d | head -1`.
      ```bash
      ./scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
