@@ -36,11 +36,17 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    ```
    Example: `https://github.com/eho/test-example/blob/main/tasks/prd-example.md`
 
-   Run `gh issue create --title "<Story ID>: <Title>" --body "<Formatted Body>" --label "user-story,<prefix>"` and capture the issue number. Since the command outputs a URL (e.g., `https://github.com/owner/repo/issues/42`), extract the issue number:
+   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6.
    ```bash
-   ISSUE_URL=$(gh issue create --title "..." --body "..." --label "user-story,<prefix>")
-   ISSUE_NUMBER=$(echo $ISSUE_URL | grep -oE '[0-9]+$')
-   # Now $ISSUE_NUMBER contains "42" for use in dependency linking
+   # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
+   cat <<'EOF' > issue_body.md
+   ## Description
+   ...
+   EOF
+
+   OUTPUT=$(./scripts/create_issue.sh "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
+   ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
+   rm issue_body.md
    ```
    If there are dependencies noted from Step 3, add them to the issue body as a "Dependencies" section, or add a comment later once all issues are created.
 6. **Link Dependencies**: After creating all issues, if there are dependencies between user stories, add comments to dependent issues listing their blockers. Use the captured issue numbers from Step 5:
@@ -50,7 +56,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    For example: `gh issue comment 43 --body "Depends on: #42"`
 7. **Create & Link to Milestone**:
    - Determine the milestone name: Check if the PRD explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the PRD feature name.
-   - Create the milestone first (ensures it exists): `gh api repos/$(gh repo view --json nameWithOwner -q) milestones -f title="<Milestone Title>"`.
+   - Create the milestone first (ensures it exists): `./scripts/create_milestone.sh "<Milestone Title>"`.
    - Link all created issues to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
 8. **Output Mapping**: Generate a markdown table and present to user:
    ```
@@ -71,8 +77,8 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
 4. Get repo info: `gh repo view --json nameWithOwner -q` → returns `myorg/myapp`.
 5. Create issue for PRI-001:
    ```bash
-   ISSUE_URL=$(gh issue create --title "PRI-001: User Login" \
-     --body "## Description
+   cat <<'EOF' > issue_body.md
+   ## Description
    User should be able to log in...
 
    ## Acceptance Criteria
@@ -80,23 +86,29 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    - [ ] Form validates password
 
    ## Original PRD
-   [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)" \
-     --label "user-story,PRI")
-   # Output: https://github.com/myorg/myapp/issues/42
-   ISSUE_NUMBER=$(echo $ISSUE_URL | grep -oE '[0-9]+$')  # Extract "42"
+   [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
+   EOF
+
+   OUTPUT=$(./scripts/create_issue.sh "PRI-001: User Login" "user-story,PRI" issue_body.md)
+   # Extract the ISSUE_NUMBER output by the script for dependency linking
+   ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
+   rm issue_body.md
    ```
 6. Create issue for PRI-002 (with dependency noted):
    ```bash
-   ISSUE_URL=$(gh issue create --title "PRI-002: User Logout" \
-     --body "## Description
+   cat <<'EOF' > issue_body.md
+   ## Description
    User should be able to log out...
 
    ## Dependencies
    - Depends on #42 (User Login)
 
    ## Original PRD
-   [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)" \
-     --label "user-story,PRI")
+   [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
+   EOF
+
+   ./scripts/create_issue.sh "PRI-002: User Logout" "user-story,PRI" issue_body.md
+   rm issue_body.md
    ```
 7. Create milestone `v1.0` and link both issues.
 8. Output summary:

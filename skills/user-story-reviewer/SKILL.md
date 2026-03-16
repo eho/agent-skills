@@ -34,26 +34,9 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - **Fix yourself if the gap is small and clear** (e.g., missing a single test, typo in comment, adding 1-2 lines of code). Checkout the PR branch with `gh pr checkout <pr-number>`, make the fix, commit with `git add <specific-files>` (not `git add .`), and push.
      - **Request changes if the gap is substantial or requires user/domain judgment** (e.g., missing entire feature, incorrect architecture, unclear requirements): Run `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong and why>"`.
    - Only proceed to step 6 once all gaps are resolved.
-6. **Sign off (Approve or Merge PR)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment and merge it. If you are not, formally approve the PR.
+6. **Sign off (Approve or Merge PR)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment and merge it. If you are not, formally approve the PR. The bundled script handles this logic automatically.
    ```bash
-   PR_AUTHOR=$(gh pr view <pr-number> --json author -q .author.login)
-   CURRENT_USER=$(gh api user -q .login)
-   
-   REVIEW_BODY=$(cat <<'EOF'
-   Reviewed and verified:
-   - All acceptance criteria met
-   - Tests passing
-   - Code quality acceptable
-   - Documentation updated (if applicable)
-   EOF
-   )
-
-   if [ "$PR_AUTHOR" = "$CURRENT_USER" ]; then
-     gh pr review <pr-number> --comment --body "$REVIEW_BODY"
-     gh pr merge <pr-number> --squash --delete-branch
-   else
-     gh pr review <pr-number> --approve --body "$REVIEW_BODY"
-   fi
+   ./scripts/approve_or_merge_pr.sh <pr-number>
    ```
 
 ## Review Dimensions
@@ -89,22 +72,5 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
 9. Approve or Merge the PR:
    ```bash
-   PR_AUTHOR=$(gh pr view 13 --json author -q .author.login)
-   CURRENT_USER=$(gh api user -q .login)
-
-   REVIEW_BODY=$(cat <<'EOF'
-   Reviewed and verified:
-   - All acceptance criteria met
-   - Added missing immediate-save test
-   - Documentation updated
-   - Tests passing
-   EOF
-   )
-
-   if [ "$PR_AUTHOR" = "$CURRENT_USER" ]; then
-     gh pr review 13 --comment --body "$REVIEW_BODY"
-     gh pr merge 13 --squash --delete-branch
-   else
-     gh pr review 13 --approve --body "$REVIEW_BODY"
-   fi
+   ./scripts/approve_or_merge_pr.sh 13
    ```

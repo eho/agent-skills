@@ -35,17 +35,11 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - Do not use `git commit -a`. Select files manually.
 8. **Pull Request & Linking**: 
    - Push the branch: `git push -u origin HEAD`.
-   - Create a Pull Request using a heredoc to ensure newlines render correctly:
+   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings:
      ```bash
-     gh pr create --title "feat: <issue-title>" --body "$(cat <<'EOF'
-     Closes #<issue-number>
-
-     ### Summary
-     <Summary of work done>
-     EOF
-     )"
+     ./scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
-     Include `Closes #<issue-number>` so merging the PR automatically closes the issue.
+     Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
 
 ## Examples
@@ -62,11 +56,5 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 7. Push: `git push -u origin HEAD`.
 8. Create PR:
    ```bash
-   gh pr create --title "feat: Add priority selector" --body "$(cat <<'EOF'
-   Closes #12
-
-   ### Summary
-   Added priority selector to task edit.
-   EOF
-   )"
+   ./scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
    ```
