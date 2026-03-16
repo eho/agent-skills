@@ -36,7 +36,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    ```
    Example: `https://github.com/eho/test-example/blob/main/tasks/prd-example.md`
 
-   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6. Scripts are at `./scripts/` relative to the skill root — if not found, locate with `find . -path '*/prd-to-github-milestone/scripts' -type d | head -1`.
+   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6. If the script is not found, locate it with `find . -path '*/prd-to-github-milestone/scripts' -type d | head -1`.
    ```bash
    # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
    cat <<'EOF' > issue_body.md
@@ -44,7 +44,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    ...
    EOF
 
-   OUTPUT=$(./scripts/create_issue.sh "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
+   OUTPUT=$(prd-to-github-milestone/scripts/create_issue.sh "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
    rm issue_body.md
    ```
@@ -56,7 +56,8 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    For example: `gh issue comment 43 --body "Depends on: #42"`
 7. **Create & Link to Milestone**:
    - Determine the milestone name: Check if the PRD explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the PRD feature name.
-   - Create the milestone first (ensures it exists): `./scripts/create_milestone.sh "<Milestone Title>"`.
+   - Locate the milestone script: `MILESTONE_SCRIPT=$(find . ~ -type f -path "*/prd-to-github-milestone/scripts/create_milestone.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)`
+   - Create the milestone first (ensures it exists): `$MILESTONE_SCRIPT "<Milestone Title>"`.
    - Link all created issues to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
 8. **Output Mapping**: Generate a markdown table and present to user:
    ```
@@ -77,6 +78,8 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
 4. Get repo info: `gh repo view --json nameWithOwner -q` → returns `myorg/myapp`.
 5. Create issue for PRI-001:
    ```bash
+   SCRIPT_PATH=$(find . ~ -type f -path "*/prd-to-github-milestone/scripts/create_issue.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
+
    cat <<'EOF' > issue_body.md
    ## Description
    User should be able to log in...
@@ -89,7 +92,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
    EOF
 
-   OUTPUT=$(./scripts/create_issue.sh "PRI-001: User Login" "user-story,PRI" issue_body.md)
+   OUTPUT=$($SCRIPT_PATH "PRI-001: User Login" "user-story,PRI" issue_body.md)
    # Extract the ISSUE_NUMBER output by the script for dependency linking
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
    rm issue_body.md
@@ -107,7 +110,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
    EOF
 
-   ./scripts/create_issue.sh "PRI-002: User Logout" "user-story,PRI" issue_body.md
+   $SCRIPT_PATH "PRI-002: User Logout" "user-story,PRI" issue_body.md
    rm issue_body.md
    ```
 7. Create milestone `v1.0` and link both issues.

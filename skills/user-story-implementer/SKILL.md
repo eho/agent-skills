@@ -35,9 +35,10 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - Do not use `git commit -a`. Select files manually.
 8. **Pull Request & Linking**: 
    - Push the branch: `git push -u origin HEAD`.
-   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings. Scripts are at `./scripts/` relative to the skill root — if not found, locate with `find . -path '*/user-story-implementer/scripts' -type d | head -1`.
+   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
      ```bash
-     ./scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
+     SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-implementer/scripts/create_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
+     $SCRIPT_PATH "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
      Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
@@ -56,5 +57,6 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 7. Push: `git push -u origin HEAD`.
 8. Create PR:
    ```bash
-   ./scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
+   SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-implementer/scripts/create_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
+   $SCRIPT_PATH "12" "feat: Add priority selector" "Added priority selector to task edit."
    ```
