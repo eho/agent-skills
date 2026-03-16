@@ -36,12 +36,17 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 8. **Pull Request & Linking**: 
    - Push the branch: `git push -u origin HEAD`.
    - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
+     *Note: If `./scripts/create_pr.sh` is not found, you can locate it under `<current project directory>/*/skills/user-story-implementer/scripts/`.*
      ```bash
-     SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-implementer/scripts/create_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
-     $SCRIPT_PATH "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
+     ./scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
      Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
+## Available Scripts
+
+This skill bundles the following scripts. If your environment does not map `./scripts/` directly, locate them in your workspace under `.../skills/user-story-implementer/scripts/`.
+
+- `create_pr.sh "<issue_number>" "<issue_title>" "<summary_of_work>"`: Safely executes `gh pr create` with multi-line bodies to avoid shell escaping errors.
 
 ## Examples
 
@@ -57,6 +62,5 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 7. Push: `git push -u origin HEAD`.
 8. Create PR:
    ```bash
-   SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-implementer/scripts/create_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
-   $SCRIPT_PATH "12" "feat: Add priority selector" "Added priority selector to task edit."
+   ./scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
    ```

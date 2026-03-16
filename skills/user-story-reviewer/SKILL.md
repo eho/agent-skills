@@ -35,9 +35,9 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - **Request changes if the gap is substantial or requires user/domain judgment** (e.g., missing entire feature, incorrect architecture, unclear requirements): Run `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong and why>"`.
    - Only proceed to step 6 once all gaps are resolved.
 6. **Sign off (Approve or Merge PR)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment and merge it. If you are not, formally approve the PR. The bundled script handles this logic automatically.
+   *Note: If `./scripts/approve_or_merge_pr.sh` is not found, you can locate it under `<current project directory>/*/skills/user-story-reviewer/scripts/`.*
    ```bash
-   SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-reviewer/scripts/approve_or_merge_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
-   $SCRIPT_PATH <pr-number>
+   ./scripts/approve_or_merge_pr.sh <pr-number>
    ```
 
 ## Review Dimensions
@@ -58,6 +58,12 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 - Is the code clean, readable, and following the project's established style guidelines?
 - Did the implementation introduce any obvious security or performance issues?
 
+## Available Scripts
+
+This skill bundles the following scripts. If your environment does not map `./scripts/` directly, locate them in your workspace under `.../skills/user-story-reviewer/scripts/`.
+
+- `approve_or_merge_pr.sh "<pr-number>"`: Safely extracts author information and determines whether to comment/merge (if the PR belongs to the agent) or approve the PR, avoiding agent shell parsing errors.
+
 ## Examples
 
 **Example 1:**
@@ -73,6 +79,5 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
 9. Approve or Merge the PR:
    ```bash
-   SCRIPT_PATH=$(find . ~ -type f -path "*/user-story-reviewer/scripts/approve_or_merge_pr.sh" -not -path "*/.git/*" -not -path "*/node_modules/*" 2>/dev/null | head -n 1)
-   $SCRIPT_PATH 13
+   ./scripts/approve_or_merge_pr.sh 13
    ```
