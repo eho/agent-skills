@@ -37,15 +37,16 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    Example: `https://github.com/eho/test-example/blob/main/tasks/prd-example.md`
 
    Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6.
-   *Note: If `./scripts/create_issue.sh` is not found, you can locate it under `<current project directory>/*/skills/prd-to-github-milestone/scripts/`.*
+   **Script location:** The script is at `SKILL_DIR/scripts/create_issue.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). If not available, locate it at `<git repo root>/.agents/skills/prd-to-github-milestone/scripts/create_issue.sh`.
    ```bash
    # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
+   SKILL_DIR="<base directory from skill invocation>"
    cat <<'EOF' > issue_body.md
    ## Description
    ...
    EOF
 
-   OUTPUT=$(./scripts/create_issue.sh "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
+   OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
    rm issue_body.md
    ```
@@ -57,7 +58,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
    For example: `gh issue comment 43 --body "Depends on: #42"`
 7. **Create & Link to Milestone**:
    - Determine the milestone name: Check if the PRD explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the PRD feature name.
-   - Create the milestone first (ensures it exists): `./scripts/create_milestone.sh "<Milestone Title>"`. *(If not found, look under `.../*/skills/prd-to-github-milestone/scripts/`)*
+   - Create the milestone first (ensures it exists): `"$SKILL_DIR/scripts/create_milestone.sh" "<Milestone Title>"` (where `SKILL_DIR` is the base directory from the skill invocation; if not available, locate it at `<git repo root>/.agents/skills/prd-to-github-milestone/scripts/create_milestone.sh`).
    - Link all created issues to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
 8. **Output Mapping**: Generate a markdown table and present to user:
    ```
@@ -69,7 +70,7 @@ You are acting as an autonomous sub-agent to parse a Product Requirements Docume
 
 ## Available Scripts
 
-This skill bundles the following scripts. If your environment does not map `./scripts/` directly, locate them in your workspace under `.../skills/prd-to-github-milestone/scripts/`.
+This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
 
 - `create_issue.sh "<title>" "<labels>" "<body_file_path>"`: Safely executes `gh issue create` and extracts the issue number.
 - `create_milestone.sh "<milestone_title>"`: Safely executes `gh api` to create a new milestone.
@@ -97,7 +98,7 @@ This skill bundles the following scripts. If your environment does not map `./sc
    [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
    EOF
 
-   OUTPUT=$(./scripts/create_issue.sh "PRI-001: User Login" "user-story,PRI" issue_body.md)
+   OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "PRI-001: User Login" "user-story,PRI" issue_body.md)
    # Extract the ISSUE_NUMBER output by the script for dependency linking
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
    rm issue_body.md
@@ -115,7 +116,7 @@ This skill bundles the following scripts. If your environment does not map `./sc
    [View in PRD](https://github.com/myorg/myapp/blob/main/tasks/prd-login.md)
    EOF
 
-   $SCRIPT_PATH "PRI-002: User Logout" "user-story,PRI" issue_body.md
+   "$SKILL_DIR/scripts/create_issue.sh" "PRI-002: User Logout" "user-story,PRI" issue_body.md
    rm issue_body.md
    ```
 7. Create milestone `v1.0` and link both issues.

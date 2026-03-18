@@ -33,18 +33,20 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - If all checkboxes pass, proceed to step 7. If any fail, return to step 4 to address gaps.
 7. **Commit Code**: Once your user story or chunk is complete, you must commit your changes to your feature branch.
    - Do not use `git commit -a`. Select files manually.
-8. **Pull Request & Linking**: 
+8. **Pull Request & Linking**:
    - Push the branch: `git push -u origin HEAD`.
    - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
-     *Note: If `./scripts/create_pr.sh` is not found, you can locate it under `<current project directory>/*/skills/user-story-implementer/scripts/`.*
+     **Script location:** The script is at `SKILL_DIR/scripts/create_pr.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). Example:
      ```bash
-     ./scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
+     SKILL_DIR="<base directory from skill invocation>"
+     "$SKILL_DIR/scripts/create_pr.sh" "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
+     If the base directory is not available, locate the script at `<git repo root>/.agents/skills/user-story-implementer/scripts/create_pr.sh`.
      Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
 ## Available Scripts
 
-This skill bundles the following scripts. If your environment does not map `./scripts/` directly, locate them in your workspace under `.../skills/user-story-implementer/scripts/`.
+This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
 
 - `create_pr.sh "<issue_number>" "<issue_title>" "<summary_of_work>"`: Safely executes `gh pr create` with multi-line bodies to avoid shell escaping errors.
 
@@ -60,7 +62,7 @@ This skill bundles the following scripts. If your environment does not map `./sc
 5. Review the code to ensure it meets Acceptance Criteria in Issue #12.
 6. Commit: `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
 7. Push: `git push -u origin HEAD`.
-8. Create PR:
+8. Create PR (using SKILL_DIR from "Base directory for this skill:" header):
    ```bash
-   ./scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
+   "$SKILL_DIR/scripts/create_pr.sh" "12" "feat: Add priority selector" "Added priority selector to task edit."
    ```

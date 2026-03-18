@@ -35,10 +35,12 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - **Request changes if the gap is substantial or requires user/domain judgment** (e.g., missing entire feature, incorrect architecture, unclear requirements): Run `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong and why>"`.
    - Only proceed to step 6 once all gaps are resolved.
 6. **Sign off (Approve or Merge PR)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment and merge it. If you are not, formally approve the PR. The bundled script handles this logic automatically.
-   *Note: If `./scripts/approve_or_merge_pr.sh` is not found, you can locate it under `<current project directory>/*/skills/user-story-reviewer/scripts/`.*
+   **Script location:** The script is at `SKILL_DIR/scripts/approve_or_merge_pr.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). Example:
    ```bash
-   ./scripts/approve_or_merge_pr.sh <pr-number>
+   SKILL_DIR="<base directory from skill invocation>"
+   "$SKILL_DIR/scripts/approve_or_merge_pr.sh" <pr-number>
    ```
+   If the base directory is not available, locate the script at `<git repo root>/.agents/skills/user-story-reviewer/scripts/approve_or_merge_pr.sh`.
 
 ## Review Dimensions
 
@@ -60,7 +62,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 
 ## Available Scripts
 
-This skill bundles the following scripts. If your environment does not map `./scripts/` directly, locate them in your workspace under `.../skills/user-story-reviewer/scripts/`.
+This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
 
 - `approve_or_merge_pr.sh "<pr-number>"`: Safely extracts author information and determines whether to comment/merge (if the PR belongs to the agent) or approve the PR, avoiding agent shell parsing errors.
 
@@ -77,7 +79,7 @@ This skill bundles the following scripts. If your environment does not map `./sc
 6. Check out the PR: `gh pr checkout 13`. This is a small, clear gap (missing test), so fix it yourself.
 7. Write the missing test in `TaskEdit.test.tsx` and update the README if needed.
 8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
-9. Approve or Merge the PR:
+9. Approve or Merge the PR (using SKILL_DIR from "Base directory for this skill:" header):
    ```bash
-   ./scripts/approve_or_merge_pr.sh 13
+   "$SKILL_DIR/scripts/approve_or_merge_pr.sh" 13
    ```
