@@ -10,13 +10,17 @@ CURRENT_USER=$(gh api user -q .login)
 
 # Use a temporary file for the review body
 TMP_BODY=$(mktemp)
-cat <<EOF > "$TMP_BODY"
+if [ -n "$2" ] && [ -f "$2" ]; then
+  cat "$2" > "$TMP_BODY"
+else
+  cat <<EOF > "$TMP_BODY"
 Reviewed and verified:
 - All acceptance criteria met
 - Tests passing
 - Code quality acceptable
 - Documentation updated (if applicable)
 EOF
+fi
 
 # GitHub prevents users from approving their own PRs
 if [ "$PR_AUTHOR" = "$CURRENT_USER" ]; then
