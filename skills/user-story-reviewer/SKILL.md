@@ -35,6 +35,10 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - **Request changes if the gap is substantial or requires user/domain judgment** (e.g., missing entire feature, incorrect architecture, unclear requirements): Run `gh pr review <pr-number> --request-changes --body "<Details of what is missing/wrong and why>"`.
    - Only proceed to step 6 once all gaps are resolved.
 6. **Sign off (Approve or Merge PR)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment and merge it. If you are not, formally approve the PR. The bundled script handles this logic automatically.
+   **Review comment**: Before approving or merging, write a specific, self-documenting review comment. Do NOT use generic statements like "All acceptance criteria met." Instead:
+   - Summarize what was verified — list the key acceptance criteria checked and confirm each passed.
+   - Call out any fixes made — if you fixed a gap, describe what was wrong and how you resolved it (include the commit hash).
+   - Note anything worth flagging — edge cases covered, design decisions observed, or minor concerns that don't block approval.
    **Script location:** The script is at `SKILL_DIR/scripts/approve_or_merge_pr.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). Example:
    ```bash
    SKILL_DIR="<base directory from skill invocation>"
