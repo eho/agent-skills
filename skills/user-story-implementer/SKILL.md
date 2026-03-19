@@ -16,7 +16,12 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 
 ## Workflow
 
-1. **Identify the Next Task**: Run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"` to grab the next available issue in creation order (lowest issue number first, matching PRD story order). Note the issue number, title, and body (which contains the Acceptance Criteria).
+1. **Identify the Next Task**: Check if the user specified a specific feature prefix, label, milestone, or issue number.
+   - If a specific issue number is provided, use `gh issue view <issue-number>`.
+   - If a specific feature prefix or label is provided (e.g., `PRI`), run `gh issue list --label "user-story" --label "<prefix>" --limit 1 --search "sort:created-asc"`.
+   - If a milestone is provided, use `gh issue list --label "user-story" --milestone "<milestone-name>" --limit 1 --search "sort:created-asc"`.
+   - If no specific scope is provided, you MUST ask the user to clarify which feature prefix, milestone, or issue number they want to work on to avoid picking up tasks from unrelated PRDs.
+   - Once the next available issue is identified, note the issue number, title, and body (which contains the Acceptance Criteria).
 2. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
 3. **Branching**: Follow standard Git flow. Create and checkout a new branch based on the issue number: `git checkout -b feature/us-<issue-number>`.
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story.
@@ -53,9 +58,9 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
 ## Examples
 
 **Example 1:**
-*Input:* "Implement the next task"
+*Input:* "Implement the next task for the PRI feature"
 *Action:*
-1. Run `gh issue list --label "user-story" --limit 1 --search "sort:created-asc"`. Returns Issue #12: "Add priority selector".
+1. The user specified the "PRI" feature prefix. Run `gh issue list --label "user-story" --label "PRI" --limit 1 --search "sort:created-asc"`. Returns Issue #12: "Add priority selector".
 2. Assign: `gh issue edit 12 --add-assignee "@me"`.
 3. Branch: `git checkout -b feature/us-12`.
 4. Implement the feature and write tests.
