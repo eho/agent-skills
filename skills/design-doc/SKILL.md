@@ -288,6 +288,19 @@ After saving, tell the user:
 
 ---
 
+## Revision Workflow
+
+If a review file exists (e.g., `docs/design/review-[slug].md` produced by the design-doc-reviewer skill), use it to revise the design doc:
+
+1. Read the review file in full.
+2. Address every **Critical Gap** — these are blockers. For each one, update the relevant section of the design doc with the suggested fix or a substantive alternative.
+3. Address **Minor Issues** where the fix is clear. If a minor issue requires a judgment call, add it to Open Questions instead of guessing.
+4. Do NOT remove or weaken sections the review marked as **Strengths**.
+5. After revisions, update the doc's **Status** from `Draft` to `Revised` and add a one-line changelog entry at the top (e.g., `**Revised [date]:** Addressed review feedback — added edge case table, clarified auth flow.`).
+6. Tell the user what was changed and what was deferred to Open Questions.
+
+---
+
 ## Writing Principles
 
 - **Synthesize, don't transcribe.** The doc should read as a coherent design artifact, not a transcript of a conversation.

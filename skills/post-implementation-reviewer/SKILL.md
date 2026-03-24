@@ -1,6 +1,6 @@
 ---
 name: post-implementation-reviewer
-description: Performs a comprehensive post-implementation review of an entire design document. Verifies all user stories are complete, implementation aligns with the original design, code quality is high, and all documentation (READMEs, usage guides, API docs) is consistent and updated. Use this when asked to "do a final review of the design doc", "verify completion", "check if the feature is ready for release", "audit the implementation", "do a final review of the PRD", or "verify PRD completion".
+description: Performs a comprehensive post-implementation review of an entire design document. Verifies all user stories are complete, implementation aligns with the original design, code quality is high, and all documentation (READMEs, usage guides, API docs) is consistent and updated. Use this when asked to "do a final review of the design doc", "verify completion", "check if the feature is ready for release", or "audit the implementation".
 metadata:
   author: eho
   version: '2.0.0'
@@ -18,7 +18,7 @@ You are acting as a senior architect and technical writer. Your goal is to ensur
    - Locate the design document (e.g., `docs/design/[feature].md`).
    - Identify the feature prefix or milestone associated with this design doc.
 2. **Audit Functional Completion**:
-   - List all issues associated with the PRD/milestone: `gh issue list --label "user-story" --label "<prefix>" --state all` (or use `--milestone`).
+   - List all issues associated with the design doc/milestone: `gh issue list --label "user-story" --label "<prefix>" --state all` (or use `--milestone`).
    - Verify that EVERY user story is closed. If any are open, identify why (blocked? in progress? skipped?).
    - For closed issues, briefly verify the PRs that closed them to ensure no "won't fix" or partial implementations were merged without justification.
 3. **Verify Design & Architectural Alignment**:
@@ -29,14 +29,14 @@ You are acting as a senior architect and technical writer. Your goal is to ensur
    - **README.md**: Does the root README or component README reflect the new features? Does it include setup and basic usage instructions?
    - **Usage Guides**: If the feature is complex, is there a `docs/` guide? If missing, create one.
    - **API/Type Docs**: Ensure exported types, functions, and API endpoints are documented (e.g., JSDoc, Pydantic docstrings).
-   - **Consistency**: Ensure terminology in the code matches the terminology in the PRD and user-facing docs.
+   - **Consistency**: Ensure terminology in the code matches the terminology in the design doc and user-facing docs.
 5. **Quality & Polish Check**:
    - Run the full test suite for the feature: `bun test` or `pytest`.
-   - Perform a "polish" review: Check for consistent error handling, loading states, and logging across all stories in the PRD.
+   - Perform a "polish" review: Check for consistent error handling, loading states, and logging across all stories in the design doc.
 6. **Final Report & Remediation**:
    - If gaps are found (especially documentation), **fix them directly**. Update the README, add missing comments, or fix minor UI inconsistencies.
    - If functional gaps exist, create new GitHub issues for the remaining work.
-   - Provide a summary table of the PRD status.
+   - Provide a summary table of the design doc completion status.
 
 ## Review Checklist
 

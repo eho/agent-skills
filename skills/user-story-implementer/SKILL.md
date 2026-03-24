@@ -16,12 +16,14 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 
 ## Workflow
 
-1. **Identify the Next Task**: Check if the user specified a specific feature prefix, label, milestone, or issue number.
+1. **Identify the Next Task**: Before picking up new work, check for unfinished business first.
+   - **Check for rejected PRs first**: Run `gh pr list --state open --author "@me" --search "review:changes_requested"`. If any PRs have changes requested, address the feedback on the oldest one before picking up a new issue. Check out the branch, read the review comments with `gh pr view <pr-number> --comments`, fix the issues, push, and re-request review.
+   - **Check for dependency blockers**: When selecting an issue, read its comments for "Depends on: #\<issue\>" patterns. Run `gh issue view <dependency-number> --json state -q '.state'` to check if the dependency is resolved. If it's still open, skip this issue and grab the next one.
    - If a specific issue number is provided, use `gh issue view <issue-number>`.
-   - If a specific feature prefix or label is provided (e.g., `PRI`), run `gh issue list --label "user-story" --label "<prefix>" --limit 1 --search "sort:created-asc"`.
-   - If a milestone is provided, use `gh issue list --label "user-story" --milestone "<milestone-name>" --limit 1 --search "sort:created-asc"`.
-   - If no specific scope is provided, you MUST ask the user to clarify which feature prefix, milestone, or issue number they want to work on to avoid picking up tasks from unrelated PRDs.
-   - Once the next available issue is identified, note the issue number, title, and body (which contains the Acceptance Criteria).
+   - If a specific feature prefix or label is provided (e.g., `AUTH`), run `gh issue list --label "user-story" --label "<prefix>" --limit 5 --search "sort:created-asc"` (fetch 5 to allow skipping blocked issues).
+   - If a milestone is provided, use `gh issue list --label "user-story" --milestone "<milestone-name>" --limit 5 --search "sort:created-asc"`.
+   - If no specific scope is provided, you MUST ask the user to clarify which feature prefix, milestone, or issue number they want to work on to avoid picking up tasks from unrelated design docs.
+   - Once the next available (unblocked) issue is identified, note the issue number, title, and body (which contains the Acceptance Criteria).
 2. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
 3. **Branching**: Follow standard Git flow. Create and checkout a new branch based on the issue number: `git checkout -b feature/us-<issue-number>`.
 4. **Execute**: Implement the code, configuration, or changes required to complete that single user story.

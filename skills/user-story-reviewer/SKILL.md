@@ -20,7 +20,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 
 1. **Identify the Target PR**:
    - If the user specified a PR number or URL in their input, use that PR.
-   - Otherwise, run `gh pr list --state open --limit 1 --search "sort:created-asc"` to find the oldest open pull request that needs review (matching PRD story order).
+   - Otherwise, run `gh pr list --state open --limit 1 --search "sort:created-asc"` to find the oldest open pull request that needs review (matching design doc story order).
 2. **Read the Requirements (The Issue)**:
    - Identify the linked issue. Usually, the PR body will contain `Closes #<issue-number>`.
    - Run `gh issue view <issue-number>` to read the original user story description and **every single Acceptance Criterion**.
@@ -64,6 +64,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 - Do the tests *actually* exercise the core logic of the new feature, or are they superficial?
 - Do the tests cover both the "happy path" and relevant error/edge cases?
 - Run the tests locally to ensure they actually pass.
+- **UI stories**: If the Acceptance Criteria include "Verify in browser using dev-browser skill", you MUST spin up the local dev server and use the dev-browser tool to visually verify the UI behavior. Do not skip this — automated tests alone are insufficient for visual QA.
 
 ### 3. Documentation & Code Quality
 - **Documentation**: Check if the project has a README, API docs, or user guide. If this feature adds user-facing functionality (new command, option, UI element, etc.), those docs MUST be updated. If it's an internal refactor or non-user-facing change, documentation updates are optional.
