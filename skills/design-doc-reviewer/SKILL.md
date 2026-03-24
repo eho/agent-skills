@@ -53,18 +53,20 @@ Score each element as: ✅ Present & Strong / ⚠️ Partial or Unclear / ❌ Mi
 | 4 | **Non-Goals** | Explicit list of what's out of scope and why. Missing = the doc hasn't thought about scope. |
 | 5 | **Alternatives Considered** | At least 2 alternative approaches with rationale for rejection. Missing = the chosen approach feels arbitrary. |
 | 6 | **Design Principles** | Named principles (not just description of approach). Serve as tie-breakers for ambiguous choices. |
-| 7 | **Architecture Overview** | Diagram or component list. Reader should understand the system model without reading all prose. |
-| 8 | **Data Model / Schema** | What gets stored, where, in what format. Includes a "field ownership" view: who sets each field? |
-| 9 | **Integration Points** | Which existing files, APIs, events, or hooks are modified. Specific — file names and function names. |
-| 10 | **Sequence / Flow Walkthrough** | Step-by-step for the critical path. ASCII diagram or numbered sequence for complex async flows. |
-| 11 | **Example Output** | What does the user actually see? JSON response, CLI output, UI state, or file content example. |
-| 12 | **Configuration** | Env vars, feature flags, or tunables — with defaults, types, and descriptions. |
-| 13 | **Testing Strategy** | Not just "we'll write unit tests." Names specific test cases, edge cases, and integration scenarios. |
-| 14 | **Edge Cases & Failures** | What can go wrong? For each failure mode: how is it detected, and what's the mitigation? |
-| 15 | **Risks** | Known technical or product risks, with likelihood, impact, and mitigation plan for each. |
-| 16 | **Open Questions** | Does the doc itself include an explicit list of unresolved decisions or unknowns? Their presence signals intellectual honesty; their absence may mean the author hasn't surfaced real uncertainty. |
-| 17 | **Implementation Plan** | Concrete list of files to change, functions to add, and phases if multi-step. |
-| 18 | **Future Extensions** | Ideas deferred with rationale. Shows the design is part of a roadmap, not a closed system. |
+| 7 | **Vision Alignment** | If a vision doc exists: does the design explicitly connect its choices to the product vision? Does it justify any tension? Not just "this aligns" — it should name specific vision goals it advances. Omitted is fine only if no vision doc exists. |
+| 8 | **Architecture Overview** | Diagram or component list. Reader should understand the system model without reading all prose. |
+| 9 | **API & Data Contracts** | Exact interfaces, schemas, or payloads — not just descriptions. What gets stored, where, in what format. Strict enough for an implementer to code against. |
+| 10 | **Integration Points** | Which existing files, APIs, events, or hooks are modified. Specific — file names and function names. |
+| 11 | **Sequence / Flow Walkthrough** | Step-by-step for the critical path. ASCII diagram or numbered sequence for complex async flows. |
+| 12 | **Example Output** | What does the user actually see? JSON response, CLI output, UI state, or file content example. |
+| 13 | **Configuration** | Env vars, feature flags, or tunables — with defaults, types, and descriptions. |
+| 14 | **Testing Strategy** | Not just "we'll write unit tests." Names specific test cases, edge cases, and integration scenarios. |
+| 15 | **Edge Cases & Failures** | What can go wrong? For each failure mode: how is it detected, and what's the mitigation? |
+| 16 | **Risks** | Known technical or product risks, with likelihood, impact, and mitigation plan for each. |
+| 17 | **Open Questions** | Does the doc itself include an explicit list of unresolved decisions or unknowns? Their presence signals intellectual honesty; their absence may mean the author hasn't surfaced real uncertainty. |
+| 18 | **Context Required for Implementation** | Does the doc list exact file paths an implementer must read before starting? Missing = the implementer has to rediscover context. |
+| 19 | **Implementation Plan** | Concrete list of files to change, functions to add, and phases if multi-step. Tasks should be atomic with per-task validation. |
+| 20 | **Future Extensions** | Ideas deferred with rationale. Shows the design is part of a roadmap, not a closed system. |
 
 ### Quality Signals (score holistically)
 
@@ -73,7 +75,7 @@ Score each element as: ✅ Present & Strong / ⚠️ Partial or Unclear / ❌ Mi
 - **Decision rationale**: For significant architectural choices, does the doc answer "why not the alternative"?
 - **Concrete over abstract**: Does the doc use real examples (JSON, file paths, code, CLI output) or only prose?
 - **Failure path coverage**: Does the doc only describe the happy path, or does it address what happens when things go wrong?
-- **Product alignment**: Does the design fit the vision in `docs/vision/vision.md`? Does it pull in the right direction?
+- **Product alignment**: Does the Vision Alignment section make a substantive argument, or is it hand-waving? Does it name specific vision goals?
 - **Scope discipline**: Is the design appropriately scoped, or is it trying to solve everything at once?
 
 ---
@@ -102,8 +104,9 @@ Use this exact structure:
 | Non-Goals | ✅/⚠️/❌ | [specific observation] |
 | Alternatives Considered | ✅/⚠️/❌ | [specific observation] |
 | Design Principles | ✅/⚠️/❌ | [specific observation] |
+| Vision Alignment | ✅/⚠️/❌ | [specific observation] |
 | Architecture Overview | ✅/⚠️/❌ | [specific observation] |
-| Data Model / Schema | ✅/⚠️/❌ | [specific observation] |
+| API & Data Contracts | ✅/⚠️/❌ | [specific observation] |
 | Integration Points | ✅/⚠️/❌ | [specific observation] |
 | Sequence / Flow | ✅/⚠️/❌ | [specific observation] |
 | Example Output | ✅/⚠️/❌ | [specific observation] |
@@ -112,10 +115,11 @@ Use this exact structure:
 | Edge Cases & Failures | ✅/⚠️/❌ | [specific observation] |
 | Risks | ✅/⚠️/❌ | [specific observation] |
 | Open Questions | ✅/⚠️/❌ | [specific observation] |
+| Context Required for Implementation | ✅/⚠️/❌ | [specific observation] |
 | Implementation Plan | ✅/⚠️/❌ | [specific observation] |
 | Future Extensions | ✅/⚠️/❌ | [specific observation] |
 
-**Score:** X/18 elements present and strong
+**Score:** X/20 elements present and strong
 
 ---
 
@@ -147,12 +151,6 @@ Questions the doc hasn't answered that an implementer would need to resolve — 
 
 1. [Question]
 2. [Question]
-
----
-
-#### Product Alignment
-
-[Does this design align with the product vision (if a vision doc exists)? Note any tension or drift from the stated product direction. If no vision doc was found, skip this section. 2–4 sentences.]
 
 ---
 
