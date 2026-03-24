@@ -1,6 +1,6 @@
 ---
 name: design-doc-reviewer
-description: "Review a design document for completeness, clarity, and quality. Produces structured feedback with specific gaps, strengths, and a prioritized improvement checklist. Use when asked to review a design doc, critique a design, or check a spec."
+description: "Review a design document for completeness, clarity, and quality — including user story readiness for agent implementation. Produces structured feedback with specific gaps, strengths, and a prioritized improvement checklist. Use when asked to review a design doc, critique a design, check a spec, review the PRD, or audit the requirements."
 triggers:
   - review this design doc
   - review the design
@@ -8,9 +8,12 @@ triggers:
   - check this spec
   - review this spec
   - give feedback on this design
+  - review the prd
+  - audit the requirements
+  - review the requirements
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '2.0.0'
 ---
 
 # Design Doc Reviewer
@@ -65,7 +68,7 @@ Score each element as: ✅ Present & Strong / ⚠️ Partial or Unclear / ❌ Mi
 | 16 | **Risks** | Known technical or product risks, with likelihood, impact, and mitigation plan for each. |
 | 17 | **Open Questions** | Does the doc itself include an explicit list of unresolved decisions or unknowns? Their presence signals intellectual honesty; their absence may mean the author hasn't surfaced real uncertainty. |
 | 18 | **Context Required for Implementation** | Does the doc list exact file paths an implementer must read before starting? Missing = the implementer has to rediscover context. |
-| 19 | **Implementation Plan** | Concrete list of files to change, functions to add, and phases if multi-step. Tasks should be atomic with per-task validation. |
+| 19 | **User Stories** | Are there well-formed user stories with acceptance criteria? See User Story Quality below. |
 | 20 | **Future Extensions** | Ideas deferred with rationale. Shows the design is part of a roadmap, not a closed system. |
 
 ### Quality Signals (score holistically)
@@ -77,6 +80,17 @@ Score each element as: ✅ Present & Strong / ⚠️ Partial or Unclear / ❌ Mi
 - **Failure path coverage**: Does the doc only describe the happy path, or does it address what happens when things go wrong?
 - **Product alignment**: Does the Vision Alignment section make a substantive argument, or is it hand-waving? Does it name specific vision goals?
 - **Scope discipline**: Is the design appropriately scoped, or is it trying to solve everything at once?
+
+### User Story Quality (evaluate each story)
+
+Apply the **Agent-Ready Test** to every user story: could an AI agent implement this story without asking for more information? If "No" or "Maybe," the story needs more detail.
+
+- **Self-contained**: Does each story include enough context (file paths, data contracts, relevant interfaces) that an agent doesn't need to read the full design doc?
+- **Acceptance criteria are binary**: Every criterion must be verifiable — "works correctly" fails, "returns 404 when user ID doesn't exist" passes.
+- **Testing requirements present**: Every story must have explicit testing AC (unit tests for logic, browser verification for UI). No exceptions.
+- **Documentation requirements present**: Stories that add user-facing functionality, CLI flags, API endpoints, or architectural changes must include AC to update the specific doc file. "Update docs if applicable" is not acceptable — the file must be named.
+- **Granularity**: Stories should be minimized in count but each small enough for an agent to complete in one focused session. Not over-fragmented, not combining unrelated tasks.
+- **Grounded in design**: Do stories reference exact file paths, function names, and data contracts from the design sections? Or are they disconnected from the technical work above?
 
 ---
 
@@ -116,7 +130,7 @@ Use this exact structure:
 | Risks | ✅/⚠️/❌ | [specific observation] |
 | Open Questions | ✅/⚠️/❌ | [specific observation] |
 | Context Required for Implementation | ✅/⚠️/❌ | [specific observation] |
-| Implementation Plan | ✅/⚠️/❌ | [specific observation] |
+| User Stories | ✅/⚠️/❌ | [specific observation] |
 | Future Extensions | ✅/⚠️/❌ | [specific observation] |
 
 **Score:** X/20 elements present and strong

@@ -1,6 +1,6 @@
 ---
 name: design-doc
-description: "Synthesize design discussions into a complete, structured design document. Use when asked to write a design doc, produce a design document, or turn a discussion into a spec."
+description: "Synthesize design discussions into a complete design document with agent-ready user stories. Use when asked to write a design doc, produce a design document, create a PRD, plan a feature, or turn a discussion into a spec."
 triggers:
   - write a design doc
   - produce a design doc
@@ -8,14 +8,19 @@ triggers:
   - turn this into a design doc
   - write up the design
   - produce the spec
+  - create a prd
+  - write prd for
+  - plan this feature
+  - requirements for
+  - spec out
 metadata:
   author: eho
-  version: '1.1.0'
+  version: '2.0.0'
 ---
 
 # Design Doc Writer
 
-Synthesize a design discussion into a complete, structured design document. The goal is to capture the full intent of the design — including decisions made, rationale behind them, and outstanding questions — in a format that is ready for review and implementation by both humans and downstream AI agents.
+Synthesize a design discussion into a complete, structured design document with agent-ready user stories. The design sections capture the technical context — architecture, data contracts, integration points. The user stories are the primary deliverable: each one is grounded in the design work and precise enough for an AI agent to implement without asking follow-up questions.
 
 ---
 
@@ -68,6 +73,24 @@ Bad candidates (skip these — infer from context):
 - Details that can be found by reading the codebase
 
 If you have 3 or fewer questions, ask them directly. If more, prioritize the most blocking ones.
+
+### Format Questions Like This:
+
+Provide lettered options so the user can respond quickly (e.g., "1A, 2C, 3B"):
+
+```
+1. What is the primary goal?
+   A. Improve user onboarding experience
+   B. Increase user retention
+   C. Reduce support burden
+   D. Other: [please specify]
+
+2. What is the scope?
+   A. Minimal viable version
+   B. Full-featured implementation
+   C. Just the backend/API
+   D. Just the UI
+```
 
 ---
 
@@ -213,20 +236,37 @@ Write concretely — use real names, exact file paths, strict data structures, a
 
 ---
 
-## Implementation Plan
+## User Stories
 
-[A breakdown of the work into discrete, atomic tasks. Each task must be small enough for an AI agent to execute and validate independently. Specify exact file paths.]
+[PREFIX] is a short 3-10 letter abbreviation derived from the feature name.
 
-**Phase 1: [Phase Name]**
-- [ ] **Task 1: [Action]**
-  - **Files:** `path/to/file.ts`
-  - **Details:** [What specifically needs to be done, e.g., add `functionName` that implements X]
-  - **Validation:** [How to verify this specific change, e.g., run `bun test path/to/file.test.ts`]
-- [ ] **Task 2: [Action]**
-  - ...
+Minimize the number of user stories while ensuring each story is small enough for an AI agent to complete in one focused session. Avoid over-fragmenting into tiny stories, but do not combine unrelated complex tasks.
 
-**Phase 2 (if applicable):**
-- [ ] ...
+Each story must be grounded in the design sections above — reference exact file paths, data contracts, and integration points. An implementing agent should be able to complete the story without reading the rest of this document.
+
+**Important — Documentation Requirements:**
+- For structural/architectural changes: require updating design docs to reflect added, updated, or deleted features.
+- For CLI tools: require documenting CLI usage (flags, commands, help text).
+- For user-facing features: require updating README or usage guides.
+- For API changes: require updating API docs or type documentation.
+
+### [PREFIX]-001: [Title]
+**Description:** As a [user], I want [feature] so that [benefit].
+
+**Context:**
+- Files to read: `path/to/relevant/file.ts`
+- Relevant data contracts: [reference the specific interface/schema from API & Data Contracts section]
+
+**Acceptance Criteria:**
+- [ ] [Specific, verifiable criterion referencing exact file paths and function names]
+- [ ] [Another criterion]
+- [ ] Typecheck/lint passes
+- [ ] **[Logic/Backend]** Write unit tests covering [specific scenarios]
+- [ ] **[UI stories only]** Verify in browser using dev-browser skill
+- [ ] **[Documentation]** Update [specific doc — name the file] if applicable
+
+### [PREFIX]-002: [Title]
+...
 
 ---
 
@@ -256,3 +296,7 @@ After saving, tell the user:
 - **Respect what was deferred.** If the user explicitly said something is out of scope, put it in Non-Goals or Future Extensions — don't silently drop it or re-raise it.
 - **Own the gaps.** If a required section has nothing from the conversation and couldn't be found in the codebase, write a placeholder that names what's needed. Don't fabricate details.
 - **Align with the vision.** If `docs/vision/vision.md` exists, read it first and ensure the design fits the stated product direction. Note any tension in the Open Questions section.
+- **User stories are the deliverable.** The design sections are context. The user stories are what gets sent to GitHub issues for agents to implement. Every story must be self-contained: an agent reading only that story should know exactly what to do, which files to touch, and how to verify it's done.
+- **Acceptance criteria must be binary.** "Works correctly" is not a criterion. "Returns 404 when user ID doesn't exist" is. Each criterion should be verifiable by running a test or checking a specific behavior.
+- **Every story needs testing.** Backend/logic changes require unit tests. UI changes require browser verification. No exceptions.
+- **Every story needs documentation.** If a story adds user-facing functionality, a CLI flag, an API endpoint, or changes architecture, its acceptance criteria must require updating the relevant docs. Name the specific file to update — don't say "update docs if applicable."
