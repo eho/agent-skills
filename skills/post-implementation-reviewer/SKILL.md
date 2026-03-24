@@ -1,5 +1,5 @@
 ---
-name: prd-completion-reviewer
+name: post-implementation-reviewer
 description: Performs a comprehensive post-implementation review of an entire design document. Verifies all user stories are complete, implementation aligns with the original design, code quality is high, and all documentation (READMEs, usage guides, API docs) is consistent and updated. Use this when asked to "do a final review of the design doc", "verify completion", "check if the feature is ready for release", "audit the implementation", "do a final review of the PRD", or "verify PRD completion".
 metadata:
   author: eho

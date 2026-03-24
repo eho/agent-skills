@@ -1,5 +1,5 @@
 ---
-name: prd-to-github-milestone
+name: design-to-issues
 description: Parses a design document to extract User Stories and creates corresponding GitHub Issues. It can optionally link them to a GitHub Milestone. This skill acts as a setup phase for GitHub-native issue tracking. Make sure to use this skill whenever the user asks to "send the design doc to GitHub", "create issues from the design doc", "send the PRD to GitHub", "create issues from the PRD", "setup the milestone", or mentions turning requirements into actionable GitHub issues.
 metadata:
   author: eho
