@@ -290,14 +290,58 @@ After saving, tell the user:
 
 ## Revision Workflow
 
-If a review file exists (e.g., `docs/design/review-[slug].md` produced by the design-doc-reviewer skill), use it to revise the design doc:
+If a review file exists (e.g., `docs/design/review-[slug].md` produced by the design-doc-reviewer skill), use it to revise the design doc. Do not blindly adopt all feedback — critically assess each item against the original design intent, constraints, and conversation context.
 
-1. Read the review file in full.
-2. Address every **Critical Gap** — these are blockers. For each one, update the relevant section of the design doc with the suggested fix or a substantive alternative.
-3. Address **Minor Issues** where the fix is clear. If a minor issue requires a judgment call, add it to Open Questions instead of guessing.
+### Phase 1: Triage Feedback
+
+Before making any changes, evaluate every piece of reviewer feedback and assign a disposition:
+
+| Disposition | Meaning | Action |
+|-------------|---------|--------|
+| **Accept** | Feedback is valid and the suggested fix is appropriate | Apply the fix as suggested |
+| **Accept (Alt)** | Valid concern, but a different solution fits better | Apply your alternative solution |
+| **Reject** | Feedback conflicts with explicit constraints, design intent, or conversation context | Do not change; document reasoning |
+| **Defer** | Valid point but requires user input or is out of scope for this revision | Move to Open Questions |
+
+When triaging, consider:
+- Does this feedback conflict with a constraint or decision explicitly discussed in the original conversation?
+- Does the reviewer's suggestion introduce complexity that wasn't justified by the design goals?
+- Is the reviewer surfacing a real gap, but proposing the wrong fix?
+- Would adopting this feedback weaken a section the review itself marked as a Strength?
+
+### Phase 2: Revise
+
+Apply changes based on the triage:
+
+1. For **Accept** and **Accept (Alt)** items: update the relevant sections of the design doc.
+2. For **Reject** items: do not change the doc. The reasoning will be captured in the revision notes.
+3. For **Defer** items: add them to the Open Questions section with context on what's needed to resolve them.
 4. Do NOT remove or weaken sections the review marked as **Strengths**.
-5. After revisions, update the doc's **Status** from `Draft` to `Revised` and add a one-line changelog entry at the top (e.g., `**Revised [date]:** Addressed review feedback — added edge case table, clarified auth flow.`).
-6. Tell the user what was changed and what was deferred to Open Questions.
+
+### Phase 3: Document the Triage
+
+Add a `## Revision Notes` section at the end of the design doc (before Future Extensions) with a table summarizing the triage:
+
+```markdown
+## Revision Notes
+
+**Revised [date]:** Addressed review feedback from `review-[slug].md`.
+
+| # | Feedback Item | Disposition | Reasoning |
+|---|---------------|-------------|-----------|
+| 1 | [Brief description] | Accept | [Why this was valid] |
+| 2 | [Brief description] | Accept (Alt) | [What you did instead and why] |
+| 3 | [Brief description] | Reject | [Why this conflicts with design intent] |
+| 4 | [Brief description] | Defer | [What's needed to resolve] |
+```
+
+### Phase 4: Update Status and Report
+
+1. Update the doc's **Status** from `Draft` to `Revised` and add a one-line changelog entry at the top (e.g., `**Revised [date]:** Addressed review feedback — added edge case table, clarified auth flow.`).
+2. Tell the user:
+   - What was changed (accepted items)
+   - What was rejected and why
+   - What was deferred to Open Questions
 
 ---
 
