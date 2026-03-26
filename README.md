@@ -17,6 +17,30 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Public Repo Explorer**](skills/public-repo-explorer/SKILL.md) | `/public-repo-explorer` | Efficiently browse public GitHub repositories using shallow clones — scan, examine, and extract information without cluttering the workspace. |
 | [**Skill Curator**](skills/skill-curator/SKILL.md) | `/skill-curator` | Discover, extract, and catalog agent skills from GitHub repositories into a central catalog with consistent descriptions and metadata. |
 
+## Development Workflow
+
+The six development skills form a pipeline from idea to shipped feature. Here's how they fit together:
+
+```
+/design-doc  →  /design-doc-reviewer  →  /design-to-issues
+                                                  ↓
+              /post-implementation-reviewer  ←  /user-story-implementer  →  /user-story-reviewer
+```
+
+**1. Discuss the design** — Before triggering any skill, have a free-form conversation with the AI about the feature. This is an exploratory back-and-forth to get the general direction and key ideas into shape. No structure needed yet — just think out loud.
+
+**2. Write the design** — Once the direction feels right, trigger `/design-doc`. It picks up the conversation context and takes over: asking clarifying questions methodically, surfacing edge cases, and filling gaps until it has enough to produce a complete design document with architecture, data contracts, and user stories — each with explicit acceptance criteria.
+
+**3. Review the design** — Run `/design-doc-reviewer` with a fresh context or a different model for a genuine second opinion. It checks whether the design is complete, internally consistent, and concrete enough to implement without ambiguity. Iterate until satisfied.
+
+**4. Push stories to GitHub** — Use `/design-to-issues` to convert the user stories into GitHub Issues, optionally grouped under a Milestone. From here the backlog lives in GitHub, which is easier to track than a local markdown file.
+
+**5. Implement and review, one story at a time** — Kick off `/user-story-implementer` for the next open issue. The agent implements it and opens a PR. Then run `/user-story-reviewer` to check the PR against the original acceptance criteria. Repeat until all stories are done.
+
+**6. Final review** — Run `/post-implementation-reviewer` once the full feature is complete. This is the overall sanity check: do all stories add up to what the design described? Are there any gaps or inconsistencies?
+
+---
+
 ## Installation
 
 ```bash
