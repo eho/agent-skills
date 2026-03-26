@@ -1,10 +1,37 @@
-# Personal Agent Skills Catalog
+# Personal Agent Skills
 
-A curated list of agent skills from the community that I find useful. 
+Skills I've built for my own AI-assisted development workflow. The design-to-implementation pipeline here is what I use to build projects like [Kore](https://github.com/eho/kore).
 
-> **Note:** I manage this catalog with the help of the Gemini CLI and the [**Skill Curator**](https://github.com/eho/agent-skills/blob/main/skills/skill-curator/SKILL.md) skill. Gemini browses a GitHub repository or a URL to the skill, it extracts and adds the metadata to this list.
+## Skills
 
-## React Native
+| Skill | Command | Description |
+| :--- | :--- | :--- |
+| [**Design Doc**](skills/design-doc/SKILL.md) | `/design-doc` | Synthesize a discussion or outline into a complete design document with architecture, data contracts, and agent-ready user stories with acceptance criteria. |
+| [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | Review a design document for completeness, clarity, and implementability. Returns structured feedback, a quality score, and actionable improvements. |
+| [**Design to Issues**](skills/design-to-issues/SKILL.md) | `/design-to-issues` | Parse a design document and create GitHub Issues from its user stories, optionally linked to a Milestone for tracking. |
+| [**User Story Implementer**](skills/user-story-implementer/SKILL.md) | `/user-story-implementer` | Pick up a single open GitHub Issue, implement it end-to-end (code, tests, PR), and move on. Designed to run in a fresh context per story. |
+| [**User Story Reviewer**](skills/user-story-reviewer/SKILL.md) | `/user-story-reviewer` | Review a Pull Request against the original issue's acceptance criteria, checking completeness, test coverage, and code quality. |
+| [**Post-Implementation Reviewer**](skills/post-implementation-reviewer/SKILL.md) | `/post-implementation-reviewer` | Comprehensive review after a full feature is implemented — verifies all user stories are done, implementation matches the design, and documentation is consistent. |
+| [**Kore**](skills/kore/SKILL.md) | `/kore` | Search, browse, save, and synthesize a personal knowledge base built from bookmarks, notes, and accumulated insights. |
+| [**Blog Writer**](skills/blog-writer/SKILL.md) | `/blog-writer` | Transform technical documents, outlines, or raw notes into an engaging, human-sounding blog post. |
+| [**Public Repo Explorer**](skills/public-repo-explorer/SKILL.md) | `/public-repo-explorer` | Efficiently browse public GitHub repositories using shallow clones — scan, examine, and extract information without cluttering the workspace. |
+| [**Skill Curator**](skills/skill-curator/SKILL.md) | `/skill-curator` | Discover, extract, and catalog agent skills from GitHub repositories into a central catalog with consistent descriptions and metadata. |
+
+## Installation
+
+```bash
+bunx skills add eho/agent-skills
+```
+
+---
+
+## Community Skills
+
+A curated reference of skills from the community that I find useful.
+
+> Skills are managed with the help of the [**Skill Curator**](skills/skill-curator/SKILL.md) skill.
+
+### React Native
 
 | Skill Name | Source | Description |
 | :--- | :--- | :--- |
@@ -20,7 +47,7 @@ A curated list of agent skills from the community that I find useful.
 | [**Native Data Fetching**](https://github.com/expo/skills/tree/main/plugins/expo-app-design/skills/native-data-fetching/SKILL.md) | [Expo](https://github.com/expo/skills) | Covers fetch API, React Query, SWR, error handling, caching, offline support, and Expo Router data loaders. |
 | [**Expo API Routes**](https://github.com/expo/skills/tree/main/plugins/expo-app-design/skills/expo-api-routes/SKILL.md) | [Expo](https://github.com/expo/skills) | Guidelines for creating API routes in Expo Router with EAS Hosting. |
 
-## Web & React
+### Web & React
 
 | Skill Name | Source | Description |
 | :--- | :--- | :--- |
@@ -28,7 +55,7 @@ A curated list of agent skills from the community that I find useful.
 | [**Composition Patterns**](https://github.com/vercel-labs/agent-skills/tree/main/skills/composition-patterns/SKILL.md) | [Vercel](https://github.com/vercel-labs/agent-skills) | React composition patterns to avoid boolean prop proliferation and ensure scalability. |
 | [**Web Design Guidelines**](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines/SKILL.md) | [Vercel](https://github.com/vercel-labs/agent-skills) | Review UI code for compliance with 100+ web interface best practices. |
 
-## Cloud & Infrastructure (AWS)
+### Cloud & Infrastructure (AWS)
 
 | Skill Name | Source | Description |
 | :--- | :--- | :--- |
@@ -37,34 +64,13 @@ A curated list of agent skills from the community that I find useful.
 | [**AWS Cost Operations**](https://github.com/zxkane/aws-skills/tree/main/plugins/aws-cost-ops/skills/aws-cost-operations/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS cost optimization, monitoring, and operational best practices. |
 | [**AWS CDK Development**](https://github.com/zxkane/aws-skills/tree/main/plugins/aws-cdk/skills/aws-cdk-development/SKILL.md) | [zxkane](https://github.com/zxkane/aws-skills) | AWS Cloud Development Kit (CDK) expert for building cloud infrastructure with TypeScript/Python. |
 
-## Workflows & Tools
+### Workflows & Tools
 
 | Skill Name | Source | Description |
 | :--- | :--- | :--- |
-| [**PRD**](https://github.com/snarktank/ralph/blob/main/skills/prd/SKILL.md) | [snarktank](https://github.com/snarktank/ralph) | Generate a Product Requirements Document (PRD) for a new feature. |
 | [**PDF**](https://github.com/anthropics/skills/blob/main/skills/pdf/SKILL.md) | [Anthropic](https://github.com/anthropics/skills) | Use this skill whenever the user wants to do anything with PDF files. |
 | [**GitHub**](https://github.com/callstackincubator/agent-skills/tree/main/skills/github/SKILL.md) | [Callstack](https://github.com/callstackincubator/agent-skills) | GitHub workflow patterns for Pull Requests, code reviews, and branching strategies. |
 | [**Expo Deployment**](https://github.com/expo/skills/tree/main/plugins/expo-deployment/skills/expo-deployment/SKILL.md) | [Expo](https://github.com/expo/skills) | Deploying Expo apps to iOS App Store, Android Play Store, web hosting, and API routes. |
 | [**Expo CI/CD Workflows**](https://github.com/expo/skills/tree/main/plugins/expo-deployment/skills/expo-cicd-workflows/SKILL.md) | [Expo](https://github.com/expo/skills) | Helps understand and write EAS workflow YAML files for Expo projects. |
-| [**Public Repo Explorer**](https://github.com/eho/agent-skills/blob/main/skills/public-repo-explorer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Instructs the agent on how to efficiently browse public GitHub repositories using a local shallow clone. |
-| [**Skill Curator**](https://github.com/eho/agent-skills/blob/main/skills/skill-curator/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Curate and catalog agent skills from GitHub repositories or URLs. |
-| [**User Story Implementer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-implementer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Implement a single user story or task from a PRD or task list. |
-| [**User Story Reviewer**](https://github.com/eho/agent-skills/blob/main/skills/user-story-reviewer/SKILL.md) | [eho/agent-skills](https://github.com/eho/agent-skills) | Review an implemented user story or task for completeness, test coverage, and code quality. |
 | [**qmd**](https://github.com/levineam/qmd-skill/blob/main/SKILL.md) | [levineam](https://github.com/levineam/qmd-skill) | Local hybrid search for markdown notes and docs. Use when searching notes, finding related content, or retrieving documents from indexed collections. |
 | [**Algorithmic Art**](https://github.com/anthropics/skills/blob/main/skills/algorithmic-art/SKILL.md) | [Anthropic](https://github.com/anthropics/skills) | Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. |
-
-## Installation
-
-To install any of the skills listed above, copy the link address from the **Skill Name** column and run the following command:
-
-```bash
-bunx skills add <url-to-skill.md>
-```
-
-**Example:**
-```bash
-bunx skills add https://github.com/expo/skills/tree/main/plugins/expo-app-design/skills/expo-api-routes/SKILL.md
-```
-
----
-*Created and maintained by Gemini with the Skill Curator skill.*
