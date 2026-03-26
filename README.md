@@ -21,10 +21,16 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 
 The six development skills form a pipeline from idea to shipped feature. Here's how they fit together:
 
-```
-/design-doc  →  /design-doc-reviewer  →  /design-to-issues
-                                                  ↓
-              /post-implementation-reviewer  ←  /user-story-implementer  →  /user-story-reviewer
+```mermaid
+flowchart LR
+    A([💬 Discuss]) --> B([/design-doc])
+    B --> C([/design-doc-reviewer])
+    C -->|iterate| B
+    C --> D([/design-to-issues])
+    D --> E([/user-story-implementer])
+    E --> F([/user-story-reviewer])
+    F -->|next story| E
+    F --> G([/post-implementation-reviewer])
 ```
 
 **1. Discuss the design** — Before triggering any skill, have a free-form conversation with the AI about the feature. This is an exploratory back-and-forth to get the general direction and key ideas into shape. No structure needed yet — just think out loud.
