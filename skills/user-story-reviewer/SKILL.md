@@ -43,14 +43,12 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
 
    **Script usage**: Write your detailed review comment to a temporary text file (e.g., `review_comment.txt`). Then, call the bundled script passing the PR number and the path to your comment file.
 
-   **Script location:** The script is at `SKILL_DIR/scripts/approve_or_merge_pr.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). Example:
+   The `scripts/` directory is a sibling of this SKILL.md file. Resolve its absolute path and call:
    ```bash
-   SKILL_DIR="<base directory from skill invocation>"
    echo "My detailed review comment..." > review_comment.txt
-   "$SKILL_DIR/scripts/approve_or_merge_pr.sh" <pr-number> review_comment.txt
+   bash /absolute/path/to/scripts/approve_or_merge_pr.sh <pr-number> review_comment.txt
    rm review_comment.txt
    ```
-   If the base directory is not available, locate the script at `<git repo root>/.agents/skills/user-story-reviewer/scripts/approve_or_merge_pr.sh`.
 
 ## Review Dimensions
 
@@ -90,7 +88,7 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
 6. Check out the PR: `gh pr checkout 13`. This is a small, clear gap (missing test), so fix it yourself.
 7. Write the missing test in `TaskEdit.test.tsx` and update the README if needed.
 8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
-9. Approve or Merge the PR (using SKILL_DIR from "Base directory for this skill:" header):
+9. Approve or Merge the PR (resolve absolute path to `scripts/` sibling of this SKILL.md):
    ```bash
    echo "Verified:
    - Priority selector dropdown works in modal
@@ -98,6 +96,6 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
    - Saves immediately
    - Fixed missing test for immediate save in TaskEdit.test.tsx (see commit <hash>)
    " > review_comment.txt
-   "$SKILL_DIR/scripts/approve_or_merge_pr.sh" 13 review_comment.txt
+   bash /path/to/skills/user-story-reviewer/scripts/approve_or_merge_pr.sh 13 review_comment.txt
    rm review_comment.txt
    ```

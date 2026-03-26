@@ -44,12 +44,10 @@ Your objective is to complete exactly **one** user story or task from the GitHub
 8. **Pull Request & Linking**:
    - Push the branch: `git push -u origin HEAD`.
    - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
-     **Script location:** The script is at `SKILL_DIR/scripts/create_pr.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). Example:
+     The `scripts/` directory is a sibling of this SKILL.md file. Resolve its absolute path and call:
      ```bash
-     SKILL_DIR="<base directory from skill invocation>"
-     "$SKILL_DIR/scripts/create_pr.sh" "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
+     bash /absolute/path/to/scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
-     If the base directory is not available, locate the script at `<git repo root>/.agents/skills/user-story-implementer/scripts/create_pr.sh`.
      Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
 
 ## Available Scripts
@@ -70,7 +68,7 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
 5. Review the code to ensure it meets Acceptance Criteria in Issue #12.
 6. Commit: `git add src/components/TaskEdit.tsx` and `git commit -m "feat: add priority selector (US-002)"`.
 7. Push: `git push -u origin HEAD`.
-8. Create PR (using SKILL_DIR from "Base directory for this skill:" header):
+8. Create PR (resolve absolute path to `scripts/` sibling of this SKILL.md, e.g. `/path/to/skills/user-story-implementer/scripts/create_pr.sh`):
    ```bash
-   "$SKILL_DIR/scripts/create_pr.sh" "12" "feat: Add priority selector" "Added priority selector to task edit."
+   bash /path/to/skills/user-story-implementer/scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
    ```
