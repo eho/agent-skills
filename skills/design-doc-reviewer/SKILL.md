@@ -126,6 +126,7 @@ Use this exact structure:
 | Example Output | ✅/⚠️/❌ | [specific observation] |
 | Configuration | ✅/⚠️/❌ | [specific observation] |
 | Testing Strategy | ✅/⚠️/❌ | [specific observation] |
+| Observability & Logging | ✅/⚠️/❌ | [specific observation] |
 | Edge Cases & Failures | ✅/⚠️/❌ | [specific observation] |
 | Risks | ✅/⚠️/❌ | [specific observation] |
 | Open Questions | ✅/⚠️/❌ | [specific observation] |
@@ -133,7 +134,7 @@ Use this exact structure:
 | User Stories | ✅/⚠️/❌ | [specific observation] |
 | Future Extensions | ✅/⚠️/❌ | [specific observation] |
 
-**Score:** X/20 elements present and strong
+**Score:** X/21 elements present and strong
 
 ---
 

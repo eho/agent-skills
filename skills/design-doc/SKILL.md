@@ -202,6 +202,18 @@ Write concretely — use real names, exact file paths, strict data structures, a
 
 ---
 
+## Observability & Logging
+
+[What should be logged to enable troubleshooting without a debugger attached? Cover:
+- **Key operations**: What events or state transitions should emit a log? (e.g., "job started", "record saved", "external call returned")
+- **Error paths**: What failures must be logged with enough context to diagnose the cause? (e.g., include relevant IDs, inputs, response codes)
+- **Log levels**: Which statements are `debug` (verbose, dev-only), `info` (normal operation), `warn` (unexpected but recoverable), `error` (needs attention)?
+- **Format**: Structured (JSON with fields) or plain text? Any required fields (trace ID, user ID, timestamp)?
+
+Avoid vague statements like "add appropriate logging." Name the specific operations and the information each log must include.]
+
+---
+
 ## Edge Cases & Failures
 
 [For each failure mode: how is it detected, and what's the mitigation?]

@@ -37,6 +37,7 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - [ ] Are there new tests? Run them locally to verify they pass.
    - [ ] Do the tests exercise the core feature (not just superficial checks)?
    - [ ] Do the tests cover the happy path AND relevant error cases?
+   - [ ] Are key operations, state transitions, and error paths logged with enough context to diagnose failures without a debugger? (e.g., relevant IDs, inputs, response codes in error logs)
    - If all checkboxes pass, proceed to step 7. If any fail, return to step 4 to address gaps.
 7. **Commit Code**: Once your user story or chunk is complete, you must commit your changes to your feature branch.
    - Do not use `git commit -a`. Select files manually.

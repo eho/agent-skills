@@ -45,6 +45,7 @@ You are acting as a senior architect and technical writer. Your goal is to ensur
 - [ ] **Tests**: 100% of acceptance criteria have corresponding passing tests.
 - [ ] **README**: Updated with new feature descriptions and usage examples.
 - [ ] **Consistency**: Code, design doc, and documentation use the same terminology.
+- [ ] **Logging**: Key operations, error paths, and state transitions emit logs with sufficient context (IDs, inputs, response codes) to diagnose failures without a debugger. Logging is consistent in level and format across all stories in the feature.
 - [ ] **Polish**: Error handling and edge cases are handled consistently across the feature.
 
 ## Examples
