@@ -3,7 +3,7 @@ name: user-story-reviewer
 description: Review an implemented user story or task (via GitHub Pull Request) for completeness, test coverage, and code quality. Use this when asked to QA, review a PR, verify implementation, review a user story like USERST-001, or as a follow-up to the user-story-implementer skill.
 metadata:
   author: eho
-  version: '2.2.0'
+  version: '2.3.0'
 ---
 
 # User Story Reviewer
@@ -54,7 +54,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - **Request changes by default** if the gap affects acceptance criteria, behavior, architecture, data safety, security, compatibility, or test confidence. Write the detailed review to a file and run `gh pr review <pr-number> --request-changes --body-file <file>`.
      - **Fix yourself only after choosing the `Fix small issue` Decision** and only if the gap is small, mechanical, low-risk, and clearly within the reviewer workflow (e.g., missing focused test, typo in comment, adding 1-2 obvious lines of code). Checkout the PR branch with `gh pr checkout <pr-number>`, make the fix, commit with `git add <specific-files>` (not `git add .`), and push. Call out the fix commit in the review.
    - If you request changes, stop after posting the review. Do not continue toward approval until a follow-up review is requested.
-7. **Sign off (Approve or Comment)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs. If you are the author, leave a comment-only review unless the user explicitly asked you to merge or the repository workflow clearly expects reviewer agents to merge after all checks pass. If you are not the author, formally approve the PR. The bundled script handles this logic automatically, and only merges when passed `--merge`.
+7. **Sign off (Approve or Merge)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs, so self-authored PRs should be handled by leaving a comment review and then merging once there are no blocking findings and CI/checks are passing. If you are not the author, formally approve the PR. The bundled script handles this logic automatically: current-user PRs are comment-and-merge by default, while non-current-user PRs receive an approval review.
 
    **Review comment**: Before approving or merging, write a specific, self-documenting review comment. Do NOT use generic statements like "All acceptance criteria met." Instead:
    - Summarize what was verified — list the key acceptance criteria checked and confirm each passed.
@@ -70,9 +70,9 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
    rm review_comment.txt
    ```
 
-   To merge an agent-authored PR after approval is warranted and merging is explicitly allowed, pass `--merge`:
+   To leave a comment-only sign-off without merging a current-user PR, pass `--comment-only`:
    ```bash
-   bash /absolute/path/to/scripts/approve_or_merge_pr.sh <pr-number> review_comment.txt --merge
+   bash /absolute/path/to/scripts/approve_or_merge_pr.sh <pr-number> review_comment.txt --comment-only
    ```
 
 ## Review Output
@@ -129,7 +129,7 @@ Before approving, requesting changes, fixing, or merging, produce this structure
 
 This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
 
-- `approve_or_merge_pr.sh "<pr-number>" "<review-comment-file>" [--merge]`: Safely extracts author information and determines whether to comment (if the PR belongs to the current user) or approve the PR, avoiding agent shell parsing errors. If `--merge` is provided for a current-user PR, the script comments and then squash-merges. A real review comment file is required; the script will not post a generic approval body.
+- `approve_or_merge_pr.sh "<pr-number>" "<review-comment-file>" [--comment-only]`: Safely extracts author information and determines whether to comment-and-merge (if the PR belongs to the current user) or approve the PR, avoiding agent shell parsing errors. Pass `--comment-only` to skip merging a current-user PR. A real review comment file is required; the script will not post a generic approval body.
 
 ## Examples
 

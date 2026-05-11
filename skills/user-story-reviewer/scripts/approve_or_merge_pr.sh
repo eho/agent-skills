@@ -1,12 +1,12 @@
 #!/bin/bash
 # scripts/approve_or_merge_pr.sh
-# Usage: ./scripts/approve_or_merge_pr.sh "<pr_number>" "review_comment_file" [--merge]
+# Usage: ./scripts/approve_or_merge_pr.sh "<pr_number>" "review_comment_file" [--comment-only]
 
 set -euo pipefail
 
 PR_NUMBER=${1:-}
 REVIEW_BODY_FILE=${2:-}
-MERGE=false
+COMMENT_ONLY=false
 TMP_BODY=""
 
 cleanup() {
@@ -16,16 +16,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [ "${2:-}" = "--merge" ] || [ "${3:-}" = "--merge" ]; then
-  MERGE=true
+if [ "${2:-}" = "--comment-only" ] || [ "${3:-}" = "--comment-only" ]; then
+  COMMENT_ONLY=true
 fi
 
 if [ -z "$PR_NUMBER" ]; then
-  echo "Usage: $0 <pr_number> <review_comment_file> [--merge]" >&2
+  echo "Usage: $0 <pr_number> <review_comment_file> [--comment-only]" >&2
   exit 1
 fi
 
-if [ -z "$REVIEW_BODY_FILE" ] || [ "$REVIEW_BODY_FILE" = "--merge" ] || [ ! -f "$REVIEW_BODY_FILE" ]; then
+if [ -z "$REVIEW_BODY_FILE" ] || [ "$REVIEW_BODY_FILE" = "--comment-only" ] || [ ! -f "$REVIEW_BODY_FILE" ]; then
   echo "Error: review_comment_file is required and must exist." >&2
   exit 1
 fi
@@ -41,7 +41,7 @@ cat "$REVIEW_BODY_FILE" > "$TMP_BODY"
 # GitHub prevents users from approving their own PRs
 if [ "$PR_AUTHOR" = "$CURRENT_USER" ]; then
   gh pr review "$PR_NUMBER" --comment --body-file "$TMP_BODY"
-  if [ "$MERGE" = true ]; then
+  if [ "$COMMENT_ONLY" = false ]; then
     gh pr merge "$PR_NUMBER" --squash --delete-branch
   fi
 else
