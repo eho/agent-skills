@@ -9,6 +9,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Design Doc**](skills/design-doc/SKILL.md) | `/design-doc` | Synthesize a discussion or outline into a complete design document with architecture, data contracts, and agent-ready user stories with acceptance criteria. |
 | [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | Review a design document for completeness, clarity, and implementability. Returns structured feedback, a quality score, and actionable improvements. |
 | [**Design to Issues**](skills/design-to-issues/SKILL.md) | `/design-to-issues` | Parse a design document and create GitHub Issues from its user stories, optionally linked to a Milestone for tracking. |
+| [**User Story Delivery**](skills/user-story-delivery/SKILL.md) | `/user-story-delivery` | Coordinate implementation and review for a single GitHub user story, including bounded review-fix loops until the PR is approved, merged, or blocked. |
 | [**User Story Implementer**](skills/user-story-implementer/SKILL.md) | `/user-story-implementer` | Pick up a single open GitHub Issue, implement it end-to-end (code, tests, PR), and move on. Designed to run in a fresh context per story. |
 | [**User Story Reviewer**](skills/user-story-reviewer/SKILL.md) | `/user-story-reviewer` | Review a Pull Request against the original issue's acceptance criteria, checking completeness, test coverage, and code quality. |
 | [**Post-Implementation Reviewer**](skills/post-implementation-reviewer/SKILL.md) | `/post-implementation-reviewer` | Comprehensive review after a full feature is implemented — verifies all user stories are done, implementation matches the design, and documentation is consistent. |
@@ -19,7 +20,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 
 ## Development Workflow
 
-The six development skills form a pipeline from idea to shipped feature. Here's how they fit together:
+The seven development skills form a pipeline from idea to shipped feature. Here's how they fit together:
 
 ```
 💬 Discuss
@@ -30,9 +31,11 @@ The six development skills form a pipeline from idea to shipped feature. Here's 
      ↓
 /design-to-issues
      ↓
-/user-story-implementer  ◄──────┐
-     ↓                          │ next story
-/user-story-reviewer ───────────┘
+/user-story-delivery  ◄──────────┐
+     │                           │ next story
+     ├─ /user-story-implementer  │
+     ↓                           │
+     └─ /user-story-reviewer ────┘
      ↓
 /post-implementation-reviewer
 ```
@@ -45,7 +48,7 @@ The six development skills form a pipeline from idea to shipped feature. Here's 
 
 **4. Push stories to GitHub** — Use `/design-to-issues` to convert the user stories into GitHub Issues, optionally grouped under a Milestone. From here the backlog lives in GitHub, which is easier to track than a local markdown file.
 
-**5. Implement and review, one story at a time** — Kick off `/user-story-implementer` for the next open issue. The agent implements it and opens a PR. Then run `/user-story-reviewer` to check the PR against the original acceptance criteria. Repeat until all stories are done.
+**5. Implement and review, one story at a time** — Prefer `/user-story-delivery` for the full loop. It runs `/user-story-implementer`, hands the resulting PR to `/user-story-reviewer`, addresses requested changes, and repeats review up to a bounded limit. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
 
 **6. Final review** — Run `/post-implementation-reviewer` once the full feature is complete. This is the overall sanity check: do all stories add up to what the design described? Are there any gaps or inconsistencies?
 

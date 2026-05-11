@@ -3,7 +3,7 @@ name: user-story-reviewer
 description: Review an implemented user story or task (via GitHub Pull Request) for completeness, test coverage, and code quality. Use this when asked to QA, review a PR, verify implementation, review a user story like USERST-001, or as a follow-up to the user-story-implementer skill.
 metadata:
   author: eho
-  version: '2.3.0'
+  version: '2.3.1'
 ---
 
 # User Story Reviewer
@@ -53,7 +53,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      - First record the issue as a review finding.
      - **Request changes by default** if the gap affects acceptance criteria, behavior, architecture, data safety, security, compatibility, or test confidence. Write the detailed review to a file and run `gh pr review <pr-number> --request-changes --body-file <file>`.
      - **Fix yourself only after choosing the `Fix small issue` Decision** and only if the gap is small, mechanical, low-risk, and clearly within the reviewer workflow (e.g., missing focused test, typo in comment, adding 1-2 obvious lines of code). Checkout the PR branch with `gh pr checkout <pr-number>`, make the fix, commit with `git add <specific-files>` (not `git add .`), and push. Call out the fix commit in the review.
-   - If you request changes, stop after posting the review. Do not continue toward approval until a follow-up review is requested.
+   - If you request changes, stop after posting the review and final response. Do not continue toward approval until a follow-up review is requested.
 7. **Sign off (Approve or Merge)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs, so self-authored PRs should be handled by leaving a comment review and then merging once there are no blocking findings and CI/checks are passing. If you are not the author, formally approve the PR. The bundled script handles this logic automatically: current-user PRs are comment-and-merge by default, while non-current-user PRs receive an approval review.
 
    **Review comment**: Before approving or merging, write a specific, self-documenting review comment. Do NOT use generic statements like "All acceptance criteria met." Instead:
@@ -102,6 +102,31 @@ Before approving, requesting changes, fixing, or merging, produce this structure
 ### Decision
 - Choose one: `Request changes`, `Fix small issue`, `Approve`, `Comment only`, or `Merge`.
 - Explain the decision in one or two sentences.
+
+## Final Response and Handoffs
+
+The Review Output is always required before approving, requesting changes, fixing, or merging. After completing the selected review action, end with a concise final response that includes the PR, final decision, blocking findings count, verification performed, and any required follow-up.
+
+If the caller requests a specific handoff format, such as the `Review Handoff` used by the `user-story-delivery` coordinator, return that format exactly in the final response after the review action is complete. The handoff is a reporting format only; it does not replace the Review Output or change the review, approval, request-changes, or merge rules.
+
+Use `Decision` in the handoff to report the final state after the review action:
+
+- `Request changes`: blocking findings were posted and follow-up implementation is required.
+- `Fix small issue`: the reviewer pushed a small fix, but did not approve, comment-only sign off, or merge in this run.
+- `Approve`: the PR was approved.
+- `Comment only`: a non-approval sign-off comment was left.
+- `Merge`: the PR was merged.
+
+```markdown
+## Review Handoff
+- Story ID:
+- PR:
+- Decision: Request changes | Fix small issue | Approve | Comment only | Merge
+- Blocking findings:
+- Reviewer-fixed commits:
+- Required follow-up:
+- Verification:
+```
 
 ## Review Dimensions
 

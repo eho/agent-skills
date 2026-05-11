@@ -3,14 +3,14 @@ name: user-story-implementer
 description: Implement one specific user story or task from a GitHub Issue backlog, usually identified by a story ID such as USERST-001 or an issue number. Assigns the issue, implements the acceptance criteria, verifies the change, commits, pushes, and creates a PR. You MUST use this skill when asked to "implement USERST-001", "implement a user story", "run one iteration", "do the next task", or "complete a task from the backlog".
 metadata:
   author: eho
-  version: '2.0.0'
+  version: '2.0.1'
 ---
 
 # Instructions
 
 You are acting as an autonomous sub-agent to implement a user story or task managed via GitHub Issues.
 
-Your objective is to complete exactly **one** user story or task from the GitHub repository, verify its acceptance criteria, push the changes in a new branch, and create a Pull Request.
+Your objective is to complete exactly **one** user story or task from the GitHub repository, verify its acceptance criteria, push the changes to the appropriate feature branch, and create or update a Pull Request. For new implementation work, create a new branch and PR. For requested revisions to an existing PR, check out that PR branch, commit fixes there, and push to the same PR.
 
 **PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) for this skill to function.
 
@@ -64,12 +64,33 @@ Your objective is to complete exactly **one** user story or task from the GitHub
    - Do not use `git commit -a`. Select files manually.
 10. **Pull Request & Linking**:
    - Push the branch: `git push -u origin HEAD`.
-   - Create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
+   - If this is revision work on an existing PR, do not create a second PR. Push the commit to the existing PR branch and report the existing PR URL.
+   - If no matching PR exists yet, create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
      The `scripts/` directory is a sibling of this SKILL.md file. Resolve its absolute path and call:
      ```bash
      bash /absolute/path/to/scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
      ```
      Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
+
+## Final Response and Handoffs
+
+Always end with a concise implementation summary that includes the story, issue, branch, PR, verification performed, and any blocker or residual risk.
+
+If the caller requests a specific handoff format, such as the `Implementation Handoff` used by the `user-story-delivery` coordinator, return that format exactly in the final response. The handoff is a reporting format only; it does not change this skill's implementation, verification, commit, push, or PR-linking requirements.
+
+For revision work requested by a reviewer or coordinator, include the review findings addressed:
+
+```markdown
+## Implementation Handoff
+- Story ID:
+- Issue:
+- Branch:
+- PR:
+- Review findings addressed:
+- Verification:
+- Known residual risk:
+- Blocked: yes/no
+```
 
 ## Available Scripts
 
