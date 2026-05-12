@@ -1,6 +1,6 @@
 ---
 name: user-story-delivery
-description: Orchestrate the complete delivery workflow for one GitHub user story: implement it with the user-story-implementer skill, review the resulting PR with the user-story-reviewer skill, address reviewer feedback, and repeat until the PR is approved, merged, or blocked. You MUST use this skill when asked to "implement and review a user story", "run the full user story workflow", "deliver USERST-001", "complete USERST-001 end to end", or "run implementation and review together".
+description: 'Orchestrate the complete delivery workflow for one GitHub user story: implement it with the user-story-implementer skill, review the resulting PR with the user-story-reviewer skill, address reviewer feedback, and repeat until the PR is approved, merged, or blocked. You MUST use this skill when asked to "implement and review a user story", "run the full user story workflow", "deliver USERST-001", "complete USERST-001 end to end", or "run implementation and review together".'
 metadata:
   author: eho
   version: '1.0.0'
