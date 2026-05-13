@@ -27,7 +27,7 @@ Synthesize a design discussion into a complete, structured design document with 
 ## The Job
 
 1. Review the conversation history for all design discussion
-2. Actively search the codebase (using glob/grep) to find relevant existing files, architectural patterns, and verify integration points. Do not guess file paths.
+2. Actively search the codebase (use `rg`/file search first) to find relevant existing files, architectural patterns, and verify integration points. Do not guess file paths.
 3. Identify gaps — things not yet discussed that a complete design doc needs
 4. Ask targeted clarifying questions for only the genuinely unresolved gaps
 5. Write the design doc following the structure below
@@ -76,7 +76,7 @@ If you have 3 or fewer questions, ask them directly. If more, prioritize the mos
 
 ### Format Questions Like This:
 
-Provide lettered options so the user can respond quickly (e.g., "1A, 2C, 3B"):
+Use lettered options when the answer space is known so the user can respond quickly (e.g., "1A, 2C, 3B"). If the answer space is open-ended, ask a concise open question instead.
 
 ```
 1. What is the primary goal?
@@ -96,7 +96,7 @@ Provide lettered options so the user can respond quickly (e.g., "1A, 2C, 3B"):
 
 ## Step 3: Write the Design Doc
 
-Use the structure below. Every section is required. If a section genuinely doesn't apply, include it with a one-line explanation of why it was omitted rather than silently skipping it.
+Use the structure below. Every section is required except Vision Alignment, which is included only when a vision source exists. If a required section genuinely doesn't apply, include it with a one-line explanation of why it was omitted rather than silently skipping it.
 
 Write concretely — use real names, exact file paths, strict data structures, and examples from the discussion and codebase. Avoid abstract prose when specifics are available. This document must be highly actionable for an AI agent to implement.
 
@@ -196,6 +196,24 @@ Write concretely — use real names, exact file paths, strict data structures, a
 
 ---
 
+## Security, Privacy & Permissions
+
+[Authentication, authorization, secrets, PII, data retention, auditability, and permission boundary impacts. If none apply, state why. For user-facing or data-handling features, name the exact checks that prevent unauthorized access or accidental disclosure.]
+
+---
+
+## Performance & Scalability
+
+[Expected load, latency targets, data volume assumptions, caching/batching strategy, and known bottlenecks. If the feature is not performance-sensitive, explain the assumption.]
+
+---
+
+## Migration, Rollout & Rollback
+
+[Schema migrations, backfills, feature flags, compatibility with existing clients/data, rollout sequence, and rollback plan. If no migration or rollout risk exists, state why.]
+
+---
+
 ## Testing Strategy
 
 [Not just "we'll write unit tests." Name specific test cases, edge cases, and integration scenarios, including which test files to create or modify.]
@@ -248,11 +266,28 @@ Avoid vague statements like "add appropriate logging." Name the specific operati
 
 ---
 
+## Implementation Plan
+
+[Ordered implementation slices. Each slice should map to one or more user stories. Use this to make dependencies and sequencing explicit before writing stories.]
+
+| Order | Story | Purpose | Depends On | Primary Files |
+|-------|-------|---------|------------|---------------|
+| 1 | [PREFIX]-001 | ... | None | `src/example/file.ts` |
+
+---
+
 ## User Stories
 
 [PREFIX] is a short 3-10 letter abbreviation derived from the feature name.
 
 Minimize the number of user stories while ensuring each story is small enough for an AI agent to complete in one focused session. Avoid over-fragmenting into tiny stories, but do not combine unrelated complex tasks.
+
+Story slicing rules:
+- Each story should deliver one primary behavioral outcome.
+- Split stories when they touch unrelated subsystems, require different verification modes, or combine independently useful work.
+- Do not bundle schema/data-model work, API work, UI work, migrations, and documentation unless they are tightly coupled and still fit in one focused implementation session.
+- Order stories by dependency. A story should name any prerequisite story IDs or explicitly say `None`.
+- Prefer one coherent PR-sized slice over tiny mechanical tasks, but split when the acceptance criteria stop being easy to verify as a unit.
 
 Each story must be grounded in the design sections above — reference exact file paths, data contracts, and integration points. An implementing agent should be able to complete the story without reading the rest of this document.
 
@@ -265,17 +300,27 @@ Each story must be grounded in the design sections above — reference exact fil
 ### [PREFIX]-001: [Title]
 **Description:** As a [user], I want [feature] so that [benefit].
 
+**Outcome:** [One concrete behavioral outcome this story delivers]
+
+**Design References:**
+- Architecture Overview: [brief reference to relevant component/flow]
+- API & Data Contracts: [specific interface/schema/payload]
+- Integration Points: [specific files/functions/hooks]
+
 **Context:**
 - Files to read: `path/to/relevant/file.ts`
 - Relevant data contracts: [reference the specific interface/schema from API & Data Contracts section]
+- Files likely to change: `path/to/file.ts`
+- Depends on: None / [PREFIX]-000
+- Out of scope: [What this story intentionally does not include]
 
 **Acceptance Criteria:**
-- [ ] [Specific, verifiable criterion referencing exact file paths and function names]
-- [ ] [Another criterion]
-- [ ] Typecheck/lint passes
-- [ ] **[Logic/Backend]** Write unit tests covering [specific scenarios]
-- [ ] **[UI stories only]** Verify in browser using dev-browser skill
-- [ ] **[Documentation]** Update [specific doc — name the file] if applicable
+- [ ] Given [state], when [action], then [observable result], implemented in `path/to/file.ts`
+- [ ] [Another binary, verifiable criterion referencing exact file paths and function names]
+- [ ] Typecheck/lint passes using `[exact command]`
+- [ ] **[Logic/Backend]** Unit tests added or updated in `path/to/test` covering [specific scenarios]
+- [ ] **[UI stories only]** Browser verification completed using browser automation/dev browser if available, covering [specific interaction/state]
+- [ ] **[Documentation]** Update `path/to/doc.md` / Documentation impact: None, because [reason]
 
 ### [PREFIX]-002: [Title]
 ...
@@ -366,6 +411,8 @@ Add a `## Revision Notes` section at the end of the design doc (before Future Ex
 - **Own the gaps.** If a required section has nothing from the conversation and couldn't be found in the codebase, write a placeholder that names what's needed. Don't fabricate details.
 - **Align with the vision.** If `docs/vision/vision.md` exists, read it first and ensure the design fits the stated product direction. Note any tension in the Open Questions section.
 - **User stories are the deliverable.** The design sections are context. The user stories are what gets sent to GitHub issues for agents to implement. Every story must be self-contained: an agent reading only that story should know exactly what to do, which files to touch, and how to verify it's done.
+- **Slice stories by outcome and dependency.** Each story should have one primary behavioral outcome, explicit dependencies, clear out-of-scope boundaries, and acceptance criteria that can be verified together. Split a story when it mixes unrelated subsystems, unrelated verification modes, or independently shippable work.
+- **Reference the design from each story.** Every story must point back to the relevant architecture, data contract, and integration point so implementation stays aligned with the design, even when the story is copied into an issue tracker.
 - **Acceptance criteria must be binary.** "Works correctly" is not a criterion. "Returns 404 when user ID doesn't exist" is. Each criterion should be verifiable by running a test or checking a specific behavior.
-- **Every story needs testing.** Backend/logic changes require unit tests. UI changes require browser verification. No exceptions.
-- **Every story needs documentation.** If a story adds user-facing functionality, a CLI flag, an API endpoint, or changes architecture, its acceptance criteria must require updating the relevant docs. Name the specific file to update — don't say "update docs if applicable."
+- **Every story needs explicit verification.** Backend/logic changes require named unit tests. UI changes require browser verification. Every story should include the exact typecheck, lint, test, or browser check needed to prove completion.
+- **Every story needs a documentation decision.** If a story adds user-facing functionality, a CLI flag, an API endpoint, or changes architecture, its acceptance criteria must require updating the relevant docs. Name the specific file to update. If no docs change is needed, state `Documentation impact: None` and explain why.
