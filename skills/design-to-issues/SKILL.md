@@ -3,43 +3,58 @@ name: design-to-issues
 description: Parses a design document to extract User Stories and creates corresponding GitHub Issues. It can optionally link them to a GitHub Milestone. This skill acts as a setup phase for GitHub-native issue tracking. Make sure to use this skill whenever the user asks to "send the design doc to GitHub", "create issues from the design doc", "setup the milestone", or mentions turning requirements into actionable GitHub issues.
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '1.1.0'
 ---
 
 # Instructions
 
-You are acting as an autonomous sub-agent to parse a design document (which contains user stories) and scaffold a GitHub milestone by creating GitHub Issues for each user story.
+You are acting as an autonomous sub-agent to publish reviewed, agent-ready user stories from a design document into GitHub Issues. The design document is expected to come from the `design-doc` skill and may have a companion review from `design-doc-reviewer`; treat GitHub issues as the implementation handoff, so preserve every detail an implementation agent needs without requiring it to reopen the full design doc.
 
 **PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) for this skill to function.
 
 ## Workflow
 
-1. **Setup Labels**: Before creating any issues, verify the `user-story` label exists and that a label for the specific feature prefix (e.g., `PRI`) exists. Run `gh label list --limit 1000 | grep "user-story"`. If not found, create it: `gh label create "user-story" --color "0e8a16" --description "User story task"`. Repeat this check and creation process for the design doc's specific prefix if applicable: `gh label create "<prefix>" --color "1d76db"`.
-2. **Parse Design Doc**: Read the specified design document (e.g., `docs/design/[feature].md`). Extract all User Stories and their complete details, including Titles, Descriptions, Acceptance Criteria, Context (file paths, data contracts), Technical Notes, dependencies, the feature prefix, and any other relevant context.
-3. **Identify Dependencies**: If the design doc outlines dependencies between user stories, note them. You will add these as comments or task lists in the issues.
-4. **Idempotency Check**: Before creating an issue, check if an issue already exists for a given user story using `gh issue list --search "in:title <User Story Title>"`. This prevents creating duplicate issues if the skill is run multiple times.
-5. **Create Issues**: Loop through the extracted stories. For each uncreated story, construct a GitHub blob URL to the design doc. Get the repo info with `gh repo view --json nameWithOwner -q` (format: `owner/repo`), then format the issue body:
+1. **Resolve Inputs and Skill Directory**: Identify the design doc path from the user request. Resolve `SKILL_DIR` as the directory containing this `SKILL.md` from the base directory provided in the skill invocation. If no base directory is provided, locate it at `<git repo root>/.agents/skills/design-to-issues`.
+2. **Check Design Readiness**: Before creating or editing GitHub issues, read the specified design doc and look for the companion review file at `docs/design/review-[original-filename].md`.
+   - If a review file exists, read it and confirm the design doc has been revised after review. Strong signals include `**Status:** Revised`, a `## Revision Notes` section, or an explicit user instruction to publish despite outstanding review feedback.
+   - If the review contains Critical Gaps and the design doc does not show revision notes addressing them, stop and tell the user the doc is not ready to publish to GitHub.
+   - If no review file exists, warn the user that the expected `design-doc-reviewer` artifact is missing. Continue only if the user explicitly asked to publish anyway or the current request clearly says to proceed without review.
+3. **Get Repository Metadata**: Run `gh repo view --json nameWithOwner,defaultBranchRef -q '{owner: .nameWithOwner, branch: .defaultBranchRef.name}'`. Use `owner` for issue URLs and `branch` for design-doc blob links. Do not assume the default branch is `main`.
+4. **Parse User Stories**: Extract every story under `## User Stories` by story ID heading, e.g. `### PRI-001: Title`. Preserve each story's complete details from the design-doc contract:
+   - Description and Outcome
+   - Design References
+   - Context, including files to read, relevant data contracts, files likely to change, dependencies, and out-of-scope boundaries
+   - Acceptance Criteria, including verification commands, test requirements, browser checks, and documentation decisions
+   - Any Technical Notes or other story-specific implementation context
+5. **Setup Labels**: Before creating any issues, verify the `user-story` label exists and that a label for the specific feature prefix (e.g., `PRI`) exists. Prefer JSON output over text matching:
+   ```bash
+   gh label list --limit 1000 --json name -q '.[].name'
+   gh label create "user-story" --color "0e8a16" --description "User story task"
+   gh label create "<prefix>" --color "1d76db" --description "Feature prefix: <prefix>"
    ```
-   ## Description
-   <User Story Description>
+   Only create labels that are missing. If a create command reports that the label already exists, continue.
+6. **Build an Issue Map for Idempotency**: Before creating issues, build a complete `story_id -> issue_number/url/title/status` map for all extracted stories. For each story ID, search open and closed issues using the story ID as the stable key, not only the title:
+   ```bash
+   gh issue list --state all --label "user-story" --search "<Story ID> in:title" --json number,title,url,state -q '.[]'
+   ```
+   Reuse an existing issue only when its title starts with `<Story ID>:`. If more than one matching issue exists, stop and ask the user to resolve the duplicate before publishing.
+7. **Create Missing Issues**: Loop through the extracted stories. For each story missing from the issue map, construct a GitHub blob URL to the design doc using the repository's default branch, then create an issue whose body faithfully carries the full story content:
+   ```
+   ## Story
+   <The complete story content from the design doc, normalized only enough to render cleanly in GitHub Markdown>
 
-   ## Context
-   <Files to read and relevant data contracts from the story's Context section>
+   ## Implementation Context
+   <Files to read, relevant data contracts, files likely to change, dependencies, and out-of-scope boundaries>
 
    ## Acceptance Criteria
-   - [ ] <Criterion 1>
-   - [ ] <Criterion 2>
-   ...
-
-   ## Technical Notes
-   <Any technical details>
+   <The exact checklist from the design doc, including verification, tests, browser checks, and documentation requirements>
 
    ## Design Doc
-   [View in Design Doc](https://github.com/<owner>/<repo>/blob/main/<design-doc-path>)
+   [View in Design Doc](https://github.com/<owner>/<repo>/blob/<default-branch>/<design-doc-path>)
    ```
-   Example: `https://github.com/eho/test-example/blob/main/docs/design/auth-token-refresh.md`
+   The issue body may include additional sections such as `## Outcome`, `## Design References`, `## Dependencies`, or `## Technical Notes` when present in the story. Do not omit fields from the design-doc story contract.
 
-   Run the bundled script to create the issue safely. Capture its output to extract the issue number for dependency linking in Step 6.
+   Run the bundled script to create the issue safely. Capture its output to extract the issue number and URL, then add the new issue to the same issue map used for existing issues.
    **Script location:** The script is at `SKILL_DIR/scripts/create_issue.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). If not available, locate it at `<git repo root>/.agents/skills/design-to-issues/scripts/create_issue.sh`.
    ```bash
    # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
@@ -51,25 +66,26 @@ You are acting as an autonomous sub-agent to parse a design document (which cont
 
    OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
+   ISSUE_URL=$(echo "$OUTPUT" | grep "Created Issue:" | sed 's/^Created Issue: //')
    rm issue_body.md
    ```
-   If there are dependencies noted from Step 3, add them to the issue body as a "Dependencies" section, or add a comment later once all issues are created.
-6. **Link Dependencies**: After creating all issues, if there are dependencies between user stories, add comments to dependent issues listing their blockers. Use the captured issue numbers from Step 5:
+8. **Link Dependencies**: After the issue map contains both existing and newly created issues, add dependency comments to dependent issues listing their blockers. Use story IDs from the design doc to look up issue numbers in the map:
    ```bash
    gh issue comment <dependent-issue-number> --body "Depends on: #<blocker-issue-number>"
    ```
-   For example: `gh issue comment 43 --body "Depends on: #42"`
-7. **Create & Link to Milestone**:
+   For example: `gh issue comment 43 --body "Depends on: #42"`. If a dependency points to a story ID that was not extracted or mapped, stop and report the missing dependency instead of creating partial links.
+9. **Create & Link to Milestone**:
    - Determine the milestone name: Check if the design doc explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the feature name from the doc title.
    - Create the milestone first (ensures it exists): `"$SKILL_DIR/scripts/create_milestone.sh" "<Milestone Title>"` (where `SKILL_DIR` is the base directory from the skill invocation; if not available, locate it at `<git repo root>/.agents/skills/design-to-issues/scripts/create_milestone.sh`).
-   - Link all created issues to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
-8. **Output Mapping**: Generate a markdown table and present to user:
+   - Link all mapped issues, existing and newly created, to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
+10. **Output Mapping**: Generate a markdown table and present to user:
    ```
-   | Story ID | Title | Issue # | URL |
-   |----------|-------|---------|-----|
-   | PRI-001 | User Login | #12 | https://github.com/.../issues/12 |
-   | PRI-002 | User Logout | #13 | https://github.com/.../issues/13 |
+   | Story ID | Title | Issue # | Status | URL |
+   |----------|-------|---------|--------|-----|
+   | PRI-001 | User Login | #12 | Existing | https://github.com/.../issues/12 |
+   | PRI-002 | User Logout | #13 | Created | https://github.com/.../issues/13 |
    ```
+   Include the milestone name and note whether dependencies were linked.
 
 ## Available Scripts
 
@@ -83,50 +99,53 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
 **Example 1:**
 *Input:* "Create issues from docs/design/login.md and add them to the 'v1.0' milestone"
 *Action:*
-1. Setup labels: `gh label list --limit 1000 | grep "user-story"`. If not found, run `gh label create "user-story" --color "0e8a16"`. Extract the prefix (`LOGIN` from `docs/design/login.md`), then check and create it: `gh label create "LOGIN" --color "1d76db"`.
-2. Read `docs/design/login.md`.
-3. Extract LOGIN-001 (Login), LOGIN-002 (Logout) with dependencies: LOGIN-002 depends on LOGIN-001.
-4. Get repo info: `gh repo view --json nameWithOwner -q` → returns `myorg/myapp`.
-5. Create issue for LOGIN-001:
+1. Read `docs/design/login.md` and `docs/design/review-login.md`. Continue only if the review is absent by explicit user instruction, or if review feedback has been addressed in the design doc.
+2. Get repo info: `gh repo view --json nameWithOwner,defaultBranchRef -q '{owner: .nameWithOwner, branch: .defaultBranchRef.name}'` → returns owner `myorg/myapp` and branch `trunk`.
+3. Setup labels from `gh label list --limit 1000 --json name -q '.[].name'`. Ensure `user-story` and `LOGIN` exist.
+4. Extract LOGIN-001 (Login), LOGIN-002 (Logout) with dependencies: LOGIN-002 depends on LOGIN-001.
+5. Search for existing issues by story ID: `gh issue list --state all --label "user-story" --search "LOGIN-001 in:title" --json number,title,url,state`.
+6. Create any missing issue, preserving the full story content:
    ```bash
    cat <<'EOF' > issue_body.md
-   ## Description
-   User should be able to log in...
+   ## Story
+   **Description:** As a user, I want to log in so that I can access my account.
+
+   **Outcome:** Authenticated users receive an active session.
+
+   **Design References:**
+   - Architecture Overview: Login form posts credentials to the auth endpoint.
+   - API & Data Contracts: `LoginRequest`, `LoginResponse`
+   - Integration Points: `src/auth/login.ts`, `src/auth/session.ts`
+
+   ## Implementation Context
+   - Files to read: `src/auth/login.ts`, `src/auth/session.ts`
+   - Relevant data contracts: `LoginRequest`, `LoginResponse`
+   - Files likely to change: `src/auth/login.ts`
+   - Depends on: None
+   - Out of scope: Password reset
 
    ## Acceptance Criteria
-   - [ ] Form validates email
-   - [ ] Form validates password
+   - [ ] Form validates email in `src/auth/login.ts`
+   - [ ] Form validates password in `src/auth/login.ts`
+   - [ ] Typecheck passes using `bun run build`
+   - [ ] Unit tests cover invalid email and invalid password in `src/auth/login.test.ts`
+   - [ ] Documentation impact: None, because this changes internal validation only
 
    ## Design Doc
-   [View in Design Doc](https://github.com/myorg/myapp/blob/main/docs/design/login.md)
+   [View in Design Doc](https://github.com/myorg/myapp/blob/trunk/docs/design/login.md)
    EOF
 
    OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "LOGIN-001: User Login" "user-story,LOGIN" issue_body.md)
-   # Extract the ISSUE_NUMBER output by the script for dependency linking
    ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
+   ISSUE_URL=$(echo "$OUTPUT" | grep "Created Issue:" | sed 's/^Created Issue: //')
    rm issue_body.md
    ```
-6. Create issue for LOGIN-002 (with dependency noted):
-   ```bash
-   cat <<'EOF' > issue_body.md
-   ## Description
-   User should be able to log out...
-
-   ## Dependencies
-   - Depends on #42 (User Login)
-
-   ## Design Doc
-   [View in Design Doc](https://github.com/myorg/myapp/blob/main/docs/design/login.md)
-   EOF
-
-   "$SKILL_DIR/scripts/create_issue.sh" "LOGIN-002: User Logout" "user-story,LOGIN" issue_body.md
-   rm issue_body.md
+7. Add every existing and created issue to the issue map, then comment on LOGIN-002: `gh issue comment 43 --body "Depends on: #42"`.
+8. Create milestone `v1.0` and link both issues, including any that already existed.
+9. Output summary:
    ```
-7. Create milestone `v1.0` and link both issues.
-8. Output summary:
-   ```
-   | Story ID | Title | Issue # | URL |
-   |----------|-------|---------|-----|
-   | LOGIN-001 | User Login | #42 | https://github.com/myorg/myapp/issues/42 |
-   | LOGIN-002 | User Logout | #43 | https://github.com/myorg/myapp/issues/43 |
+   | Story ID | Title | Issue # | Status | URL |
+   |----------|-------|---------|--------|-----|
+   | LOGIN-001 | User Login | #42 | Existing | https://github.com/myorg/myapp/issues/42 |
+   | LOGIN-002 | User Logout | #43 | Created | https://github.com/myorg/myapp/issues/43 |
    ```

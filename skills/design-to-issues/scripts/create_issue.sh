@@ -2,9 +2,21 @@
 # scripts/create_issue.sh
 # Usage: ./scripts/create_issue.sh "<title>" "<labels>" "<body_file_path>"
 
-TITLE=$1
-LABELS=$2
-BODY_FILE=$3
+set -euo pipefail
+
+TITLE=${1:-}
+LABELS=${2:-}
+BODY_FILE=${3:-}
+
+if [[ -z "$TITLE" || -z "$LABELS" || -z "$BODY_FILE" ]]; then
+  echo "Usage: $0 <title> <labels> <body_file_path>" >&2
+  exit 2
+fi
+
+if [[ ! -f "$BODY_FILE" ]]; then
+  echo "Issue body file not found: $BODY_FILE" >&2
+  exit 2
+fi
 
 # Safely create the issue
 ISSUE_URL=$(gh issue create --title "$TITLE" --label "$LABELS" --body-file "$BODY_FILE")
