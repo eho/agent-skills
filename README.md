@@ -9,6 +9,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Design Doc**](skills/design-doc/SKILL.md) | `/design-doc` | Synthesize a discussion or outline into a complete design document with architecture, data contracts, and agent-ready user stories with acceptance criteria. |
 | [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | Review a design document for completeness, clarity, and implementability. Returns structured feedback, a quality score, and actionable improvements. |
 | [**Design to Issues**](skills/design-to-issues/SKILL.md) | `/design-to-issues` | Parse a design document and create GitHub Issues from its user stories, optionally linked to a Milestone for tracking. |
+| [**Feature Delivery**](skills/feature-delivery/SKILL.md) | `/feature-delivery` | Orchestrate complete feature delivery from a revised design doc: sync stories to GitHub Issues, deliver each story one at a time, and run the final implementation audit. |
 | [**User Story Delivery**](skills/user-story-delivery/SKILL.md) | `/user-story-delivery` | Coordinate implementation and review for a single GitHub user story, including bounded review-fix loops until the PR is approved, merged, or blocked. |
 | [**User Story Implementer**](skills/user-story-implementer/SKILL.md) | `/user-story-implementer` | Pick up a single open GitHub Issue, implement it end-to-end (code, tests, PR), and move on. Designed to run in a fresh context per story. |
 | [**User Story Reviewer**](skills/user-story-reviewer/SKILL.md) | `/user-story-reviewer` | Review a Pull Request against the original issue's acceptance criteria, checking completeness, test coverage, and code quality. |
@@ -20,7 +21,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 
 ## Development Workflow
 
-The seven development skills form a pipeline from idea to shipped feature. Here's how they fit together:
+The eight development skills form a pipeline from idea to shipped feature. `/feature-delivery` is the top-level orchestrator once a design document is revised and ready:
 
 ```
 💬 Discuss
@@ -29,15 +30,13 @@ The seven development skills form a pipeline from idea to shipped feature. Here'
      ↓                         │ iterate
 /design-doc-reviewer ──────────┘
      ↓
-/design-to-issues
-     ↓
-/user-story-delivery  ◄──────────┐
-     │                           │ next story
-     ├─ /user-story-implementer  │
-     ↓                           │
-     └─ /user-story-reviewer ────┘
-     ↓
-/post-implementation-reviewer
+/feature-delivery
+     ├─ /design-to-issues
+     ├─ /user-story-delivery  ◄──────────┐
+     │     │                             │ next story
+     │     ├─ /user-story-implementer    │
+     │     └─ /user-story-reviewer ──────┘
+     └─ /post-implementation-reviewer
 ```
 
 **1. Discuss the design** — Before triggering any skill, have a free-form conversation with the AI about the feature. This is an exploratory back-and-forth to get the general direction and key ideas into shape. No structure needed yet — just think out loud.
@@ -46,11 +45,13 @@ The seven development skills form a pipeline from idea to shipped feature. Here'
 
 **3. Review the design** — Run `/design-doc-reviewer` with a fresh context or a different model for a genuine second opinion. It checks whether the design is complete, internally consistent, and concrete enough to implement without ambiguity. Iterate until satisfied.
 
-**4. Push stories to GitHub** — Use `/design-to-issues` to convert the user stories into GitHub Issues, optionally grouped under a Milestone. From here the backlog lives in GitHub, which is easier to track than a local markdown file.
+**4. Deliver the feature** — Use `/feature-delivery` when you want the agent to run the full design-to-release workflow. It calls `/design-to-issues`, builds a dependency-aware delivery queue, runs `/user-story-delivery` one story at a time, and finishes with `/post-implementation-reviewer`.
 
-**5. Implement and review, one story at a time** — Prefer `/user-story-delivery` for the full loop. It runs `/user-story-implementer`, hands the resulting PR to `/user-story-reviewer`, addresses requested changes, and repeats review up to a bounded limit. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
+**5. Push stories to GitHub manually when needed** — Use `/design-to-issues` directly when you only want to convert the user stories into GitHub Issues, optionally grouped under a Milestone.
 
-**6. Final review** — Run `/post-implementation-reviewer` once the full feature is complete. This is the overall sanity check: do all stories add up to what the design described? Are there any gaps or inconsistencies?
+**6. Implement and review one story manually when needed** — Use `/user-story-delivery` directly for the full loop around a single issue. It runs `/user-story-implementer`, hands the resulting PR to `/user-story-reviewer`, addresses requested changes, and repeats review up to a bounded limit. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
+
+**7. Final review manually when needed** — Run `/post-implementation-reviewer` directly once the full feature is complete. This is the overall sanity check: do all stories add up to what the design described? Are there any gaps or inconsistencies?
 
 ---
 
