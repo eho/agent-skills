@@ -24,6 +24,8 @@ bunx gluestack-ui init --use-bun --path src/components/ui
 
 If the project does not use `src`, use `components/ui` instead of `src/components/ui`. If flags have changed, use the current CLI help and keep the same choices: Expo-compatible initialization, Bun package manager when applicable, and the actual UI component path.
 
+If the current CLI still requires interactive choices after documented flags are supplied, do not let the agent sit in a hung command. Stop, report the exact command, and ask the user to run it in an interactive terminal or provide the missing choices.
+
 ## Starter Components
 
 Install a practical starter set:

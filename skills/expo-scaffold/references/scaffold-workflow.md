@@ -112,7 +112,9 @@ For Expo Router, wire `app/_layout.tsx` after NativeWind and gluestack are initi
 - Wrap the `Stack` with the generated `GluestackUIProvider`.
 - Pass `mode="system"` unless the user asked for an explicit or persisted theme setting.
 - Add `StatusBar` with `style="auto"` or the runtime helper style.
+- For a static splash only, adapt `examples/root-layout-static.tsx`.
 - If animated launch was selected, adapt `examples/root-layout-with-splash.tsx` and `examples/app-launch-overlay.tsx`.
+- If using `@/*` aliases in generated code, verify TypeScript, Babel, and Metro all resolve them. Otherwise prefer relative imports in root layout examples.
 
 ## 9. Configure EAS
 

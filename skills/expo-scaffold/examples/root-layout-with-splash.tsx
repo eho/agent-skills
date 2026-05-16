@@ -1,13 +1,15 @@
-import "@/global.css";
+// Use this example only when the app has local readiness work or an animated
+// launch overlay. For a plain static splash, prefer root-layout-static.tsx.
+import "../global.css";
 
 import { useEffect, useRef, useState } from "react";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { AppLaunchOverlay } from "@/components/layout/AppLaunchOverlay";
-import { useRuntimeTheme } from "@/lib/theme-runtime";
+import { GluestackUIProvider } from "../components/ui/gluestack-ui-provider";
+import { AppLaunchOverlay } from "../components/layout/AppLaunchOverlay";
+import { useRuntimeTheme } from "../lib/theme-runtime";
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({

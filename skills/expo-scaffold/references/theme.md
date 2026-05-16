@@ -50,9 +50,9 @@ Use `examples/theme-runtime.ts` if JS-only theme values are needed. Otherwise ke
 The root layout should wrap the router with the generated gluestack provider. For Expo Router:
 
 ```tsx
-import "@/global.css";
+import "../global.css";
 
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { GluestackUIProvider } from "../components/ui/gluestack-ui-provider";
 import { StatusBar } from "expo-status-bar";
 import { Stack } from "expo-router";
 
@@ -68,9 +68,10 @@ export default function RootLayout() {
 
 If the generated provider API differs, use the generated API. Do not hand-write a provider that conflicts with the CLI output.
 
+The example above assumes `app/_layout.tsx` in a root-level Expo Router app. If the scaffold uses `@/*` aliases, verify TypeScript, Babel, and Metro all resolve those aliases before converting these imports.
+
 ## References
 
 - Official gluestack dark mode docs: `https://gluestack.io/ui/docs/home/theme-configuration/dark-mode`
 - Official gluestack theme customization docs: `https://gluestack.io/ui/docs/home/theme-configuration/customizing-theme`
 - Official NativeWind color scheme hook: `https://www.nativewind.dev/docs/api/use-color-scheme`
-

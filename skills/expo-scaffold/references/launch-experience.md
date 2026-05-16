@@ -42,7 +42,9 @@ Important Expo behavior to report to the user:
 
 If the app must load fonts, persisted state, migrations, or initial data before the first frame, call `SplashScreen.preventAutoHideAsync()` in module scope. Hide the splash as soon as the first usable app frame is ready.
 
-Use `examples/root-layout-with-splash.tsx` as a starting point. Keep readiness checks minimal for a scaffold:
+For a plain static splash with no local readiness work, do not add manual splash holding. Use `examples/root-layout-static.tsx`.
+
+Use `examples/root-layout-with-splash.tsx` only when the app has local readiness work or an animated launch overlay. Keep readiness checks minimal for a scaffold:
 
 - fonts loaded, if custom fonts are included
 - persisted theme/settings hydrated, if a persisted store is included
@@ -55,9 +57,9 @@ Do not wait on slow network requests by default.
 Expo's native splash is not the place for custom React animation. For an animated splash, use this sequence:
 
 1. Show the native static splash while required local resources load.
-2. Render the app root with the same background color.
-3. Hide the native splash.
-4. Render a React/Reanimated overlay above the app root.
+2. Render the app root and React/Reanimated overlay with the same background color.
+3. Hide the native splash once that first usable frame is mounted.
+4. Animate the React/Reanimated overlay above the app root.
 5. Animate the overlay out, then unmount it.
 
 This avoids a blank frame and keeps the app's first real screen mounted underneath the animation.
@@ -68,4 +70,3 @@ Use `examples/app-launch-overlay.tsx` as a starting point only when the user ask
 
 - Official Expo splash-screen docs: `https://docs.expo.dev/versions/latest/sdk/splash-screen/`
 - Expo splash and app icon guide: `https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/`
-

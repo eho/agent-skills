@@ -1,3 +1,4 @@
+import { Alert, AlertText } from "@/components/ui/alert";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import { Divider } from "@/components/ui/divider";
 import { Heading } from "@/components/ui/heading";
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Toast, ToastDescription, ToastTitle } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
 export default function HomeScreen() {
@@ -37,14 +37,11 @@ export default function HomeScreen() {
           </VStack>
         </Card>
 
-        <Toast action="info" variant="outline">
-          <VStack space="xs">
-            <ToastTitle>Development build ready</ToastTitle>
-            <ToastDescription>
-              This starter uses expo-dev-client for native runtime testing.
-            </ToastDescription>
-          </VStack>
-        </Toast>
+        <Alert action="info" variant="outline">
+          <AlertText>
+            Development builds use expo-dev-client for native runtime testing.
+          </AlertText>
+        </Alert>
       </VStack>
     </Box>
   );

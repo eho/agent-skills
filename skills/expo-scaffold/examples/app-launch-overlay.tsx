@@ -8,9 +8,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { useRuntimeTheme } from "@/lib/theme-runtime";
+import { useRuntimeTheme } from "../../lib/theme-runtime";
 
-const mark = require("@/assets/splash-icon.png");
+const mark = require("../../assets/splash-icon.png");
 
 interface AppLaunchOverlayProps {
   appName: string;
@@ -84,4 +84,3 @@ export function AppLaunchOverlay({
     </Animated.View>
   );
 }
-
