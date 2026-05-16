@@ -17,6 +17,8 @@ Before editing files, infer these from the user request or ask only for missing 
 - Router: default to Expo Router unless the user asks for a single-file app.
 - Development runtime: always install and configure `expo-dev-client`; do not target Expo Go.
 - Project shape: ask whether the user wants mobile-only, backend/API support, landing-site support, or both. Read `references/project-structure.md` before choosing directories.
+- Theme mode: default to following the system light/dark appearance. For gluestack-ui v3, prefer provider `mode="system"` plus CSS-variable tokens over repeated `dark:` class pairs.
+- Launch experience: default to a static native splash screen; offer an optional React/Reanimated launch overlay when the user wants an animated splash.
 - NativeWind version: prefer latest stable compatible NativeWind. If the latest compatible version appears to be preview, beta, canary, or unclear for the selected Expo SDK, ask the user before proceeding.
 - EAS account metadata: configure local files; do not invent owner, project ID, bundle identifier, package name, ASC app ID, credentials, or secrets.
 
@@ -27,9 +29,11 @@ Before editing files, infer these from the user request or ask only for missing 
 3. Use Expo SDK 55 unless the user requests differently. Check official Expo docs or `create-expo-app` output for current SDK 55 template syntax. Do not use `next`, beta, or canary templates unless the user explicitly asks.
 4. Read `references/nativewind.md` before installing or configuring NativeWind.
 5. Read `references/gluestack.md` before running gluestack commands or adding components.
-6. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
-7. Use the snippets in `examples/` as starting points, then adapt to the actual project structure.
-8. Finish by running the checks in `references/verification.md`.
+6. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
+7. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
+8. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
+9. Use the snippets in `examples/` as starting points, then adapt to the actual project structure.
+10. Finish by running the checks in `references/verification.md`.
 
 ## Implementation Standards
 
@@ -51,6 +55,9 @@ At completion, the project should contain:
 - A project structure matching the user's answer: mobile-only, mobile plus backend/API package, mobile plus landing site, or full monorepo.
 - NativeWind configured through Babel, Metro, Tailwind config, `global.css`, and TypeScript declarations.
 - gluestack-ui v3 initialized.
+- Light/dark appearance following the system by default through gluestack provider mode and tokenized theme colors.
+- Native splash screen configured with the `expo-splash-screen` config plugin, including dark-mode colors/assets where available.
+- Optional animated launch overlay when requested, implemented as React UI after the static native splash.
 - A starter set of gluestack components installed.
 - A placeholder screen using gluestack layout, typography, form, feedback, and action components.
 - EAS Build profiles for development, preview, and production.
@@ -63,5 +70,7 @@ At completion, the project should contain:
 - Expo SDK reference: `https://docs.expo.dev/versions/latest/`
 - EAS Build setup: `https://docs.expo.dev/build/setup/`
 - EAS Update setup: `https://docs.expo.dev/eas-update/getting-started/`
+- Expo splash screen: `https://docs.expo.dev/versions/latest/sdk/splash-screen/`
 - NativeWind install: `https://www.nativewind.dev/docs/getting-started/installation`
 - gluestack-ui install: `https://gluestack.io/ui/docs/home/getting-started/installation`
+- gluestack-ui dark mode: `https://gluestack.io/ui/docs/home/theme-configuration/dark-mode`

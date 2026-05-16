@@ -56,6 +56,7 @@ Update `app.json` or `app.config.*` conservatively:
 - `userInterfaceStyle`: `automatic`.
 - `orientation`: `portrait` unless the user requests otherwise.
 - `ios.bundleIdentifier` and `android.package`: ask the user or leave placeholders if not provided.
+- `plugins`: include `expo-splash-screen` with config-plugin options when splash assets are available or placeholders are acceptable.
 
 Do not invent an Expo `owner`, EAS `projectId`, app store IDs, or credentials.
 
@@ -81,14 +82,42 @@ After gluestack commands, check and repair generated config paths:
 - Tailwind content globs must include the actual app, src, and component directories.
 - Root layout must have one CSS import and one provider wrapper.
 
-## 6. Add Placeholder Screen
+## 6. Configure Theme And Launch Experience
+
+Read `theme.md` and `launch-experience.md`.
+
+For theme:
+
+- Default the generated gluestack provider usage to `mode="system"`.
+- Use gluestack token classes such as `bg-background-0`, `text-typography-900`, and `border-outline-200` in starter screens.
+- Keep generated `dark:` classes rare and intentional; do not use them for every normal surface.
+- Add a tiny runtime theme helper only when JS-only values are needed, such as status bar style or animated launch overlay colors.
+
+For splash and launch:
+
+- Configure native splash through the `expo-splash-screen` config plugin.
+- Call `SplashScreen.preventAutoHideAsync()` in module scope only when the app waits on local readiness work.
+- Hide the native splash as soon as the first app frame is ready.
+- Add an animated launch overlay only when requested or when the scaffold option includes it.
+
+## 7. Add Placeholder Screen
 
 Create or replace only the starter route/screen that belongs to the scaffold. Prefer `app/index.tsx` when using Expo Router. Use `examples/placeholder-screen.tsx` as the base and adjust imports to match gluestack's generated component paths.
 
-## 7. Configure EAS
+## 8. Add Root Layout
+
+For Expo Router, wire `app/_layout.tsx` after NativeWind and gluestack are initialized:
+
+- Import `global.css` exactly once.
+- Wrap the `Stack` with the generated `GluestackUIProvider`.
+- Pass `mode="system"` unless the user asked for an explicit or persisted theme setting.
+- Add `StatusBar` with `style="auto"` or the runtime helper style.
+- If animated launch was selected, adapt `examples/root-layout-with-splash.tsx` and `examples/app-launch-overlay.tsx`.
+
+## 9. Configure EAS
 
 Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config. The development profile should produce an `expo-dev-client` build.
 
-## 8. Verify
+## 10. Verify
 
 Run the checks in `verification.md` and report exact commands and results.

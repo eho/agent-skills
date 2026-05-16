@@ -66,6 +66,10 @@ For Expo Router, the provider normally belongs in `app/_layout.tsx` around the r
 
 Also ensure `global.css` is imported before rendering UI.
 
+For the default scaffold, pass `mode="system"` to the generated `GluestackUIProvider` so the app follows the device light/dark setting. Do not replace the generated provider with a hand-written approximation unless the CLI output is broken and the current official docs support the replacement.
+
+gluestack-ui v3 supports light/dark mode through CSS-variable token maps in the generated provider config. Prefer token classes such as `bg-background-0`, `text-typography-900`, and `border-outline-200` in scaffolded screens. Avoid adding `dark:` variants everywhere; reserve them for intentional exceptions outside the token system.
+
 ## Post-Init Config Repair
 
 gluestack may rewrite app config files. Immediately inspect and repair:

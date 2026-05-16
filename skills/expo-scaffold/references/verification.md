@@ -34,8 +34,20 @@ For a coding agent with browser/device automation, verify:
 - The placeholder screen renders.
 - Gluestack components do not throw provider or import errors.
 - NativeWind classes visibly apply.
+- The root provider uses the intended gluestack color mode, normally `mode="system"`.
+- Starter surfaces use gluestack token classes rather than hardcoded light/dark color pairs.
 - Metro resolves runtime aliases, including `@/*` and `@/assets/*`. TypeScript passing is not enough; confirm the app bundles.
 - `expo-dev-client` is installed and the development build profile exists. Do not verify against Expo Go.
+
+## Splash And Theme Check
+
+Inspect `app.json` or `app.config.*`:
+
+- `userInterfaceStyle` should be `automatic` for system-following themes.
+- New scaffolds should configure `expo-splash-screen` through the config plugin.
+- If dark splash assets are configured, light and dark background colors should match the first app root or launch overlay backgrounds.
+
+If the user cares about final splash appearance, explain that recent Expo SDKs do not fully reproduce standalone splash behavior in Expo Go and development builds. Recommend a release or store-like build for final visual verification.
 
 ## EAS Config Check
 
@@ -60,6 +72,8 @@ Summarize:
 - Expo SDK and React Native versions selected.
 - NativeWind version selected and why.
 - Gluestack commands run and components added.
+- Theme strategy selected, including whether gluestack token mode follows `system`.
+- Splash strategy selected, including whether an animated React overlay was added.
 - EAS build/update profiles and channels.
 - Verification commands and results.
 - Any steps blocked by Expo login, credentials, bundle identifiers, package names, or app store metadata.

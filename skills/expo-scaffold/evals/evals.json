@@ -24,6 +24,12 @@
       "prompt": "Create an Expo app starter that may later use Expo API routes and a landing website. Ask me what structure I want before scaffolding, then choose a clean monorepo if I request backend or landing support.",
       "expected_output": "The agent asks about mobile-only, backend/API support, and landing-site support, then scaffolds or proposes an apps/mobile, optional apps/landing, and packages/api/shared workspace structure.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Scaffold an Expo Router app with gluestack-ui v3 that follows system light/dark mode, has a native splash screen with light and dark assets, and includes an optional animated launch overlay.",
+      "expected_output": "A scaffolded Expo app that configures gluestack provider mode/system theme through tokenized light/dark CSS variables, avoids broad dark: class duplication, configures expo-splash-screen through the config plugin, and implements any animated launch as a React/Reanimated overlay after the native splash hides.",
+      "files": []
     }
   ]
 }
