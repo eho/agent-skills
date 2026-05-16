@@ -18,6 +18,12 @@
       "prompt": "Create a production-oriented Expo starter with gluestack. If the latest NativeWind version is not clearly stable for the latest Expo SDK, ask me before choosing it.",
       "expected_output": "The agent verifies NativeWind stability and asks before using a preview/pre-release line instead of silently installing it.",
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Create an Expo app starter that may later use Expo API routes and a landing website. Ask me what structure I want before scaffolding, then choose a clean monorepo if I request backend or landing support.",
+      "expected_output": "The agent asks about mobile-only, backend/API support, and landing-site support, then scaffolds or proposes an apps/mobile, optional apps/landing, and packages/api/shared workspace structure.",
+      "files": []
     }
   ]
 }

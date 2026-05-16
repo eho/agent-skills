@@ -35,7 +35,7 @@ npx expo install expo-updates
 npx eas-cli@latest update:configure
 ```
 
-The update configure command should add or update:
+Distinguish local EAS-ready config from fully configured EAS Update. `eas update:configure --non-interactive` can fail before `eas init` or when the user is not authenticated. Local scaffold work can prepare `runtimeVersion`, profiles, channels, and scripts, but these require authenticated project setup before OTA updates are fully live:
 
 - `expo.updates.url`
 - `expo.extra.eas.projectId`
@@ -50,6 +50,14 @@ For new apps, prefer:
 ```
 
 Use matching EAS Build channels so preview builds receive preview updates and production builds receive production updates.
+
+If authentication or project creation is required, stop after local config and report the exact commands:
+
+```sh
+eas login
+eas init
+eas update:configure
+```
 
 ## Recommended Scripts
 
