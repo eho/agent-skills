@@ -16,6 +16,7 @@ Use <Bun | pnpm | npm | Yarn | Poetry | other>.
 - `<install command>` to install dependencies
 - `<script command pattern>` to run package scripts
 - `<tool command pattern>` to run one-off tools
+- Do not use other package managers or create their lockfiles
 
 <Add only real constraints, for example: Bun automatically loads `.env`; use `expo install` for Expo-compatible package versions; use Poetry from the repository root.>
 
@@ -30,6 +31,8 @@ Use these commands from the repository root unless noted otherwise.
 - Build: `<command>`
 
 Prefer these scripts over invoking underlying tools directly unless there is a specific reason.
+
+Omit commands that do not exist yet; do not leave "add this later" placeholders in the final `AGENTS.md`.
 
 ## Runtime Rules
 
@@ -58,6 +61,8 @@ Project docs live under `docs/`.
 Keep `docs/README.md` as the documentation index. If the project uses design specs heavily, also keep `docs/design/README.md` as the active design index and `docs/design/archive/README.md` as the historical design index.
 
 ## Documentation Conventions
+
+These documentation lifecycle rules are standard across this user's projects.
 
 - `docs/vision/`, `docs/architecture/`, and `docs/architecture/current-design/` are living current-state docs.
 - Put current implemented behavior under `docs/architecture/current-design/`; these docs should avoid user stories, rollout tasks, and workflow statuses.

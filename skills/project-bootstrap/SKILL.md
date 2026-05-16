@@ -7,7 +7,7 @@ description: Initialize or update a repository so coding agents can work in it e
 
 Use this skill to initialize or update lightweight project conventions for coding agents. The goal is not to teach agents generic software engineering. The goal is to capture the small set of project-specific facts that are easy to get wrong or expensive to rediscover.
 
-This skill includes a reusable project-rules template at `templates/AGENTS.md`. Treat it as a menu, not a form to fill completely: keep sections only when local evidence or the user's request makes them useful.
+This skill includes a reusable project-rules template at `templates/AGENTS.md`. Treat runtime, project-pattern, source-of-truth, testing, and safety sections as a menu, not a form to fill completely. Package manager rules and documentation conventions are baseline sections for this user's projects and should be included whenever a package manager and docs structure are known or being initialized.
 
 ## Core Principle
 
@@ -51,7 +51,7 @@ Use this evidence to infer the minimum useful rules. Do not invent rules when th
 
 ### 2. Decide initialize vs update mode
 
-Use initialize mode when no `AGENTS.md` exists. Start from `templates/AGENTS.md`, then delete unused sections and replace placeholders with facts supported by repository evidence.
+Use initialize mode when no `AGENTS.md` exists. Start from `templates/AGENTS.md`, then delete unused sections and replace placeholders with facts supported by repository evidence. Keep the package-manager section when a package manager is detected or chosen. Keep the documentation and documentation-conventions sections when docs exist or are initialized.
 
 Use update mode when `AGENTS.md` already exists. Preserve project-specific rules. Refresh stale package-manager, command, and documentation sections when the repo clearly contradicts them. Do not remove existing rules unless they are obviously generic clutter or the user asks for cleanup.
 
@@ -97,7 +97,8 @@ The template intentionally combines the best reusable pieces from mature project
 When adapting the template:
 
 - Remove every placeholder that cannot be filled from repo evidence.
-- Omit sections that would only contain generic advice.
+- Omit optional sections that would only contain generic advice.
+- Keep the standard documentation conventions unless the user explicitly asks for a minimal `AGENTS.md` without documentation lifecycle rules.
 - Keep examples concrete and runnable from the current repo layout.
 - Prefer exact paths and commands over prose.
 - Use relative Markdown links for documentation paths.
@@ -112,7 +113,7 @@ Detect the package manager from lockfiles and package manager metadata:
 - `package-lock.json` means npm.
 - If multiple lockfiles exist, report the ambiguity and prefer the lockfile used by scripts/docs only when clear.
 
-For Bun projects, prefer this concise section:
+Always include a package-manager section when the package manager is known. It must tell agents which commands to use and which equivalent commands not to use. For Bun projects, prefer this section:
 
 ```md
 ## Package Manager
@@ -122,9 +123,19 @@ Use Bun.
 - `bun install` instead of `npm install`, `yarn install`, or `pnpm install`
 - `bun run <script>` instead of `npm run <script>`
 - `bunx <tool>` instead of `npx <tool>`
+- Do not add or update `package-lock.json`, `yarn.lock`, or `pnpm-lock.yaml`
 ```
 
-Adapt the commands for pnpm, npm, or Yarn projects.
+For Expo projects using Bun, add:
+
+```md
+- Use `expo install <package>` when Expo SDK compatibility matters
+- Bun automatically loads `.env`; do not add `dotenv` just to load local environment variables
+```
+
+Adapt the commands and lockfile prohibition for pnpm, npm, Yarn, Poetry, or other package managers.
+
+If no package manager exists yet, ask which one to standardize on before writing `AGENTS.md`. Do not leave the package manager unspecified.
 
 ### 6. Canonical commands
 
@@ -153,7 +164,7 @@ Use this shape:
 Use these package scripts rather than invoking underlying tools directly unless there is a specific reason.
 ```
 
-Omit missing commands instead of adding placeholders.
+Omit missing commands instead of adding placeholders or instructions like "add commands here later." If the repo has not been scaffolded yet, either ask whether to scaffold first or omit the commands section until scripts exist.
 
 ### 7. Documentation structure
 
@@ -171,13 +182,14 @@ docs/planning/README.md
 docs/testing/README.md
 ```
 
-Use this lean `AGENTS.md` section:
+Use this baseline `AGENTS.md` section:
 
 ```md
 ## Documentation
 
 Project docs live under `docs/`.
 
+- `docs/vision/` — strategic vision, product goals, and project direction
 - `docs/architecture/` — current system architecture and technical decisions
 - `docs/architecture/current-design/` — how the implemented system works now
 - `docs/design/` — active feature specs and implementation plans
@@ -189,11 +201,23 @@ Project docs live under `docs/`.
 Keep `docs/README.md` as the documentation index.
 
 When behavior, architecture, commands, environment variables, or user-facing workflows change, update the relevant docs in the same pass when feasible.
+
+## Documentation Conventions
+
+- `docs/vision/`, `docs/architecture/`, and `docs/architecture/current-design/` are living current-state docs.
+- Put current implemented behavior under `docs/architecture/current-design/`; these docs should avoid user stories, rollout tasks, and workflow statuses.
+- Use `docs/design/` for point-in-time specs and implementation plans that are still actionable.
+- Use `docs/design/archive/` for shipped, superseded, abandoned, or historical records. Preserve historical context instead of rewriting archived specs as current-state docs.
+- Use relative Markdown links inside repo docs; never use absolute filesystem paths.
+- When behavior, architecture, commands, environment variables, or user-facing workflows change, update the relevant living docs and affected design-doc statuses in the same pass when feasible.
+- When a design doc is replaced or archived, add a short banner linking readers to the current doc or replacement.
 ```
 
 If the repo already has a different docs convention, preserve it and clarify the current source-of-truth instead of forcing this structure.
 
-For projects with heavier design history, include the fuller lifecycle from `templates/AGENTS.md`: living docs in `docs/architecture/current-design/`, active specs in `docs/design/`, and historical records in `docs/design/archive/`.
+If docs exist or are initialized, include both `Documentation` and `Documentation Conventions` in `AGENTS.md`. Do not drop documentation conventions just because the project is new or the docs are sparse.
+
+For projects with heavier design history, include the fuller lifecycle from `templates/AGENTS.md`, including design-doc statuses and archive/index rules.
 
 ### 8. Runtime and framework rules
 
