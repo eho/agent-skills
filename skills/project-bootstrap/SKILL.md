@@ -7,6 +7,8 @@ description: Initialize or update a repository so coding agents can work in it e
 
 Use this skill to initialize or update lightweight project conventions for coding agents. The goal is not to teach agents generic software engineering. The goal is to capture the small set of project-specific facts that are easy to get wrong or expensive to rediscover.
 
+This skill includes a reusable project-rules template at `templates/AGENTS.md`. Treat it as a menu, not a form to fill completely: keep sections only when local evidence or the user's request makes them useful.
+
 ## Core Principle
 
 Keep `AGENTS.md` lean.
@@ -18,10 +20,12 @@ Good `AGENTS.md` content:
 - Package manager and lockfile policy.
 - Canonical project commands.
 - Documentation source-of-truth locations.
+- Documentation lifecycle rules for living docs, active specs, and archived design records.
 - Runtime constraints that are easy to violate.
 - Framework-specific install or code-generation rules.
 - Project-specific naming, product, or domain conventions.
 - Tooling commands that must be run through package scripts.
+- Safety constraints for secrets, credentials, cloud resources, databases, and user data.
 
 Avoid:
 
@@ -47,11 +51,58 @@ Use this evidence to infer the minimum useful rules. Do not invent rules when th
 
 ### 2. Decide initialize vs update mode
 
-Use initialize mode when no `AGENTS.md` exists. Create a concise file from the evidence.
+Use initialize mode when no `AGENTS.md` exists. Start from `templates/AGENTS.md`, then delete unused sections and replace placeholders with facts supported by repository evidence.
 
 Use update mode when `AGENTS.md` already exists. Preserve project-specific rules. Refresh stale package-manager, command, and documentation sections when the repo clearly contradicts them. Do not remove existing rules unless they are obviously generic clutter or the user asks for cleanup.
 
-### 3. Package manager rules
+### 3. Guided discovery for new projects
+
+When initializing a new project that lacks source-of-truth docs, ask a small number of focused questions before writing `AGENTS.md` or docs. The goal is to capture enough context to seed durable docs, not to run a full product strategy workshop.
+
+Ask only questions needed for missing context. Prefer one concise round with prompts like:
+
+- What are you building, and who is it for?
+- What is the project's purpose or north star?
+- What kind of app/service/library is this, and what major capabilities should it have?
+- What stack, framework, package manager, database, or hosting choices are already decided?
+- Are there important constraints, integrations, compliance concerns, user-data rules, or naming conventions?
+- Do you want lightweight source-of-truth docs created now, such as `docs/vision/vision.md`, `docs/architecture/architecture.md`, and `docs/architecture/tech-stack.md`?
+
+After the user answers:
+
+- Create only docs that are applicable and useful now.
+- Keep seed docs short, explicit, and labeled as current starting points rather than final architecture.
+- Use `docs/vision/vision.md` for purpose, audience, goals, and product direction.
+- Use `docs/architecture/architecture.md` for high-level system shape, major components, data flow, and integration boundaries.
+- Use `docs/architecture/tech-stack.md` for chosen technologies, package manager, runtime, tooling, and deployment assumptions.
+- Use `docs/architecture/current-design/` only for implemented behavior; for an empty project, create an index that says current design docs should be added as features are implemented.
+- Add `Current Source Of Truth` entries to `AGENTS.md` only for files or directories that now exist.
+- If the user does not want docs initialized, omit source-of-truth entries that would point to nonexistent files.
+
+Never leave placeholders in committed project docs or `AGENTS.md`.
+
+### 4. Apply the project-rules template
+
+The template intentionally combines the best reusable pieces from mature project rule files:
+
+- A short project overview with links to source-of-truth docs.
+- Package-manager rules that prevent agents from mixing install tools.
+- Canonical commands so agents run the project the same way maintainers do.
+- Runtime/framework traps that are easy to violate.
+- Non-obvious project patterns, especially boundaries for routing, services, state, navigation, data access, generated code, user isolation, and naming.
+- Documentation structure and lifecycle rules that distinguish living current-state docs from point-in-time design records.
+- Current source-of-truth paths for vision, architecture, current design, operations, and docs indexes.
+- Focused testing expectations and safety constraints.
+
+When adapting the template:
+
+- Remove every placeholder that cannot be filled from repo evidence.
+- Omit sections that would only contain generic advice.
+- Keep examples concrete and runnable from the current repo layout.
+- Prefer exact paths and commands over prose.
+- Use relative Markdown links for documentation paths.
+
+### 5. Package manager rules
 
 Detect the package manager from lockfiles and package manager metadata:
 
@@ -75,7 +126,7 @@ Use Bun.
 
 Adapt the commands for pnpm, npm, or Yarn projects.
 
-### 4. Canonical commands
+### 6. Canonical commands
 
 Read package scripts and include only commands agents will commonly need:
 
@@ -104,16 +155,18 @@ Use these package scripts rather than invoking underlying tools directly unless 
 
 Omit missing commands instead of adding placeholders.
 
-### 5. Documentation structure
+### 7. Documentation structure
 
 If the project has no docs structure, create a minimal one:
 
 ```text
 docs/README.md
+docs/vision/README.md
 docs/architecture/README.md
 docs/architecture/current-design/README.md
 docs/design/README.md
 docs/design/archive/README.md
+docs/operational/README.md
 docs/planning/README.md
 docs/testing/README.md
 ```
@@ -129,6 +182,7 @@ Project docs live under `docs/`.
 - `docs/architecture/current-design/` — how the implemented system works now
 - `docs/design/` — active feature specs and implementation plans
 - `docs/design/archive/` — implemented, superseded, or historical specs
+- `docs/operational/` — runbooks, local setup, deployment, and troubleshooting
 - `docs/planning/` — roadmap, launch, and planning notes
 - `docs/testing/` — QA guides and manual validation notes
 
@@ -139,7 +193,9 @@ When behavior, architecture, commands, environment variables, or user-facing wor
 
 If the repo already has a different docs convention, preserve it and clarify the current source-of-truth instead of forcing this structure.
 
-### 6. Runtime and framework rules
+For projects with heavier design history, include the fuller lifecycle from `templates/AGENTS.md`: living docs in `docs/architecture/current-design/`, active specs in `docs/design/`, and historical records in `docs/design/archive/`.
+
+### 8. Runtime and framework rules
 
 Add a runtime/framework section only when the repo evidence shows a real trap. Keep it short.
 
@@ -163,7 +219,7 @@ Use this shape:
 
 Omit this section if there are no clear project-specific runtime rules.
 
-### 7. Source layout
+### 9. Source layout
 
 Do not list the whole repository. Add source-layout guidance only for non-obvious boundaries that affect agent work.
 
@@ -179,7 +235,7 @@ Avoid:
 - `tests/` contains tests.
 - `utils/` contains utilities.
 
-### 8. Write docs indexes
+### 10. Write docs indexes
 
 When creating docs indexes, keep them lightweight and factual. Do not invent architecture. Use placeholder prompts only where the project is genuinely new.
 
@@ -189,7 +245,7 @@ Subdirectory `README.md` files should explain what belongs there and link to exi
 
 Use relative Markdown links.
 
-### 9. Verification
+### 11. Verification
 
 After editing:
 
@@ -206,4 +262,3 @@ Finish with a concise summary:
 - Package manager and command assumptions.
 - Any ambiguities the user should resolve.
 - Whether tests/builds were skipped because the change was documentation-only.
-
