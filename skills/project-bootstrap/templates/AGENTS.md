@@ -95,8 +95,8 @@ Include only entries that exist in this repository. Omit this section until sour
 
 ## Testing Expectations
 
-- Run `<test command>` for relevant code changes.
-- Run `<build/typecheck command>` when touching shared types, build config, or release-sensitive code.
+- Run relevant tests for code changes when test commands exist.
+- Run build, typecheck, or lint commands when touching shared types, build config, or release-sensitive code and those commands exist.
 - If tests cannot run locally because of credentials, services, or device dependencies, document that in the final response.
 
 ## Safety
