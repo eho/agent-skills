@@ -1,0 +1,23 @@
+{
+  "skill_name": "expo-scaffold",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new Expo React Native app called FieldNotes using the latest stable Expo SDK. Set up NativeWind, gluestack-ui v3 with basic components, a placeholder screen, EAS Build, and EAS Update.",
+      "expected_output": "A scaffolded Expo app using a stable SDK, stable compatible NativeWind, gluestack-ui v3 provider/components, a starter screen, EAS build profiles, EAS update channels, and verification notes.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Scaffold an Expo Router app named DispatchDesk using Bun. Make it iOS and Android, add gluestack-ui v3, NativeWind, preview and production EAS updates, and scripts for development, preview, and production builds.",
+      "expected_output": "A Bun-friendly Expo Router project with NativeWind and gluestack configured, gluestack starter components, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create a production-oriented Expo starter with gluestack. If the latest NativeWind version is not clearly stable for the latest Expo SDK, ask me before choosing it.",
+      "expected_output": "The agent verifies NativeWind stability and asks before using a preview/pre-release line instead of silently installing it.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "start": "expo start --dev-client",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
+    "web": "expo start --web",
+    "build:dev": "eas build --platform all --profile development",
+    "build:preview": "eas build --platform all --profile preview",
+    "build:production": "eas build --platform all --profile production",
+    "update:preview": "eas update --channel preview --message \"Preview update\"",
+    "update:production": "eas update --channel production --message \"Production update\""
+  }
+}
