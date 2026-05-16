@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "expo start",
     "ios": "expo run:ios",
     "android": "expo run:android",
     "web": "expo start --web",

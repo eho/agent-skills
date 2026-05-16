@@ -35,6 +35,7 @@ For a coding agent with browser/device automation, verify:
 - Gluestack components do not throw provider or import errors.
 - NativeWind classes visibly apply.
 - Metro resolves runtime aliases, including `@/*` and `@/assets/*`. TypeScript passing is not enough; confirm the app bundles.
+- `expo-dev-client` is installed and the development build profile exists. Do not verify against Expo Go.
 
 ## EAS Config Check
 

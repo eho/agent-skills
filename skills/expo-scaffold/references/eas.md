@@ -22,7 +22,7 @@ Create or update `eas.json` with these build profiles:
 - `preview`: internal distribution, `preview` channel, auto build increment enabled.
 - `production`: store-ready production build, `production` channel, auto build increment enabled.
 
-Prefer `cli.appVersionSource: "remote"` for new EAS projects unless the user has a local versioning policy. Set `autoIncrement: true` on each build profile so EAS automatically increments native build numbers for every cloud build.
+Install `expo-dev-client` before relying on the development profile. Prefer `cli.appVersionSource: "remote"` for new EAS projects unless the user has a local versioning policy. Set `autoIncrement: true` on each build profile so EAS automatically increments native build numbers for every cloud build.
 
 Do not invent submit credentials or app store IDs.
 
@@ -65,6 +65,10 @@ Merge scripts like these into `package.json`, adapting package manager conventio
 
 ```json
 {
+  "start": "expo start",
+  "ios": "expo run:ios",
+  "android": "expo run:android",
+  "web": "expo start --web",
   "build:dev": "eas build --platform all --profile development",
   "build:preview": "eas build --platform all --profile preview",
   "build:production": "eas build --platform all --profile production",
@@ -72,6 +76,8 @@ Merge scripts like these into `package.json`, adapting package manager conventio
   "update:production": "eas update --channel production --message \"Production update\""
 }
 ```
+
+`expo run:ios` and `expo run:android` create native directories when none exist. That is acceptable for local development builds, but do not commit generated `ios/` or `android/` folders unless the user asks.
 
 If the user wants iOS-only or Android-only, set the platform in scripts accordingly.
 

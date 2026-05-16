@@ -10,26 +10,32 @@ Initialize gluestack-ui:
 npx gluestack-ui init
 ```
 
-Run the CLI with a TTY because `gluestack-ui init` may fail or hang in non-interactive shells. If using a `src` layout with Bun, prefer explicit flags when supported:
+Run the CLI with a TTY because `gluestack-ui init` may fail or hang in non-interactive shells. Before adding flags, check the installed CLI help and current docs:
 
 ```sh
-bunx gluestack-ui init --projectType expo --use-bun --path src/components/ui
+npx gluestack-ui init --help
 ```
 
-If the project does not use `src`, use `components/ui` instead of `src/components/ui`. If flags have changed, use the current CLI help and keep the same choices: Expo project type, Bun package manager when applicable, and the actual UI component path.
+If using a `src` layout with Bun, prefer explicit documented flags when supported:
+
+```sh
+bunx gluestack-ui init --use-bun --path src/components/ui
+```
+
+If the project does not use `src`, use `components/ui` instead of `src/components/ui`. If flags have changed, use the current CLI help and keep the same choices: Expo-compatible initialization, Bun package manager when applicable, and the actual UI component path.
 
 ## Starter Components
 
 Install a practical starter set:
 
 ```sh
-npx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast
+npx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast alert
 ```
 
 With Bun:
 
 ```sh
-bunx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast
+bunx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast alert
 ```
 
 If a component name has changed, use the current CLI suggestions and keep the intent of the starter set:

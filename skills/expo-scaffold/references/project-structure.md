@@ -104,6 +104,14 @@ For Bun workspaces, create root `package.json` like:
 
 Use root-level shared config only when it reduces duplication. Keep mobile-specific Babel, Metro, EAS, and app config inside `apps/mobile`.
 
+For shared packages that the mobile app imports at runtime:
+
+- Give each package a real workspace package name such as `@repo/shared`.
+- Add the shared package to `apps/mobile/package.json` dependencies using the workspace protocol supported by the selected package manager.
+- Add package `exports` for source or built entry points, for example `./src/index.ts` in Bun-first internal workspaces.
+- Keep backend-only packages out of the mobile app dependency graph.
+- Verify Metro can bundle the shared import at runtime; TypeScript path resolution alone is not enough.
+
 ## Alias Policy
 
 Use app-local aliases for mobile:

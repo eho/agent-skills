@@ -17,15 +17,15 @@ For a monorepo, create the root workspace first, then scaffold the Expo app into
 
 ## 2. Create The Expo App
 
-Use the latest stable Expo template at execution time:
+Use Expo SDK 55 unless the user asks for a different SDK. Verify the current official SDK 55 template syntax first, then create the project with the pinned stable template:
 
 ```sh
-npx create-expo-app@latest <app-slug>
+npx create-expo-app@latest <app-slug> --template default@sdk-55
 ```
 
 Prefer the default TypeScript + Expo Router template unless the user asks for a different template. Avoid templates that include `@next`, canary, beta, or preview SDKs.
 
-If official Expo docs show a newer stable SDK than `create-expo-app@latest` generates by default, use the SDK-pinned stable template syntax when available:
+If the user requests a different stable SDK, use the SDK-pinned stable template syntax when available:
 
 ```sh
 npx create-expo-app@latest <app-slug> --template default@sdk-<stable>
@@ -37,6 +37,12 @@ After creation:
 
 - Confirm `expo`, `react`, `react-native`, and `expo-router` versions are stable.
 - Run the package manager install if the CLI did not do so.
+- Install `expo-dev-client` before adding development-build scripts:
+
+```sh
+npx expo install expo-dev-client
+```
+
 - If the package manager should be Bun, normalize scripts to work with `bun run` but keep commands portable inside scripts.
 - After any third-party CLI runs, delete accidental lockfiles from other package managers such as `package-lock.json`, `yarn.lock`, or `pnpm-lock.yaml` when Bun is the chosen package manager.
 
@@ -81,7 +87,7 @@ Create or replace only the starter route/screen that belongs to the scaffold. Pr
 
 ## 7. Configure EAS
 
-Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config.
+Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config. The development profile should produce an `expo-dev-client` build.
 
 ## 8. Verify
 
