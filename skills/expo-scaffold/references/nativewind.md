@@ -17,13 +17,13 @@ As of May 2026, NativeWind v5 documentation describes v5 as pre-release, while t
 Install compatible packages with Expo where possible:
 
 ```sh
-npx expo install nativewind react-native-reanimated react-native-safe-area-context
+npx expo install nativewind@^4.1.23 react-native-reanimated react-native-safe-area-context
 npm install --save-dev tailwindcss@^3.4.17 prettier-plugin-tailwindcss@^0.5.11 babel-preset-expo
 ```
 
-Adjust package manager commands for Bun, npm, pnpm, or Yarn as appropriate.
+Adjust package manager commands for Bun, npm, pnpm, or Yarn as appropriate. Re-check the latest stable v4 patch before using `^4.1.23`; the important constraint is that this v4-style config must install a v4 `nativewind` major, not whatever the unpinned latest tag resolves to.
 
-Create `global.css`:
+For SDK 55-style projects, create `src/global.css`. For older/root-layout projects, create `global.css` at the app root:
 
 ```css
 @tailwind base;
@@ -37,6 +37,7 @@ Create or update `tailwind.config.js`:
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}",
   ],
@@ -68,7 +69,7 @@ const { withNativeWind } = require("nativewind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+module.exports = withNativeWind(config, { input: "./src/global.css" });
 ```
 
 Create `nativewind-env.d.ts`:
@@ -77,11 +78,17 @@ Create `nativewind-env.d.ts`:
 /// <reference types="nativewind/types" />
 ```
 
-Import `global.css` once at the root, normally in `app/_layout.tsx`:
+Import `global.css` once at the root, normally in `src/app/_layout.tsx` for SDK 55:
 
 ```ts
 import "../global.css";
 ```
+
+If the project uses a root-level `app/` directory, use `./global.css` in Metro and keep the same `../global.css` import from `app/_layout.tsx`.
+
+## Preview v5 Branch
+
+If the user explicitly chooses NativeWind v5 while it is still preview/pre-release, do not reuse the v4 snippet above. Follow the current v5 docs for `nativewind@preview`, `react-native-css`, Tailwind CSS v4, and the matching Metro/CSS setup, then report that the scaffold is using a preview styling stack.
 
 ## Existing Project Merge Notes
 

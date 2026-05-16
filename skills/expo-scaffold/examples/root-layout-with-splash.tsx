@@ -1,5 +1,6 @@
 // Use this example only when the app has local readiness work or an animated
-// launch overlay. For a plain static splash, prefer root-layout-static.tsx.
+// launch overlay. Place it at src/app/_layout.tsx for SDK 55-style projects.
+// For a plain static splash, prefer root-layout-static.tsx.
 import "../global.css";
 
 import { useEffect, useRef, useState } from "react";

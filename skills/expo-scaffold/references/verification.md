@@ -36,6 +36,7 @@ For a coding agent with browser/device automation, verify:
 - NativeWind classes visibly apply.
 - The root provider uses the intended gluestack color mode, normally `mode="system"`.
 - Starter surfaces use gluestack token classes rather than hardcoded light/dark color pairs.
+- SDK 55 new projects use the expected `src/app` route layout unless the selected template generated a root-level app directory.
 - Metro resolves runtime aliases, including `@/*` and `@/assets/*`. TypeScript passing is not enough; confirm the app bundles.
 - `expo-dev-client` is installed and the development build profile exists. Do not verify against Expo Go.
 

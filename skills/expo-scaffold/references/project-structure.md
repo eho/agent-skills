@@ -14,16 +14,18 @@ Use a simple app when the user has no backend or landing-site requirement:
 
 ```text
 <repo>/
-  app/
   assets/
-  components/
   src/
+    app/
+    components/
+    global.css
+    lib/
   app.json
   eas.json
   package.json
 ```
 
-This is the least moving parts and matches standard Expo templates.
+This is the least moving parts and matches the Expo SDK 55 default template shape. If the selected SDK or template still generates a root-level `app/` directory, keep that layout and adjust the example import paths instead of moving files just to match this document.
 
 ### Mobile With Backend Or Landing Site
 
@@ -33,10 +35,12 @@ Use a workspace monorepo as soon as the user wants backend support, API-route se
 <repo>/
   apps/
     mobile/
-      app/
       assets/
       src/
-      components/
+        app/
+        components/
+        global.css
+        lib/
       app.json
       eas.json
       package.json
@@ -116,7 +120,7 @@ For shared packages that the mobile app imports at runtime:
 
 Use app-local aliases for mobile:
 
-- `@/*` -> `apps/mobile/src/*` when using `src`.
+- `@/*` -> `<mobile-root>/src/*` for SDK 55-style projects.
 - `@/assets/*` -> `apps/mobile/assets/*` or `./assets/*` from the mobile app root.
 
 If using shared packages, prefer package imports such as `@repo/shared` over aliases that jump across workspace boundaries.

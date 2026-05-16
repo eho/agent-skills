@@ -31,16 +31,18 @@ If the current CLI still requires interactive choices after documented flags are
 Install a practical starter set:
 
 ```sh
+npx gluestack-ui add --help
+```
+
+Use the help output to confirm whether the current CLI supports adding multiple components in one command. If multi-add is documented, add this starter set together:
+
+```sh
 npx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast alert
 ```
 
-With Bun:
+With Bun, use `bunx gluestack-ui add ...`.
 
-```sh
-bunx gluestack-ui add box vstack hstack text heading button card input badge divider icon toast alert
-```
-
-If a component name has changed, use the current CLI suggestions and keep the intent of the starter set:
+If multi-add is not documented or the command fails, add the starter components one at a time with the selected package manager and any documented path/package-manager flags. If a component name has changed, use the current CLI suggestions and keep the intent of the starter set:
 
 - Layout: Box, VStack, HStack
 - Typography: Text, Heading
@@ -64,7 +66,7 @@ After init, inspect generated files and wire the provider exactly as the CLI exp
 - `components/ui/gluestack-ui-provider/index.tsx`
 - generated CSS/theme files
 
-For Expo Router, the provider normally belongs in `app/_layout.tsx` around the root `Stack`.
+For Expo Router, the provider normally belongs in `src/app/_layout.tsx` around the root `Stack` for SDK 55-style projects, or `app/_layout.tsx` for templates that still use root-level routes.
 
 Also ensure `global.css` is imported before rendering UI.
 
@@ -79,7 +81,7 @@ gluestack may rewrite app config files. Immediately inspect and repair:
 - `metro.config.js`: NativeWind input path must match the real CSS file. Use `./src/global.css` for `src` layouts and `./global.css` for root layouts.
 - `babel.config.js`: preserve existing plugins and aliases. Do not add aliases that break asset resolution.
 - `tailwind.config.js`: content globs must match the real `app`, `src`, `components`, and generated UI paths.
-- `app/_layout.tsx`: keep exactly one global CSS import and one gluestack provider wrapper. Remove duplicate imports and noisy formatting.
+- `src/app/_layout.tsx` or `app/_layout.tsx`: keep exactly one global CSS import and one gluestack provider wrapper. Remove duplicate imports and noisy formatting.
 - TypeScript aliases: ensure `@/*` and `@/assets/*` resolve consistently with Metro and Babel.
 
 ## Placeholder Screen

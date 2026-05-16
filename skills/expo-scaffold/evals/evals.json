@@ -4,32 +4,62 @@
     {
       "id": 1,
       "prompt": "Create a new Expo React Native app called FieldNotes using Expo SDK 55. Set up NativeWind, gluestack-ui v3 with basic components, a placeholder screen, EAS Build, and EAS Update.",
-      "expected_output": "A scaffolded Expo SDK 55 app using expo-dev-client, stable compatible NativeWind, gluestack-ui v3 provider/components, a starter screen, EAS build profiles, EAS update channels, and verification notes.",
-      "files": []
+      "expected_output": "A scaffolded Expo SDK 55 app using src/app Expo Router layout, expo-dev-client, stable compatible NativeWind, gluestack-ui v3 provider/components, a starter screen, EAS build profiles, EAS update channels, and verification notes.",
+      "files": [
+        "src/app/_layout.tsx",
+        "src/app/index.tsx",
+        "src/global.css",
+        "metro.config.js",
+        "tailwind.config.js",
+        "eas.json",
+        "package.json"
+      ]
     },
     {
       "id": 2,
       "prompt": "Scaffold an Expo Router app named DispatchDesk using Bun. Make it iOS and Android, add gluestack-ui v3, NativeWind, preview and production EAS updates, and scripts for development, preview, and production builds.",
-      "expected_output": "A Bun-friendly Expo SDK 55 Router project with expo-dev-client, NativeWind and gluestack configured, gluestack starter components, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
-      "files": []
+      "expected_output": "A Bun-friendly Expo SDK 55 Router project with src/app routes, expo-dev-client, NativeWind and gluestack configured, gluestack starter components, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
+      "files": [
+        "src/app/_layout.tsx",
+        "src/app/index.tsx",
+        "src/global.css",
+        "package.json",
+        "bun.lock",
+        "eas.json"
+      ]
     },
     {
       "id": 3,
       "prompt": "Create a production-oriented Expo starter with gluestack. If the latest NativeWind version is not clearly stable for the latest Expo SDK, ask me before choosing it.",
-      "expected_output": "The agent verifies NativeWind stability and asks before using a preview/pre-release line instead of silently installing it.",
-      "files": []
+      "expected_output": "The agent verifies NativeWind stability and asks before using a preview/pre-release line instead of silently installing it. If using the v4 path, package.json pins nativewind to the verified v4 major and Tailwind CSS 3.4.x.",
+      "files": [
+        "package.json",
+        "tailwind.config.js",
+        "metro.config.js",
+        "babel.config.js"
+      ]
     },
     {
       "id": 4,
       "prompt": "Create an Expo app starter that may later use Expo API routes and a landing website. Ask me what structure I want before scaffolding, then choose a clean monorepo if I request backend or landing support.",
-      "expected_output": "The agent asks about mobile-only, backend/API support, and landing-site support, then scaffolds or proposes an apps/mobile, optional apps/landing, and packages/api/shared workspace structure.",
-      "files": []
+      "expected_output": "The agent asks about mobile-only, backend/API support, and landing-site support, then scaffolds or proposes an apps/mobile/src/app, optional apps/landing, and packages/api/shared workspace structure.",
+      "files": [
+        "package.json",
+        "apps/mobile/src/app/_layout.tsx",
+        "apps/mobile/src/app/index.tsx",
+        "apps/mobile/eas.json"
+      ]
     },
     {
       "id": 5,
       "prompt": "Scaffold an Expo Router app with gluestack-ui v3 that follows system light/dark mode, has a native splash screen with light and dark assets, and includes an optional animated launch overlay.",
       "expected_output": "A scaffolded Expo app that configures gluestack provider mode/system theme through tokenized light/dark CSS variables, avoids broad dark: class duplication, configures expo-splash-screen through the config plugin, and implements any animated launch as a React/Reanimated overlay after the native splash hides.",
-      "files": []
+      "files": [
+        "src/app/_layout.tsx",
+        "src/components/layout/AppLaunchOverlay.tsx",
+        "src/lib/theme-runtime.ts",
+        "app.json"
+      ]
     }
   ]
 }

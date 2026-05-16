@@ -68,7 +68,7 @@ export default function RootLayout() {
 
 If the generated provider API differs, use the generated API. Do not hand-write a provider that conflicts with the CLI output.
 
-The example above assumes `app/_layout.tsx` in a root-level Expo Router app. If the scaffold uses `@/*` aliases, verify TypeScript, Babel, and Metro all resolve those aliases before converting these imports.
+The example above assumes `src/app/_layout.tsx` in an SDK 55-style Expo Router app, with `src/global.css` and generated UI components under `src/components`. The same relative import shape works for root-level `app/_layout.tsx` when `global.css` and `components` are also at the app root. If the scaffold uses `@/*` aliases, verify TypeScript, Babel, and Metro all resolve those aliases before converting these imports.
 
 ## References
 

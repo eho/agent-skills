@@ -11,7 +11,8 @@ Recommended flow for non-empty targets:
 1. Scaffold into `/private/tmp/<slug>-expo-scaffold`.
 2. Complete package installation and CLI initialization there.
 3. Copy the generated files into the target location or into `apps/mobile` for a monorepo.
-4. Exclude `.git`, temporary build output, generated native folders unless requested, and lockfiles from package managers the project is not using.
+4. Prefer copying source and configuration files only, then run the chosen package manager install in the final target.
+5. Exclude `.git`, `node_modules`, `.expo`, `.expo-shared`, generated native folders unless requested, `ios/Pods`, `dist`, `build`, `.turbo`, package-manager caches, and lockfiles from package managers the project is not using.
 
 For a monorepo, create the root workspace first, then scaffold the Expo app into `apps/mobile`.
 
@@ -23,7 +24,7 @@ Use Expo SDK 55 unless the user asks for a different SDK. Verify the current off
 npx create-expo-app@latest <app-slug> --template default@sdk-55
 ```
 
-Prefer the default TypeScript + Expo Router template unless the user asks for a different template. Avoid templates that include `@next`, canary, beta, or preview SDKs.
+Prefer the default TypeScript + Expo Router template unless the user asks for a different template. Expo SDK 55 defaults to a `src/app` Expo Router layout; keep that structure unless the selected template generates root-level `app/` or the user asks for it. Avoid templates that include `@next`, canary, beta, or preview SDKs.
 
 If the user requests a different stable SDK, use the SDK-pinned stable template syntax when available:
 
@@ -64,7 +65,7 @@ Do not invent an Expo `owner`, EAS `projectId`, app store IDs, or credentials.
 
 Read `nativewind.md`, install the selected NativeWind line, and configure:
 
-- `global.css`
+- `src/global.css` for SDK 55-style projects, or `global.css` for root-layout projects
 - `tailwind.config.js`
 - `babel.config.js`
 - `metro.config.js`
@@ -102,13 +103,13 @@ For splash and launch:
 
 ## 7. Add Placeholder Screen
 
-Create or replace only the starter route/screen that belongs to the scaffold. Prefer `app/index.tsx` when using Expo Router. Use `examples/placeholder-screen.tsx` as the base and adjust imports to match gluestack's generated component paths.
+Create or replace only the starter route/screen that belongs to the scaffold. Prefer `src/app/index.tsx` for SDK 55 Expo Router projects, or `app/index.tsx` when the selected template uses a root-level app directory. Use `examples/placeholder-screen.tsx` as the base and adjust imports to match gluestack's generated component paths.
 
 ## 8. Add Root Layout
 
-For Expo Router, wire `app/_layout.tsx` after NativeWind and gluestack are initialized:
+For Expo Router, wire `src/app/_layout.tsx` after NativeWind and gluestack are initialized. If the template uses root-level routes, wire `app/_layout.tsx` with equivalent imports:
 
-- Import `global.css` exactly once.
+- Import the actual global CSS file exactly once, normally `../global.css` from `src/app/_layout.tsx`.
 - Wrap the `Stack` with the generated `GluestackUIProvider`.
 - Pass `mode="system"` unless the user asked for an explicit or persisted theme setting.
 - Add `StatusBar` with `style="auto"` or the runtime helper style.
