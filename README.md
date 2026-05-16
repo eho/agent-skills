@@ -17,7 +17,6 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Kore**](skills/kore/SKILL.md) | `/kore` | Search, browse, save, and synthesize a personal knowledge base built from bookmarks, notes, and accumulated insights. |
 | [**Blog Writer**](skills/blog-writer/SKILL.md) | `/blog-writer` | Transform technical documents, outlines, or raw notes into an engaging, human-sounding blog post. |
 | [**Public Repo Explorer**](skills/public-repo-explorer/SKILL.md) | `/public-repo-explorer` | Efficiently browse public GitHub repositories using shallow clones — scan, examine, and extract information without cluttering the workspace. |
-| [**Skill Curator**](skills/skill-curator/SKILL.md) | `/skill-curator` | Discover, extract, and catalog agent skills from GitHub repositories into a central catalog with consistent descriptions and metadata. |
 
 ## Development Workflow
 
@@ -43,13 +42,13 @@ The eight development skills form a pipeline from idea to shipped feature. `/fea
 
 **2. Write the design** — Once the direction feels right, trigger `/design-doc`. It picks up the conversation context and takes over: asking clarifying questions methodically, surfacing edge cases, and filling gaps until it has enough to produce a complete design document with architecture, data contracts, and user stories — each with explicit acceptance criteria.
 
-**3. Review the design** — Run `/design-doc-reviewer` with a fresh context or a different model for a genuine second opinion. It checks whether the design is complete, internally consistent, and concrete enough to implement without ambiguity. Iterate until satisfied.
+**3. Review and revise the design** — Run `/design-doc-reviewer` with a fresh context or a different model for a genuine second opinion. It checks whether the design is complete, internally consistent, and concrete enough to implement without ambiguity, then saves a `docs/design/review-[slug].md` review artifact. Revise the design with `/design-doc`, triage the review feedback into `## Revision Notes`, and mark the design `Status: Revised` before delivery.
 
-**4. Deliver the feature** — Use `/feature-delivery` when you want the agent to run the full design-to-release workflow. It calls `/design-to-issues`, builds a dependency-aware delivery queue, runs `/user-story-delivery` one story at a time, and finishes with `/post-implementation-reviewer`.
+**4. Deliver the feature** — Use `/feature-delivery` when you want the agent to run the full design-to-release workflow from a revised design document. It verifies the required specialist skills, calls `/design-to-issues`, builds a dependency-aware delivery queue, runs `/user-story-delivery` one story at a time in independent implementation/review contexts, and finishes with `/post-implementation-reviewer`.
 
-**5. Push stories to GitHub manually when needed** — Use `/design-to-issues` directly when you only want to convert the user stories into GitHub Issues, optionally grouped under a Milestone.
+**5. Push stories to GitHub manually when needed** — Use `/design-to-issues` directly when you only want to convert reviewed, agent-ready user stories into GitHub Issues. It checks the companion review artifact when present, preserves each story's implementation context and acceptance criteria, creates missing `user-story` and feature-prefix labels, links dependencies, and creates or reuses the feature Milestone.
 
-**6. Implement and review one story manually when needed** — Use `/user-story-delivery` directly for the full loop around a single issue. It runs `/user-story-implementer`, hands the resulting PR to `/user-story-reviewer`, addresses requested changes, and repeats review up to a bounded limit. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
+**6. Implement and review one story manually when needed** — Use `/user-story-delivery` directly for the full loop around a single issue. It runs `/user-story-implementer`, hands the resulting PR to `/user-story-reviewer`, addresses requested changes or reviewer-fixed small issues, and repeats review up to a bounded limit until the PR is approved, comment-only signed off, merged, or blocked. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
 
 **7. Final review manually when needed** — Run `/post-implementation-reviewer` directly once the full feature is complete. This is the overall sanity check: do all stories add up to what the design described? Are there any gaps or inconsistencies?
 
