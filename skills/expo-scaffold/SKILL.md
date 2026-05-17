@@ -37,8 +37,8 @@ Before editing files, infer these from the user request or ask only for missing 
 
 ## Implementation Standards
 
-- Prefer CLI-generated project files over hand-written approximations when the official CLI supports the setup.
-- Treat gluestack CLI initialization as a required gate for the default gluestack scaffold. If official init cannot run because the CLI requires a real interactive terminal, pause the workflow and ask the user to run the exact init command manually, then resume after they report completion. If official init still fails or the user cannot run it, stop and report the exact failure instead of approximating gluestack with hand-written components.
+- Prefer official gluestack CLI output when it runs reliably, but treat the official manual installation flow as a first-class setup path when CLI init requires interaction, hangs, rewrites config incorrectly, or fails for agent-environment reasons.
+- Do not ask the user to run interactive gluestack init as the next default step when the official manual flow can complete the scaffold. Reserve a user-run interactive CLI pause for cases where current official docs no longer provide enough manual source/config detail to proceed safely.
 - Keep scaffolding idempotent where reasonable. If modifying an existing project, inspect current config before changing it.
 - Scaffold into an empty temporary workspace when the target directory already contains repo files, then copy the finished scaffold into place without `.git` or accidental lockfiles.
 - Do not overwrite user code blindly. Merge with existing `app.json` or `app.config.*`, `eas.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and route files.
@@ -56,12 +56,12 @@ At completion, the project should contain:
 - `expo-dev-client` installed and the project configured for development builds, not Expo Go.
 - A project structure matching the user's answer: mobile-only, mobile plus backend/API package, mobile plus landing site, or full monorepo.
 - NativeWind configured through Babel, Metro, Tailwind config, `global.css`, and TypeScript declarations.
-- gluestack-ui v3 initialized through the official CLI, including generated provider/config files. If initialization needs a real interactive terminal, pause for the user to run the manual init command before continuing. If initialization remains blocked, stop the default workflow and report the blocking errors instead of claiming gluestack support.
+- gluestack-ui v3 set up through either successful official CLI init or the official manual installation flow. If CLI init is not usable, install the documented dependencies, copy official provider/component source instead of inventing lookalikes, and report the manual setup outcome clearly.
 - Light/dark appearance following the system by default through gluestack provider mode and tokenized theme colors.
 - Native splash screen configured with the `expo-splash-screen` config plugin, including dark-mode colors/assets where available.
 - Optional animated launch overlay when requested, implemented as React UI after the static native splash.
-- A starter set of CLI-generated gluestack components installed after successful init.
-- A placeholder screen using gluestack layout, typography, form, feedback, and action components.
+- A starter set of gluestack components installed by CLI when available, or copied from official gluestack sources/docs when using the manual path.
+- A placeholder screen using only gluestack components that actually exist in the selected UI path.
 - EAS Build profiles for development, preview, and production.
 - EAS Update prepared with preview and production channels locally; account-backed update URLs and project IDs are added only after authenticated EAS initialization.
 - Verification results and any follow-up steps requiring the user's Expo account or app store credentials.
