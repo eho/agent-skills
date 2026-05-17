@@ -2,6 +2,16 @@
 
 Follow this sequence for a new project. For an existing project, start at step 2 and merge changes instead of replacing files.
 
+## Subagent Use
+
+When subagents are available, use them only where parallelism reduces risk:
+
+- Ask one subagent to check current official Expo, NativeWind, gluestack, or EAS docs and report exact commands or version constraints.
+- Ask one subagent to inspect the generated project shape after `create-expo-app` and summarize routes, config files, package versions, and template artifacts.
+- Ask one subagent to review the completed scaffold or verification output.
+
+Keep package installation, gluestack init, app config edits, route edits, and final integration in the main agent's control. Do not let multiple agents edit the same scaffold files concurrently.
+
 ## 1. Choose And Prepare The Workspace
 
 Read `project-structure.md` first. If the target directory is not empty, do not run `create-expo-app` directly in it. `create-expo-app .` refuses directories containing files such as `.agents`, `AGENTS.md`, `skills-lock.json`, existing lockfiles, or app code.
@@ -47,6 +57,24 @@ npx expo install expo-dev-client
 - If the package manager should be Bun, normalize scripts to work with `bun run` but keep commands portable inside scripts.
 - After any third-party CLI runs, delete accidental lockfiles from other package managers such as `package-lock.json`, `yarn.lock`, or `pnpm-lock.yaml` when Bun is the chosen package manager.
 
+## 2a. Normalize The Generated Template
+
+SDK 55's default template may generate starter UI, nested routes, and web-specific CSS module files. Normalize the template before adding scaffold-specific UI:
+
+- Confirm whether Expo Router is rooted at `src/app` or `app`; keep the generated root unless the user asked for a different shape.
+- Replace the default welcome route with the scaffold placeholder route intentionally.
+- Keep or remove generated demo components intentionally instead of leaving unused template code.
+- If generated `.module.css` imports remain, add a TypeScript declaration such as `src/types/css.d.ts`:
+
+```ts
+declare module "*.module.css" {
+  const classes: { readonly [key: string]: string };
+  export default classes;
+}
+```
+
+- Verify generated web/CSS files are either still referenced and typed or removed with their imports.
+
 ## 3. Add Baseline App Metadata
 
 Update `app.json` or `app.config.*` conservatively:
@@ -75,6 +103,8 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 ## 5. Bootstrap gluestack-ui v3
 
 Read `gluestack.md`, then run the gluestack CLI from the project root. Add a starter component set, not the entire library unless the user requests it.
+
+If gluestack init reaches `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support. Continue only if the user explicitly approves a non-official fallback.
 
 After gluestack commands, check and repair generated config paths:
 

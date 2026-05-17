@@ -38,6 +38,7 @@ Before editing files, infer these from the user request or ask only for missing 
 ## Implementation Standards
 
 - Prefer CLI-generated project files over hand-written approximations when the official CLI supports the setup.
+- Treat gluestack CLI initialization as a required gate for the default gluestack scaffold. If official init fails and the issue cannot be resolved quickly, stop and report the exact failure instead of approximating gluestack with hand-written components.
 - Keep scaffolding idempotent where reasonable. If modifying an existing project, inspect current config before changing it.
 - Scaffold into an empty temporary workspace when the target directory already contains repo files, then copy the finished scaffold into place without `.git` or accidental lockfiles.
 - Do not overwrite user code blindly. Merge with existing `app.json` or `app.config.*`, `eas.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and route files.
@@ -45,6 +46,7 @@ Before editing files, infer these from the user request or ask only for missing 
 - Keep native prebuild output out of the starter unless the user asks for committed native directories. `expo run:ios` and `expo run:android` can generate native directories; include them as development-build convenience scripts only with a note about this behavior.
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
 - For EAS Update, explain that config changes, native dependency changes, and runtime version changes require a new build; OTA updates cover compatible JS and asset changes.
+- When subagents are available, use them for parallel research or post-scaffold review, not for concurrent edits to the same package manifest, app config, route files, or styling setup. Keep the main agent responsible for the ordered scaffold sequence and final integration.
 
 ## Expected Deliverables
 
@@ -54,14 +56,14 @@ At completion, the project should contain:
 - `expo-dev-client` installed and the project configured for development builds, not Expo Go.
 - A project structure matching the user's answer: mobile-only, mobile plus backend/API package, mobile plus landing site, or full monorepo.
 - NativeWind configured through Babel, Metro, Tailwind config, `global.css`, and TypeScript declarations.
-- gluestack-ui v3 initialized.
+- gluestack-ui v3 initialized through the official CLI, including generated provider/config files. If initialization is blocked, stop the default workflow and report the blocking errors instead of claiming gluestack support.
 - Light/dark appearance following the system by default through gluestack provider mode and tokenized theme colors.
 - Native splash screen configured with the `expo-splash-screen` config plugin, including dark-mode colors/assets where available.
 - Optional animated launch overlay when requested, implemented as React UI after the static native splash.
-- A starter set of gluestack components installed.
+- A starter set of CLI-generated gluestack components installed after successful init.
 - A placeholder screen using gluestack layout, typography, form, feedback, and action components.
 - EAS Build profiles for development, preview, and production.
-- EAS Update configured with preview and production channels.
+- EAS Update prepared with preview and production channels locally; account-backed update URLs and project IDs are added only after authenticated EAS initialization.
 - Verification results and any follow-up steps requiring the user's Expo account or app store credentials.
 
 ## Useful Official Docs

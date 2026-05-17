@@ -17,11 +17,24 @@ As of May 2026, NativeWind v5 documentation describes v5 as pre-release, while t
 Install compatible packages with Expo where possible:
 
 ```sh
-npx expo install nativewind@^4.1.23 react-native-reanimated react-native-safe-area-context
+npx expo install nativewind@^4.2 react-native-reanimated react-native-safe-area-context
 npm install --save-dev tailwindcss@^3.4.17 prettier-plugin-tailwindcss@^0.5.11 babel-preset-expo
 ```
 
-Adjust package manager commands for Bun, npm, pnpm, or Yarn as appropriate. Re-check the latest stable v4 patch before using `^4.1.23`; the important constraint is that this v4-style config must install a v4 `nativewind` major, not whatever the unpinned latest tag resolves to.
+For Bun, prefer:
+
+```sh
+bunx expo install nativewind@^4.2 react-native-reanimated react-native-safe-area-context
+bun add -d tailwindcss@^3.4.17 prettier-plugin-tailwindcss@^0.5.11 babel-preset-expo
+```
+
+Adjust package manager commands for Bun, npm, pnpm, or Yarn as appropriate. Re-check the latest stable v4 patch before using the example version; the important constraint is that this v4-style config must install a v4 `nativewind` major, not whatever the unpinned latest tag resolves to. For SDK 55 with React Native 0.83, prefer the latest stable `nativewind@^4.2.x` if it is available and compatible.
+
+If Bun or the installer resolves Tailwind CSS 4 while using NativeWind v4, force Tailwind CSS back to the 3.4 line and reinstall:
+
+```sh
+bun add -d tailwindcss@^3.4.17
+```
 
 For SDK 55-style projects, create `src/global.css`. For older/root-layout projects, create `global.css` at the app root:
 
@@ -78,6 +91,8 @@ Create `nativewind-env.d.ts`:
 /// <reference types="nativewind/types" />
 ```
 
+Verify `nativewind-env.d.ts` is included by `tsconfig.json`. If the project uses a restrictive `include` list, add the declaration file or a broad source glob that includes it.
+
 Import `global.css` once at the root, normally in `src/app/_layout.tsx` for SDK 55:
 
 ```ts
@@ -95,3 +110,7 @@ If the user explicitly chooses NativeWind v5 while it is still preview/pre-relea
 - Preserve existing Babel plugins and keep `react-native-reanimated/plugin` last.
 - Preserve existing Metro resolver customizations before wrapping with `withNativeWind`.
 - Add all source roots to Tailwind `content`, including `src`, `features`, or monorepo package paths if present.
+
+## Bun Failure Handling
+
+If Bun install commands fail with sandbox, temp directory, or network errors, retry the exact same command with the environment's approved escalation flow instead of changing package versions or package managers first. After any Expo lint command auto-installs `eslint` or `eslint-config-expo`, run the selected package manager install again and rerun lint in a fresh process.
