@@ -10,7 +10,7 @@ When subagents are available, use them only where parallelism reduces risk:
 - Ask one subagent to inspect the generated project shape after `create-expo-app` and summarize routes, config files, package versions, and template artifacts.
 - Ask one subagent to review the completed scaffold or verification output.
 
-Keep package installation, gluestack setup, app config edits, route edits, and final integration in the main agent's control. Do not let multiple agents edit the same scaffold files concurrently.
+Keep package installation, app config edits, route edits, and final integration in the main agent's control. Do not let multiple agents edit the same scaffold files concurrently. If a subagent runs `expo-gluestack-setup`, give it a bounded ownership set for gluestack files only and require its `## Gluestack Handoff` before the main agent wires final screens or reports success.
 
 ## 1. Choose And Prepare The Workspace
 
@@ -29,7 +29,7 @@ Ask for these in one concise preflight block when they are not present in the us
 Recommended flow for non-empty targets:
 
 1. Scaffold into `/private/tmp/<slug>-expo-scaffold`.
-2. Complete package installation and official manual gluestack setup there.
+2. Complete package installation and official gluestack setup there.
 3. Copy the generated files into the target location or into `apps/mobile` for a monorepo.
 4. Prefer copying source and configuration files only, then run the chosen package manager install in the final target.
 5. Exclude `.git`, `node_modules`, `.expo`, `.expo-shared`, generated native folders unless requested, `ios/Pods`, `dist`, `build`, `.turbo`, package-manager caches, and lockfiles from package managers the project is not using.
@@ -113,24 +113,65 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 - `nativewind-env.d.ts`
 - global CSS import in the app root layout or entry file
 
-## 5. Bootstrap gluestack-ui v3
+## 5. Bootstrap gluestack
 
-Read `gluestack.md`, then use the official manual installation flow from the project root. Resolve current package metadata, install exact gluestack package versions, copy official provider/component source, and add only the components needed by the placeholder screen unless the user requests a larger starter.
+Use the `expo-gluestack-setup` skill for gluestack-specific installation and verification. Pass a concise orchestration brief:
 
-Do not run `gluestack-ui init` by default. The CLI is known to hang in agent environments, especially around package-manager prompts. Try the CLI only when the user explicitly asks for CLI-managed gluestack or when the current official manual docs/source cannot be used safely.
+- App root.
+- Package manager.
+- Expo SDK and React Native versions.
+- NativeWind status and global CSS path.
+- Route layout, normally `src/app` for SDK 55.
+- Desired UI component path, normally `src/components/ui` for SDK 55 `src` layouts.
+- Requested gluestack major, or permission to use the current stable compatible major.
+- Whether CLI-managed components were explicitly requested.
+- Whether layout wiring or route/screen edits are allowed. Default to no; this scaffold normally owns final route and root-layout edits.
 
-If gluestack reaches `manual_installed`, continue with official manually copied provider/components and do not run `gluestack-ui add` unless CLI config is later verified.
+Require this handoff before continuing:
 
-If gluestack reaches `interactive_cli_required`, pause the default scaffold workflow and ask the user to run the exact init command manually from the project root. Resume only after the user reports that the command completed, then inspect the generated provider/config files before continuing.
+```markdown
+## Gluestack Handoff
+- Outcome:
+- Mode: standalone | orchestrated
+- Version:
+- Package versions:
+- Docs/source ref:
+- Package manager:
+- App root:
+- NativeWind prerequisite:
+- Global CSS path:
+- Route root:
+- UI component path:
+- Provider file path:
+- Provider import:
+- Provider mode:
+- Components installed/copied:
+- Official source paths:
+- Component exports:
+- CLI component management:
+- Theme/token status:
+- Layout wiring touched:
+- Route/screen files touched:
+- Commands run:
+- Files changed:
+- Verification:
+- Follow-up:
+```
 
-If gluestack reaches `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support. Continue only if the user explicitly approves a non-official fallback.
+If the outcome is `manual_installed` or `cli_initialized`, continue with official provider/components and do not run additional gluestack CLI commands unless the handoff says CLI component management is verified.
 
-After gluestack CLI commands or manual setup, check and repair config paths:
+If orchestrated mode was used and the handoff says layout or route/screen files were touched without explicit permission, inspect those edits before continuing and reconcile them in the main scaffold integration step.
+
+If the outcome is `interactive_cli_required`, pause the default scaffold workflow and ask the user to run the exact command from the handoff. Resume only after the user reports completion, then inspect the generated provider/config files before continuing.
+
+If the outcome is `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support. Continue only if the user explicitly approves a non-official fallback and the handoff outcome becomes `fallback_approved`.
+
+After gluestack setup, check and repair config paths using the handoff as source of truth:
 
 - Metro NativeWind input must point at the real CSS file, such as `./src/global.css` when the app uses `src`.
 - Babel aliases must resolve both source code and assets.
 - Tailwind content globs must include the actual app, src, and component directories.
-- Root layout must have one CSS import and one official provider wrapper.
+- Root layout must have one CSS import and one official provider wrapper using the provider import from the handoff.
 
 ## 6. Configure Theme And Launch Experience
 
@@ -138,7 +179,7 @@ Read `theme.md` and `launch-experience.md`.
 
 For theme:
 
-- Default the generated gluestack provider usage to `mode="system"`.
+- Default the generated gluestack provider usage to `mode="system"` when the selected provider supports it.
 - Use gluestack token classes such as `bg-background-0`, `text-typography-900`, and `border-outline-200` in starter screens.
 - Keep generated `dark:` classes rare and intentional; do not use them for every normal surface.
 - Add a tiny runtime theme helper only when JS-only values are needed, such as status bar style or animated launch overlay colors.
@@ -152,15 +193,15 @@ For splash and launch:
 
 ## 7. Add Placeholder Screen
 
-Create or replace only the starter route/screen that belongs to the scaffold. Prefer `src/app/index.tsx` for SDK 55 Expo Router projects, or `app/index.tsx` when the selected template uses a root-level app directory. Use `examples/placeholder-screen.tsx` as the base and adjust imports to match gluestack's generated or manually copied official component paths.
+Create or replace only the starter route/screen that belongs to the scaffold. Prefer `src/app/index.tsx` for SDK 55 Expo Router projects, or `app/index.tsx` when the selected template uses a root-level app directory. Use `examples/placeholder-screen.tsx` as the base and adjust imports to match the component paths confirmed in the gluestack handoff. Do not import components that the handoff did not verify.
 
 ## 8. Add Root Layout
 
 For Expo Router, wire `src/app/_layout.tsx` after NativeWind and gluestack are set up. If the template uses root-level routes, wire `app/_layout.tsx` with equivalent imports:
 
 - Import the actual global CSS file exactly once, normally `../global.css` from `src/app/_layout.tsx`.
-- Wrap the `Stack` with the official `GluestackUIProvider`, generated by CLI or copied through manual setup.
-- Pass `mode="system"` unless the user asked for an explicit or persisted theme setting.
+- Wrap the `Stack` with the official `GluestackUIProvider`, using the provider import from the gluestack handoff.
+- Pass `mode="system"` unless the user asked for an explicit or persisted theme setting, or the selected provider version uses a different official API.
 - Add `StatusBar` with `style="auto"` or the runtime helper style.
 - For a static splash only, adapt `examples/root-layout-static.tsx`.
 - If animated launch was selected, adapt `examples/root-layout-with-splash.tsx` and `examples/app-launch-overlay.tsx`.

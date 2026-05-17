@@ -59,8 +59,8 @@ For a coding agent with browser/device automation, verify:
 - The bundler starts.
 - The placeholder screen renders.
 - Gluestack components do not throw provider or import errors.
-- Gluestack status is `cli_initialized` or `manual_installed`; if status is `interactive_cli_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If status is `blocked`, report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
-- The official gluestack provider/config exists and the placeholder imports official component paths. For `manual_installed`, verify copied source paths instead of requiring CLI-generated config.
+- Gluestack handoff outcome is `cli_initialized` or `manual_installed`; if the outcome is `interactive_cli_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If the outcome is `blocked`, report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
+- The official gluestack provider/config exists at the path from the handoff and the placeholder imports official component paths. For `manual_installed`, verify copied source paths instead of requiring CLI-generated config.
 - NativeWind classes visibly apply.
 - The root provider uses the intended gluestack color mode, normally `mode="system"`.
 - Starter surfaces use gluestack token classes rather than hardcoded light/dark color pairs.

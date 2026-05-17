@@ -1,0 +1,86 @@
+{
+  "skill_name": "expo-gluestack-setup",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add gluestack-ui v3 to this existing Expo SDK 55 app that already has NativeWind configured under src/global.css. Use Bun, do not use the gluestack CLI unless official manual setup is impossible, and do not invent replacement primitives.",
+      "expected_output": "The agent inspects the project, confirms NativeWind files, resolves current gluestack package metadata, installs exact official gluestack packages, copies official provider and required starter component source, wires the provider, verifies imports, avoids unofficial fallback primitives, and returns a Gluestack Handoff with outcome `manual_installed` or a clear blocked state.",
+      "files": [
+        "src/components/ui/gluestack-ui-provider/index.tsx",
+        "src/app/_layout.tsx",
+        "tailwind.config.js",
+        "package.json"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Repair a failed gluestack-ui setup in an Expo Router app. The previous CLI run hung after a package-manager prompt and left partial files. Continue only if you can verify official gluestack setup.",
+      "expected_output": "The agent captures or reports the failed CLI state, inspects partial gluestack files and lockfiles, repairs using official manual source when possible, removes only confidently broken partial files, and returns a Gluestack Handoff with exact outcome, files changed, verification, and residual follow-up.",
+      "files": [
+        "gluestack-ui.config.json",
+        "src/components/ui",
+        "tailwind.config.js",
+        "package.json"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Configure gluestack for an Expo scaffold worker. App root is apps/mobile, package manager is bun, Expo SDK is 55, NativeWind is configured at src/global.css, route layout is src/app, UI path should be src/components/ui, and I want the current stable gluestack major unless compatibility is unclear.",
+      "expected_output": "The agent runs in orchestrated mode, respects the passed app root and UI path, avoids root layout and route/screen edits unless explicitly allowed, uses the current stable compatible gluestack major only after checking docs/metadata, asks before using an unclear major/version path, and returns the required Gluestack Handoff for the scaffold orchestrator.",
+      "files": [
+        "apps/mobile/src/components/ui",
+        "apps/mobile/src/app/_layout.tsx",
+        "apps/mobile/tailwind.config.js",
+        "apps/mobile/package.json"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "In this existing Expo app, only add or repair gluestack-ui. Do not scaffold a new app, do not change EAS, and do not rewrite my routes unless gluestack verification absolutely requires it.",
+      "expected_output": "The expo-gluestack-setup skill, not expo-scaffold, handles the request. It scopes work to existing-app gluestack setup/repair, avoids broad scaffold changes, and reports any route/layout edits in the Gluestack Handoff.",
+      "files": [
+        "package.json",
+        "src/app/_layout.tsx",
+        "src/components/ui"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Install gluestack-ui v3 even if the current gluestack GitHub main branch has moved to a newer major. Use official v3 provider and component source only.",
+      "expected_output": "The agent refuses to copy unverified future-major source from main for a v3 install, resolves v3-compatible package versions and a v3 docs-linked branch/tag/commit/source ref, and includes that source ref plus package versions in the Gluestack Handoff.",
+      "files": [
+        "src/components/ui/gluestack-ui-provider",
+        "package.json"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Use the current gluestack major in this Expo SDK 55 app. If your skill only has v3 setup instructions and the current major differs, do not apply the v3 workflow silently.",
+      "expected_output": "The agent checks official docs, asks for explicit approval before a newly researched non-v3 path when compatibility/source/API/verification are not fully established, or returns `interactive_cli_required`/`blocked` with exact gaps. It does not apply v3 package/source instructions to another major.",
+      "files": [
+        "package.json",
+        "src/components/ui"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Configure gluestack in orchestrated mode for apps/mobile. NativeWind is configured, but do not edit src/app/_layout.tsx or src/app/index.tsx. Return everything the scaffold needs to do those edits itself.",
+      "expected_output": "The agent copies/installs official gluestack source and returns a complete Gluestack Handoff including package versions, docs/source ref, global CSS path, route root, provider file path/import/mode, component export names, CLI-add status, theme/token status, and confirms layout and route/screen files were not touched.",
+      "files": [
+        "apps/mobile/src/components/ui",
+        "apps/mobile/src/app/_layout.tsx",
+        "apps/mobile/src/app/index.tsx"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Add gluestack to this Expo app, but NativeWind is not installed yet and I did not ask you to set up NativeWind.",
+      "expected_output": "The agent detects the missing NativeWind prerequisite and stops with a precise prerequisite or asks for approval to add NativeWind. It does not continue to partial gluestack provider/component setup that cannot be verified.",
+      "files": [
+        "package.json",
+        "tailwind.config.js",
+        "metro.config.js"
+      ]
+    }
+  ]
+}
