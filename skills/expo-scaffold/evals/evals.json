@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Create a new Expo React Native app called FieldNotes using Expo SDK 55. Set up NativeWind, gluestack-ui v3 with basic components, a placeholder screen, EAS Build, and EAS Update.",
-      "expected_output": "A scaffolded Expo SDK 55 app using src/app Expo Router layout, expo-dev-client, stable compatible NativeWind, gluestack-ui v3 provider/components, a starter screen, EAS build profiles, EAS update channels, and verification notes.",
+      "expected_output": "A scaffolded Expo SDK 55 app using src/app Expo Router layout, expo-dev-client, stable compatible NativeWind, official manual gluestack-ui v3 provider/components, a starter screen, EAS build profiles, EAS update channels, docs updates, cleanup notes, and verification notes.",
       "files": [
         "src/app/_layout.tsx",
         "src/app/index.tsx",
@@ -18,7 +18,7 @@
     {
       "id": 2,
       "prompt": "Scaffold an Expo Router app named DispatchDesk using Bun. Make it iOS and Android, add gluestack-ui v3, NativeWind, preview and production EAS updates, and scripts for development, preview, and production builds.",
-      "expected_output": "A Bun-friendly Expo SDK 55 Router project with src/app routes, expo-dev-client, NativeWind and gluestack configured, gluestack starter components, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
+      "expected_output": "A Bun-friendly Expo SDK 55 Router project with src/app routes, expo-dev-client, NativeWind and official manual gluestack configured, exact gluestack package versions, package-local Bun workspace links preserved when needed, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
       "files": [
         "src/app/_layout.tsx",
         "src/app/index.tsx",
@@ -42,7 +42,7 @@
     {
       "id": 4,
       "prompt": "Create an Expo app starter that may later use Expo API routes and a landing website. Ask me what structure I want before scaffolding, then choose a clean monorepo if I request backend or landing support.",
-      "expected_output": "The agent asks about mobile-only, backend/API support, and landing-site support, then scaffolds or proposes an apps/mobile/src/app, optional apps/landing, and packages/api/shared workspace structure.",
+      "expected_output": "The agent asks about mobile-only, backend/API support, landing-site support, sticky app identifiers, and landing framework/SEO needs, then scaffolds or proposes an apps/mobile/src/app, optional apps/landing with correctly grouped Vite dependencies, and packages/api/shared workspace structure.",
       "files": [
         "package.json",
         "apps/mobile/src/app/_layout.tsx",
@@ -63,9 +63,20 @@
     },
     {
       "id": 6,
-      "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3. During gluestack init, the CLI fails with: TTY initialization failed: uv_tty_init returned EINVAL, then a TTY retry hangs at the Bun package-manager prompt, and --template-only fails with Cannot read properties of undefined (reading 'dependencies'). Do not use unofficial gluestack replacements unless I explicitly approve them.",
-      "expected_output": "The agent does not pause by default for an interactive gluestack CLI failure. It reports the failed CLI attempts, then follows the official manual installation path by installing documented gluestack dependencies, copying official provider/component source, wiring the provider, and setting the gluestack outcome to `manual_installed` after verification. It does not create unofficial replacement primitives. It uses `interactive_cli_required` only if current official docs/source no longer provide enough manual setup detail, and `blocked` only if both CLI and official manual setup are unusable.",
+      "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3 using Bun. Do not use the gluestack CLI unless absolutely necessary; previous runs hung at the Bun package-manager prompt. Do not use unofficial gluestack replacements unless I explicitly approve them.",
+      "expected_output": "The agent treats official manual gluestack setup as the default. It resolves current gluestack package metadata, installs exact gluestack package versions, copies official provider/component source, wires the provider, and sets the gluestack outcome to `manual_installed` after verification. It does not create unofficial replacement primitives. It uses CLI only if current official docs/source no longer provide enough manual setup detail, with timeout/capture/cancel behavior if a CLI command hangs.",
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Review and finish verification for a Bun workspace Expo scaffold. `expo-doctor` reports duplicate native modules, but the duplicate entries are the same versions under Bun workspace link paths. Verification also generated `.expo/`, `apps/landing/dist/`, and temporary EAS inspect output. Clean up what should not be committed and report any remaining risk.",
+      "expected_output": "The agent distinguishes duplicate native module versions from duplicate same-version entries caused by Bun workspace links, documents the same-version warning as residual risk, recommends a native development or preview build before production readiness, preserves required Bun package-local link folders, removes generated `.expo`, `dist`, and temporary EAS inspect output, updates or checks `.gitignore`, and reports cleanup plus verification results.",
+      "files": [
+        ".gitignore",
+        "bun.lock",
+        "apps/mobile/package.json",
+        "apps/landing/package.json"
+      ]
     }
   ]
 }

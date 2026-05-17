@@ -5,18 +5,20 @@ description: Scaffold or set up a React Native Expo app or Expo-centered monorep
 
 # Expo Gluestack Scaffold
 
-Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, gluestack CLI behavior, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
+Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, official gluestack manual setup details, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
 
 ## Initial Decisions
 
-Before editing files, infer these from the user request or ask only for missing choices that affect generated identifiers:
+Before editing files, infer these from the user request. Ask a short preflight decision block for any missing choices that create sticky identifiers or materially change the scaffold:
 
 - App display name and app slug.
+- iOS bundle identifier and Android package name, or explicit approval to leave native identifiers unset or as placeholders.
 - Package manager: use the repo/user's existing manager when present; otherwise prefer `bun` if the user commonly uses it, then `npm`.
 - Target platforms: default to iOS and Android.
 - Router: default to Expo Router unless the user asks for a single-file app.
 - Development runtime: always install and configure `expo-dev-client`; do not target Expo Go.
 - Project shape: ask whether the user wants mobile-only, backend/API support, landing-site support, or both. Read `references/project-structure.md` before choosing directories.
+- Landing framework: ask when a landing site is requested and SEO/marketing requirements are unclear; default to a separate React/Vite app for simple marketing pages and Next.js only when SSR/SEO/routing needs justify it.
 - Theme mode: default to following the system light/dark appearance. For gluestack-ui v3, prefer provider `mode="system"` plus CSS-variable tokens over repeated `dark:` class pairs.
 - Launch experience: default to a static native splash screen; offer an optional React/Reanimated launch overlay when the user wants an animated splash.
 - NativeWind version: prefer latest stable compatible NativeWind. If the latest compatible version appears to be preview, beta, canary, or unclear for the selected Expo SDK, ask the user before proceeding.
@@ -28,7 +30,7 @@ Before editing files, infer these from the user request or ask only for missing 
 2. Read `references/scaffold-workflow.md` for the end-to-end sequence.
 3. Use Expo SDK 55 unless the user requests differently. Check official Expo docs or `create-expo-app` output for current SDK 55 template syntax. Do not use `next`, beta, or canary templates unless the user explicitly asks.
 4. Read `references/nativewind.md` before installing or configuring NativeWind.
-5. Read `references/gluestack.md` before running gluestack commands or adding components.
+5. Read `references/gluestack.md` before installing gluestack packages, copying official provider/components, or running any gluestack CLI command.
 6. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
 7. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
 8. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
@@ -37,12 +39,13 @@ Before editing files, infer these from the user request or ask only for missing 
 
 ## Implementation Standards
 
-- Prefer official gluestack CLI output when it runs reliably, but treat the official manual installation flow as a first-class setup path when CLI init requires interaction, hangs, rewrites config incorrectly, or fails for agent-environment reasons.
-- Do not ask the user to run interactive gluestack init as the next default step when the official manual flow can complete the scaffold. Reserve a user-run interactive CLI pause for cases where current official docs no longer provide enough manual source/config detail to proceed safely.
+- Use the official gluestack manual installation flow as the default. The gluestack CLI is known to be unreliable in agent environments; run `gluestack-ui init` or `gluestack-ui add` only when the user explicitly asks for CLI-managed components or current official docs no longer provide enough manual setup detail.
+- If a gluestack CLI command is attempted and hangs, capture the last prompt/output, cancel after the timeout defined in `references/gluestack.md`, inspect partial files, and continue through the official manual path when provider/config files are absent.
 - Keep scaffolding idempotent where reasonable. If modifying an existing project, inspect current config before changing it.
 - Scaffold into an empty temporary workspace when the target directory already contains repo files, then copy the finished scaffold into place without `.git` or accidental lockfiles.
 - Do not overwrite user code blindly. Merge with existing `app.json` or `app.config.*`, `eas.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and route files.
 - Use `expo install` for Expo/RN packages where compatibility matters.
+- In Bun workspaces, expect a root lockfile plus possible workspace-local `node_modules` link folders. Do not remove package-local link folders just because a root `bun.lock` exists; remove only generated dependency trees/caches that are explicitly excluded by the cleanup rules.
 - Keep native prebuild output out of the starter unless the user asks for committed native directories. `expo run:ios` and `expo run:android` can generate native directories; include them as development-build convenience scripts only with a note about this behavior.
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
 - For EAS Update, explain that config changes, native dependency changes, and runtime version changes require a new build; OTA updates cover compatible JS and asset changes.
@@ -56,14 +59,15 @@ At completion, the project should contain:
 - `expo-dev-client` installed and the project configured for development builds, not Expo Go.
 - A project structure matching the user's answer: mobile-only, mobile plus backend/API package, mobile plus landing site, or full monorepo.
 - NativeWind configured through Babel, Metro, Tailwind config, `global.css`, and TypeScript declarations.
-- gluestack-ui v3 set up through either successful official CLI init or the official manual installation flow. If CLI init is not usable, install the documented dependencies, copy official provider/component source instead of inventing lookalikes, and report the manual setup outcome clearly.
+- gluestack-ui v3 set up through the official manual installation flow by default: install exact documented dependency versions, copy official provider/component source instead of inventing lookalikes, and report the manual setup outcome clearly. Use successful official CLI init only when explicitly requested or needed because manual docs/source are unavailable.
 - Light/dark appearance following the system by default through gluestack provider mode and tokenized theme colors.
 - Native splash screen configured with the `expo-splash-screen` config plugin, including dark-mode colors/assets where available.
 - Optional animated launch overlay when requested, implemented as React UI after the static native splash.
-- A starter set of gluestack components installed by CLI when available, or copied from official gluestack sources/docs when using the manual path.
+- A starter set of gluestack components copied from official gluestack sources/docs for the manual path, or installed by CLI only when CLI-managed gluestack was explicitly selected and verified.
 - A placeholder screen using only gluestack components that actually exist in the selected UI path.
 - EAS Build profiles for development, preview, and production.
 - EAS Update prepared with preview and production channels locally; account-backed update URLs and project IDs are added only after authenticated EAS initialization.
+- Updated existing living docs when the scaffold creates or changes project architecture, especially `docs/architecture/architecture.md`, `docs/architecture/tech-stack.md`, and relevant operational docs. If the repo has no docs convention, create lightweight seed docs only when that fits the project or report that no architecture docs were present.
 - Verification results and any follow-up steps requiring the user's Expo account or app store credentials.
 
 ## Useful Official Docs

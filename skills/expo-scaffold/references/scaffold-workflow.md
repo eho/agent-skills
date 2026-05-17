@@ -10,21 +10,31 @@ When subagents are available, use them only where parallelism reduces risk:
 - Ask one subagent to inspect the generated project shape after `create-expo-app` and summarize routes, config files, package versions, and template artifacts.
 - Ask one subagent to review the completed scaffold or verification output.
 
-Keep package installation, gluestack init, app config edits, route edits, and final integration in the main agent's control. Do not let multiple agents edit the same scaffold files concurrently.
+Keep package installation, gluestack setup, app config edits, route edits, and final integration in the main agent's control. Do not let multiple agents edit the same scaffold files concurrently.
 
 ## 1. Choose And Prepare The Workspace
 
 Read `project-structure.md` first. If the target directory is not empty, do not run `create-expo-app` directly in it. `create-expo-app .` refuses directories containing files such as `.agents`, `AGENTS.md`, `skills-lock.json`, existing lockfiles, or app code.
 
+Before any scaffold command, resolve sticky naming inputs:
+
+- Display name.
+- Slug.
+- iOS bundle identifier and Android package name, or explicit approval to leave them unset or as placeholders.
+- Mobile-only, mobile plus backend/API, mobile plus landing, or full monorepo shape.
+- Landing framework preference when a landing site is requested and SEO/SSR requirements are unclear.
+
+Ask for these in one concise preflight block when they are not present in the user request. Do not silently invent native identifiers because they are painful to change later.
+
 Recommended flow for non-empty targets:
 
 1. Scaffold into `/private/tmp/<slug>-expo-scaffold`.
-2. Complete package installation and CLI initialization there.
+2. Complete package installation and official manual gluestack setup there.
 3. Copy the generated files into the target location or into `apps/mobile` for a monorepo.
 4. Prefer copying source and configuration files only, then run the chosen package manager install in the final target.
 5. Exclude `.git`, `node_modules`, `.expo`, `.expo-shared`, generated native folders unless requested, `ios/Pods`, `dist`, `build`, `.turbo`, package-manager caches, and lockfiles from package managers the project is not using.
 
-For a monorepo, create the root workspace first, then scaffold the Expo app into `apps/mobile`.
+For a monorepo, create the root workspace first, then scaffold the Expo app into `apps/mobile`. After copying from a temporary scaffold, run the selected package manager install from the final workspace root. With Bun, allow that install to recreate package-local `node_modules` link folders inside apps/packages if local scripts need them.
 
 ## 2. Create The Expo App
 
@@ -64,6 +74,9 @@ SDK 55's default template may generate starter UI, nested routes, and web-specif
 - Confirm whether Expo Router is rooted at `src/app` or `app`; keep the generated root unless the user asked for a different shape.
 - Replace the default welcome route with the scaffold placeholder route intentionally.
 - Keep or remove generated demo components intentionally instead of leaving unused template code.
+- For a minimal starter, remove unreferenced demo routes such as `src/app/(tabs)/`, sample modal/explore routes, and route-specific demo CSS modules after replacing the starter route.
+- Remove unreferenced template components such as `HelloWave`, `ParallaxScrollView`, `ThemedText`, `ThemedView`, `Collapsible`, `ExternalLink`, demo haptic tab helpers, demo icon wrappers, and demo-only constants such as `Colors`.
+- Remove React-logo/sample image assets such as `react-logo*.png` after confirming no route, component, or config imports them. Keep real app icon, splash, adaptive icon, favicon, and any files referenced by `app.json`, `app.config.*`, route files, or imports.
 - If generated `.module.css` imports remain, add a TypeScript declaration such as `src/types/css.d.ts`:
 
 ```ts
@@ -84,7 +97,7 @@ Update `app.json` or `app.config.*` conservatively:
 - `scheme`: lower-case slug by default.
 - `userInterfaceStyle`: `automatic`.
 - `orientation`: `portrait` unless the user requests otherwise.
-- `ios.bundleIdentifier` and `android.package`: ask the user or leave placeholders if not provided.
+- `ios.bundleIdentifier` and `android.package`: use the user-provided values, or leave unset/placeholders only after explicit approval.
 - `plugins`: include `expo-splash-screen` with config-plugin options when splash assets are available or placeholders are acceptable.
 
 Do not invent an Expo `owner`, EAS `projectId`, app store IDs, or credentials.
@@ -102,7 +115,9 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 
 ## 5. Bootstrap gluestack-ui v3
 
-Read `gluestack.md`, then try the documented gluestack CLI init from the project root. If the CLI is interactive or unreliable, continue with the official manual installation flow in `gluestack.md` instead of pausing by default. Add a starter component set, not the entire library unless the user requests it.
+Read `gluestack.md`, then use the official manual installation flow from the project root. Resolve current package metadata, install exact gluestack package versions, copy official provider/component source, and add only the components needed by the placeholder screen unless the user requests a larger starter.
+
+Do not run `gluestack-ui init` by default. The CLI is known to hang in agent environments, especially around package-manager prompts. Try the CLI only when the user explicitly asks for CLI-managed gluestack or when the current official manual docs/source cannot be used safely.
 
 If gluestack reaches `manual_installed`, continue with official manually copied provider/components and do not run `gluestack-ui add` unless CLI config is later verified.
 
@@ -155,6 +170,16 @@ For Expo Router, wire `src/app/_layout.tsx` after NativeWind and gluestack are s
 
 Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config. The development profile should produce an `expo-dev-client` build.
 
-## 10. Verify
+## 10. Update Docs
+
+If the repository has living docs, update them as an explicit scaffold deliverable:
+
+- `docs/architecture/architecture.md`: app/workspace shape, major apps/packages, boundaries, and generated runtime flow.
+- `docs/architecture/tech-stack.md`: Expo SDK, React Native, package manager, NativeWind/gluestack strategy, EAS build/update posture, landing/backend choices.
+- Relevant operational docs: install, development build, EAS build/update, environment variables, and credential/account steps.
+
+If these docs do not exist and the repo has no docs convention, either create lightweight factual seed docs or report that docs were not present and no architecture docs were updated.
+
+## 11. Verify
 
 Run the checks in `verification.md` and report exact commands and results.

@@ -1,6 +1,6 @@
 # gluestack-ui v3 Setup
 
-Use the official gluestack CLI from the project root when it runs reliably. Check the current docs before running commands because v3 package names and generated paths may change. If CLI init requires interaction or fails for agent-environment reasons, use the official manual installation flow instead of blocking the scaffold.
+Use the official gluestack manual installation flow from the project root. The gluestack CLI is known to hang or fail in agent environments, so do not run it by default. Check the current docs before installing packages or copying source because v3 package names, provider source, and generated paths may change.
 
 gluestack setup is a hard gate for the default scaffold, but CLI init is not. Do not hand-write lookalike components and call the project initialized. Manual setup is valid only when it follows the official gluestack manual installation path and copies official provider/component source. A local non-official UI fallback is allowed only if the user explicitly asks to continue without official gluestack.
 
@@ -12,9 +12,21 @@ Track one of these outcomes:
 - `blocked`: both CLI and official manual setup are unusable, provider/component source cannot be verified, or generated/copied files still do not build; stop the default workflow and report diagnostics.
 - `fallback_approved`: the user explicitly approved a non-official fallback after being told it will not be official gluestack.
 
-## Bootstrap
+## Default Bootstrap
 
-Inspect the current CLI first:
+Use the official manual installation flow below as the default. A successful default scaffold normally ends with outcome `manual_installed`.
+
+Do not run `gluestack-ui init` or `gluestack-ui add` unless one of these is true:
+
+- The user explicitly asks for CLI-managed gluestack components.
+- Current official manual docs/source cannot be located or are internally inconsistent, and the CLI is the only official way to generate the provider.
+- You are investigating a previously generated CLI scaffold and need to inspect CLI behavior.
+
+If the CLI is not attempted, the final report should say that CLI component management was not verified and future components should be copied from official manual docs/source unless CLI init is run later.
+
+## Optional CLI Path
+
+If the CLI path is explicitly chosen, inspect the current CLI first:
 
 ```sh
 npx gluestack-ui init --help
@@ -37,6 +49,14 @@ bunx gluestack-ui init --use-bun --path src/components/ui <documented-expo-flag>
 If the project does not use `src`, use `components/ui` instead of `src/components/ui`. If flags have changed, use the current CLI help and keep the same choices: Expo-compatible initialization, Bun package manager when applicable, and the actual UI component path.
 
 If the first documented init attempt fails because of non-TTY execution, retry once in a TTY if the environment supports it. If the TTY retry also fails, hangs at an interactive package-manager prompt, or shows that the CLI cannot be driven reliably from the agent environment, switch to the official manual installation flow below. Do not pause for the user to run interactive init unless manual setup is not possible from current official docs/source.
+
+Concrete hang handling:
+
+1. Wait up to 90 seconds after the last prompt or output.
+2. Capture the last visible prompt/output and the exact command.
+3. Cancel the process.
+4. Inspect the app for partial files, especially the selected UI directory, `gluestack-ui.config.json`, `tailwind.config.js`, `metro.config.js`, and package/lockfile changes.
+5. If no complete provider/config exists, continue through official manual setup. If partial files exist, either repair them with official manual source or remove only the broken partial files you can identify confidently.
 
 When pausing with `interactive_cli_required`, tell the user:
 
@@ -79,26 +99,36 @@ Do not proceed to `gluestack-ui add` unless init reached `cli_initialized`.
 
 ## Official Manual Installation
 
-Use this path when CLI init is unavailable or too interactive, or when the user explicitly asks for manual installation. The manual path is still official gluestack setup when it uses current gluestack docs/source instead of local approximations.
+Use this path by default. The manual path is still official gluestack setup when it uses current gluestack docs/source instead of local approximations.
 
 1. Confirm NativeWind is already installed and configured through `nativewind.md`. The gluestack manual docs start from an existing NativeWind setup.
-2. Install the documented gluestack dependencies with the selected package manager. For Expo apps, use Expo-safe commands as the primary path so generated Expo/RN versions stay SDK-compatible:
+2. Resolve current package metadata before installing. Broad `bun add @gluestack-ui/core @gluestack-ui/utils @gluestack/ui-next-adapter` resolution can stall, while exact versions resolve much more reliably. Query each gluestack package version first using the current package-manager/npm metadata command, for example:
 
 ```sh
-npm i @gluestack-ui/core @gluestack-ui/utils @gluestack/ui-next-adapter
+npm view @gluestack-ui/core version
+npm view @gluestack-ui/utils version
+npm view @gluestack/ui-next-adapter version
+```
+
+If using Bun and `bun pm view <package> version` is available in the installed Bun version, that is also acceptable. Record the resolved versions in the final report.
+
+3. Install the documented gluestack dependencies with exact versions. For Expo apps, use Expo-safe commands for native packages so generated Expo/RN versions stay SDK-compatible:
+
+```sh
+npm i @gluestack-ui/core@<version> @gluestack-ui/utils@<version> @gluestack/ui-next-adapter@<version>
 npx expo install react-native-svg react-native-web
 ```
 
 For Bun, use:
 
 ```sh
-bun add @gluestack-ui/core @gluestack-ui/utils @gluestack/ui-next-adapter
+bun add @gluestack-ui/core@<version> @gluestack-ui/utils@<version> @gluestack/ui-next-adapter@<version>
 bunx expo install react-native-svg react-native-web
 ```
 
 The upstream manual docs may list the broader package set `@gluestack-ui/core @gluestack-ui/utils react-native-svg @gluestack/ui-next-adapter react-native-web react-native`. Adapt that list for Expo by preserving already installed `react-native`, `react`, and Expo package versions.
 
-3. Copy the official provider and required init components into the app's selected UI directory. Use this source-discovery order:
+4. Copy the official provider and required init components into the app's selected UI directory. Use this source-discovery order:
 
 - Prefer the current installation page's Manual tab and GitHub source link.
 - Then check the official provider source path referenced by the docs: `https://github.com/gluestack/gluestack-ui/tree/main/src/components/ui/gluestack-ui-provider`.
@@ -107,16 +137,35 @@ The upstream manual docs may list the broader package set `@gluestack-ui/core @g
 
 Copy all contents of `gluestack-ui-provider` into `src/components/ui/gluestack-ui-provider` for SDK 55 `src` layouts or `components/ui/gluestack-ui-provider` for root layouts. Also copy official `icon`, `overlay`, and `toast` components when the provider, starter components, or current init docs reference them. Preserve the official local file structure and record the exact source URL/path used in the final report. If the source cannot be found or verified, use `interactive_cli_required` or `blocked`; do not invent provider code.
 
-4. Update `tailwind.config.js` using the current manual docs as the source of truth, while preserving the app's actual content globs and NativeWind preset. Include `src`, `app`, `components`, and the selected UI path. Include gluestack token color mappings and safelist/patterns from the docs when present.
-5. Keep `global.css` in the path used by the project, normally `src/global.css` for SDK 55 `src` layouts. If the manual docs assume root `global.css`, adapt Metro and root-layout imports instead of moving files blindly.
-6. Wire the copied `GluestackUIProvider` into the Expo Router root layout and pass `mode="system"` by default.
-7. Set outcome to `manual_installed` only after the provider imports cleanly, token classes are available in Tailwind config/CSS, and at least the components used by the placeholder screen exist in the selected UI path.
+Use a deterministic copy process:
+
+- Prefer source links on the docs page. If the docs link to GitHub folders, use the GitHub Contents API or `gh api repos/gluestack/gluestack-ui/contents/<path>?ref=<branch>` to enumerate files instead of guessing from the web UI.
+- Copy every file in each selected component folder, including `index.tsx`, platform-specific files, `config.ts`, style files, and local helper files.
+- After copying a folder, inspect its relative imports. Recursively copy required sibling component folders or helper files such as `icon`, `overlay`, `toast`, or provider config files when official source imports them.
+- Preserve exported names and file names. Adjust only import paths that must change because the app uses a different UI root such as `src/components/ui`.
+- Run TypeScript after each batch of copied components when practical; unresolved local imports mean the manual copy is incomplete, not that a fallback primitive should be invented.
+
+5. Update `tailwind.config.js` using the current manual docs as the source of truth, while preserving the app's actual content globs and NativeWind preset. Include `src`, `app`, `components`, and the selected UI path. Include gluestack token color mappings and safelist/patterns from the docs when present.
+6. Keep `global.css` in the path used by the project, normally `src/global.css` for SDK 55 `src` layouts. If the manual docs assume root `global.css`, adapt Metro and root-layout imports instead of moving files blindly.
+7. Wire the copied `GluestackUIProvider` into the Expo Router root layout and pass `mode="system"` by default.
+8. Set outcome to `manual_installed` only after the provider imports cleanly, token classes are available in Tailwind config/CSS, and at least the components used by the placeholder screen exist in the selected UI path.
 
 Manual setup does not require `gluestack-ui.config.json`; the CLI docs describe that file as needed for CLI component management, while copy-paste/manual components can work without it. If you create a config file manually to help future CLI `add` calls, verify its paths match the real `tailwind.config.js`, CSS file, app entry, and component directory.
 
 ## Starter Components
 
-Install a practical starter set:
+For the default `manual_installed` path, copy only the components needed by the placeholder screen from official gluestack source/docs or from each component page's Manual tab when available. Preserve their exported API and dependency files. If a component has complex dependencies that are hard to verify manually, choose a smaller starter screen that uses only copied components with verified imports rather than inventing substitute primitives.
+
+Recommended minimal manual starter:
+
+- Layout: Box, VStack, HStack
+- Typography: Text, Heading
+- Action: Button, including any official text/subcomponents required by the copied button API
+- Display: Card or Divider only if copied from official source without unresolved dependencies
+
+Do not install every component unless the user asks for a larger starter.
+
+For a verified `cli_initialized` project only, install a practical starter set:
 
 ```sh
 npx gluestack-ui add --help
@@ -142,13 +191,13 @@ If multi-add is not documented or the command fails, add the starter components 
 - Feedback: Toast or Alert
 - Media/icon: Icon
 
-Do not install every component unless the user asks for a kitchen-sink starter.
-
-For `manual_installed`, copy only the starter components needed by the placeholder screen from official gluestack source/docs or from each component page's Manual tab when available. Preserve their exported API and dependency files. If a component has complex dependencies that are hard to verify manually, choose a smaller starter screen that uses only copied components with verified imports rather than inventing substitute primitives. Do not claim that CLI component management is available unless `gluestack-ui.config.json` and `gluestack-ui add` were verified.
+Do not claim that CLI component management is available unless `gluestack-ui.config.json` and `gluestack-ui add` were verified.
 
 ## Lockfile Hygiene
 
-After each gluestack command, inspect the app directory for unexpected lockfiles. The CLI may call npm internally and create `package-lock.json`. If the project uses Bun, remove `package-lock.json`, `yarn.lock`, and `pnpm-lock.yaml` unless the user explicitly wants them, then run the chosen package manager install again.
+After each gluestack command or manual dependency install, inspect the app directory for unexpected lockfiles. The CLI may call npm internally and create `package-lock.json`. If the project uses Bun, remove `package-lock.json`, `yarn.lock`, and `pnpm-lock.yaml` unless the user explicitly wants them, then run the chosen package manager install again.
+
+Do not remove workspace-local `node_modules` link folders that Bun created in the final workspace solely because a root lockfile exists. They may contain links/shims required by package-local scripts. Remove dependency trees copied from temporary scaffolds, then let the final `bun install` recreate the links it needs.
 
 ## Provider Wiring
 

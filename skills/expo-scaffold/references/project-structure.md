@@ -5,6 +5,7 @@ Choose the project shape before running scaffold commands. Ask the user when the
 - Do you want only a mobile app for now?
 - Do you want backend/API support separated from the mobile app?
 - Do you want a landing website app?
+- If yes, is the landing app a simple marketing site or does it need SSR/strong SEO?
 
 ## Recommended Shapes
 
@@ -85,6 +86,32 @@ If the user wants a landing site, ask whether they prefer:
 
 Default to `apps/landing` for a marketing/landing website. Keep it separate from `apps/mobile` so mobile build dependencies, EAS config, and gluestack NativeWind setup do not constrain the website.
 
+For a small separate landing app with Bun and Vite, use this canonical package shape:
+
+```json
+{
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "react": "<expo-compatible-or-current-stable>",
+    "react-dom": "<expo-compatible-or-current-stable>"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "<current-stable>",
+    "@types/react": "<current-stable>",
+    "@types/react-dom": "<current-stable>",
+    "typescript": "<current-stable>",
+    "vite": "<current-stable>"
+  }
+}
+```
+
+Keep `react` and `react-dom` in `dependencies`. Keep `vite`, `typescript`, `@vitejs/plugin-react`, and React type packages in `devDependencies` unless a specific deployment target installs production dependencies only before building. If you move build tooling to `dependencies` for that reason, document the deployment constraint in the final report.
+
 ## Workspace Setup
 
 For Bun workspaces, create root `package.json` like:
@@ -107,6 +134,8 @@ For Bun workspaces, create root `package.json` like:
 ```
 
 Use root-level shared config only when it reduces duplication. Keep mobile-specific Babel, Metro, EAS, and app config inside `apps/mobile`.
+
+Bun may create package-local `node_modules` directories that contain workspace links or executable shims even when the authoritative lockfile is at the repo root. Keep those package-local link folders if local scripts depend on them. Remove copied dependency trees from temporary scaffolds, but let the final `bun install` recreate any workspace-local links it needs.
 
 For shared packages that the mobile app imports at runtime:
 
