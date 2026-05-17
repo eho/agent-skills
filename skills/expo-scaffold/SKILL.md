@@ -5,7 +5,7 @@ description: Create, bootstrap, initialize, or broadly scaffold a new React Nati
 
 # Expo Scaffold
 
-Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, gluestack setup, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
+Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless current official Expo docs show a newer stable SDK should replace SDK 55, or the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, gluestack setup, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
 
 This skill is the orchestrator. Delegate gluestack-specific installation, provider/component copying, CLI/manual branching, and gluestack verification to the `expo-gluestack-setup` skill when it is available. Keep this skill responsible for project shape, scaffold ordering, final integration, and final verification.
 
@@ -31,13 +31,13 @@ Before editing files, infer these from the user request. Ask a short preflight d
 
 1. Read `references/project-structure.md` to choose single-app or monorepo layout.
 2. Read `references/scaffold-workflow.md` for the end-to-end sequence.
-3. Use Expo SDK 55 unless the user requests differently. Check official Expo docs or `create-expo-app` output for current SDK 55 template syntax. Do not use `next`, beta, or canary templates unless the user explicitly asks.
+3. Use Expo SDK 55 unless official Expo docs now identify a newer stable default or the user requests differently. Check official Expo docs or `create-expo-app` output for the selected SDK's template syntax. Do not use `next`, beta, alpha, canary, or preview templates unless the user explicitly asks.
 4. Read `references/nativewind.md` before installing or configuring NativeWind.
 5. Invoke or follow `expo-gluestack-setup` before installing gluestack packages, copying official provider/components, or running any gluestack CLI command. Pass the app root, package manager, Expo SDK, NativeWind status, route layout, UI component path, and requested gluestack major. Require the `## Gluestack Handoff` before wiring final starter screens.
 6. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
 7. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
 8. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
-9. Use the snippets in `examples/` as starting points, then adapt to the actual project structure.
+9. Use the snippets in `examples/` as starting points for the standard starter files, then adapt to the actual project structure and selected package manager.
 10. Finish by running the checks in `references/verification.md`.
 
 ## Implementation Standards
@@ -53,7 +53,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
 - Keep `AGENTS.md` as the repository's project-rules source of truth. If Expo's scaffold generates `AGENTS.md`, `CLAUDE.md`, or `.claude/settings.json`, treat them as input material: extract Expo-specific SDK docs, commands, package-manager notes, and runtime constraints into the existing `AGENTS.md`, then remove duplicate generated agent files unless the user explicitly wants them kept.
 - For EAS Update, explain that config changes, native dependency changes, and runtime version changes require a new build; OTA updates cover compatible JS and asset changes.
-- When subagents are available, use them for parallel research or post-scaffold review, not for concurrent edits to the same package manifest, app config, route files, or styling setup. Keep the main agent responsible for the ordered scaffold sequence and final integration. If a subagent runs `expo-gluestack-setup`, give it ownership of gluestack files only and integrate its handoff in the main scaffold sequence.
+- When the runtime policy and user request permit subagents, use them for parallel research or post-scaffold review, not for concurrent edits to the same package manifest, app config, route files, or styling setup. Keep the main agent responsible for the ordered scaffold sequence and final integration. If a permitted subagent runs `expo-gluestack-setup`, give it ownership of gluestack files only and integrate its handoff in the main scaffold sequence.
 
 ## Expected Deliverables
 
@@ -63,6 +63,7 @@ At completion, the project should contain:
 - `expo-dev-client` installed and the project configured for development builds, not Expo Go.
 - A project structure matching the user's answer: mobile-only, mobile plus backend/API package, mobile plus landing site, or full monorepo.
 - NativeWind configured through Babel, Metro, Tailwind config, `global.css`, and TypeScript declarations.
+- Standard starter config files adapted from `examples/`: app config, Babel, Metro, Tailwind, TypeScript, `.gitignore`, package scripts, and monorepo package configuration when relevant.
 - Official gluestack setup completed by `expo-gluestack-setup`, with an accepted handoff outcome and verified provider/components.
 - Light/dark appearance following the system by default through gluestack provider mode and tokenized theme colors.
 - Native splash screen configured with the `expo-splash-screen` config plugin, including dark-mode colors/assets where available.

@@ -132,11 +132,17 @@ For Bun workspaces, create root `package.json` like:
     "mobile:start": "bun run --cwd apps/mobile start",
     "mobile:ios": "bun run --cwd apps/mobile ios",
     "mobile:android": "bun run --cwd apps/mobile android",
+    "mobile:web": "bun run --cwd apps/mobile web",
+    "mobile:build:dev": "bun run --cwd apps/mobile build:dev",
     "mobile:build:preview": "bun run --cwd apps/mobile build:preview",
-    "mobile:update:preview": "bun run --cwd apps/mobile update:preview"
+    "mobile:build:production": "bun run --cwd apps/mobile build:production",
+    "mobile:update:preview": "bun run --cwd apps/mobile update:preview",
+    "mobile:update:production": "bun run --cwd apps/mobile update:production"
   }
 }
 ```
+
+Use `examples/package-monorepo-bun.json` as the canonical starting point for a fresh Bun monorepo root, then add landing, API, lint, test, and docs scripts only when those packages exist.
 
 Use root-level shared config only when it reduces duplication. Keep mobile-specific Babel, Metro, EAS, and app config inside `apps/mobile`.
 

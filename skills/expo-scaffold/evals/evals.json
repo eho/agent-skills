@@ -17,7 +17,8 @@
       "expectations": [
         "The generated Babel config includes both the Expo preset configured with jsxImportSource nativewind and the nativewind/babel preset for the stable NativeWind v4 path.",
         "The app config preserves existing web settings while setting web.bundler to metro when NativeWind v4 requires it.",
-        "EAS build and update package scripts work on a clean checkout by using a local eas-cli dev dependency or an explicitly verified package-manager invocation."
+        "EAS build and update package scripts work on a clean checkout by using a local eas-cli dev dependency or an explicitly verified package-manager invocation.",
+        "For SDK 55 and later, EAS update scripts include explicit --environment values matching their preview and production channels."
       ]
     },
     {
@@ -35,6 +36,7 @@
       "expectations": [
         "The scaffold uses Bun consistently without creating npm, Yarn, or pnpm lockfiles in the final project.",
         "EAS scripts do not assume a globally installed eas binary; they use a local eas-cli dependency or a verified Bun one-off command.",
+        "The preview and production EAS update scripts include matching --environment preview and --environment production flags for SDK 55 and later.",
         "Expo-generated agent context is merged into the repository AGENTS.md if create-expo-app generated agent files."
       ]
     },
@@ -51,7 +53,8 @@
       "expectations": [
         "If the stable NativeWind v4 path is selected, package.json pins nativewind to a v4 major and Tailwind CSS to the 3.4 line.",
         "The v4 Babel config includes nativewind/babel and keeps react-native-reanimated/plugin last.",
-        "If NativeWind v5 is selected, the output explicitly labels it as pre-release/preview and follows the v5 docs instead of reusing v4 snippets."
+        "If NativeWind v5 is selected, the output explicitly labels it as pre-release/preview and follows the v5 docs instead of reusing v4 snippets.",
+        "If official Expo docs show a newer stable SDK has replaced SDK 55, the agent reports that before continuing with the older default."
       ]
     },
     {

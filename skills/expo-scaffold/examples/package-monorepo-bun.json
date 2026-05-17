@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile:start": "bun run --cwd apps/mobile start",
+    "mobile:ios": "bun run --cwd apps/mobile ios",
+    "mobile:android": "bun run --cwd apps/mobile android",
+    "mobile:web": "bun run --cwd apps/mobile web",
+    "mobile:build:dev": "bun run --cwd apps/mobile build:dev",
+    "mobile:build:preview": "bun run --cwd apps/mobile build:preview",
+    "mobile:build:production": "bun run --cwd apps/mobile build:production",
+    "mobile:update:preview": "bun run --cwd apps/mobile update:preview",
+    "mobile:update:production": "bun run --cwd apps/mobile update:production"
+  }
+}

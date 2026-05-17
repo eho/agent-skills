@@ -4,7 +4,7 @@ Follow this sequence for a new project. For an existing project, start at step 2
 
 ## Subagent Use
 
-When subagents are available, use them only where parallelism reduces risk:
+When the runtime policy and user request permit subagents, use them only where parallelism reduces risk:
 
 - Ask one subagent to check current official Expo, NativeWind, gluestack, or EAS docs and report exact commands or version constraints.
 - Ask one subagent to inspect the generated project shape after `create-expo-app` and summarize routes, config files, package versions, and template artifacts.
@@ -39,13 +39,15 @@ For a monorepo, create the root workspace first, then scaffold the Expo app into
 
 ## 2. Create The Expo App
 
-Use Expo SDK 55 unless the user asks for a different SDK. Verify the current official SDK 55 template syntax first, then create the project with the pinned stable template:
+Use Expo SDK 55 unless official Expo docs now identify a newer stable default or the user asks for a different SDK. Verify the current official template syntax for the selected SDK first, then create the project with the pinned stable template:
 
 ```sh
 npx create-expo-app@latest <app-slug> --template default@sdk-55
 ```
 
 Prefer the default TypeScript + Expo Router template unless the user asks for a different template. Expo SDK 55 defaults to a `src/app` Expo Router layout; keep that structure unless the selected template generates root-level `app/` or the user asks for it. Avoid templates that include `@next`, canary, beta, or preview SDKs.
+
+If official Expo docs show that latest stable has moved past SDK 55, pause before using the older default unless the user explicitly requested SDK 55. Report the newer stable SDK, the template syntax, and any material migration implications for NativeWind, gluestack, EAS, or route layout.
 
 If the user requests a different stable SDK, use the SDK-pinned stable template syntax when available:
 
@@ -127,6 +129,8 @@ Update `app.json` or `app.config.*` conservatively:
 
 Do not invent an Expo `owner`, EAS `projectId`, app store IDs, or credentials.
 
+Use `examples/app.json` as the standard local-only baseline when creating a new JSON app config. If modifying an existing config, merge the same fields without replacing unrelated settings.
+
 ## 4. Configure NativeWind
 
 Read `nativewind.md`, install the selected NativeWind line, and configure:
@@ -138,6 +142,8 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 - `nativewind-env.d.ts`
 - global CSS import in the app root layout or entry file
 - `app.json` or `app.config.*` web bundler settings when required by the selected NativeWind version
+
+Use `examples/babel.config.js`, `examples/metro.config.js`, `examples/tailwind.config.js`, and `examples/tsconfig.json` as canonical starting points for a fresh SDK 55-style starter. Adapt paths and preserve existing settings when merging.
 
 ## 5. Bootstrap gluestack
 
@@ -195,7 +201,7 @@ If the outcome is `blocked`, stop the default scaffold workflow and report diagn
 After gluestack setup, check and repair config paths using the handoff as source of truth:
 
 - Metro NativeWind input must point at the real CSS file, such as `./src/global.css` when the app uses `src`.
-- Babel aliases must resolve both source code and assets.
+- Any configured aliases must resolve source code and assets in the actual runtime, not only in TypeScript.
 - Tailwind content globs must include the actual app, src, and component directories.
 - Root layout must have one CSS import and one official provider wrapper using the provider import from the handoff.
 
@@ -236,6 +242,8 @@ For Expo Router, wire `src/app/_layout.tsx` after NativeWind and gluestack are s
 ## 9. Configure EAS
 
 Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config. The development profile should produce an `expo-dev-client` build.
+
+For SDK 55 and later, EAS Update publish scripts must include an explicit `--environment` value that matches the target channel unless current EAS docs say otherwise.
 
 ## 9a. Configure Expo API Routes When Requested
 

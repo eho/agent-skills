@@ -1,0 +1,13 @@
+.expo/
+.expo-shared/
+node_modules/
+ios/
+android/
+dist/
+build/
+.turbo/
+*.log
+.env
+.env.*
+!.env.example
+eas-build-*.tar.gz

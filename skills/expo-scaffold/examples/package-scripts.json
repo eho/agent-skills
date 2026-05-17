@@ -7,7 +7,7 @@
     "build:dev": "eas build --platform all --profile development",
     "build:preview": "eas build --platform all --profile preview",
     "build:production": "eas build --platform all --profile production",
-    "update:preview": "eas update --channel preview --message \"Preview update\"",
-    "update:production": "eas update --channel production --message \"Production update\""
+    "update:preview": "eas update --channel preview --environment preview --message \"Preview update\"",
+    "update:production": "eas update --channel production --environment production --message \"Production update\""
   }
 }

@@ -59,7 +59,7 @@ For new apps, prefer:
 }
 ```
 
-Use matching EAS Build channels so preview builds receive preview updates and production builds receive production updates.
+Use matching EAS Build channels so preview builds receive preview updates and production builds receive production updates. For SDK 55 and later, EAS Update publish commands require an explicit `--environment` flag; use the environment that matches the channel unless the project has a documented environment policy.
 
 Minimum local-only EAS scaffold:
 
@@ -111,12 +111,14 @@ Merge scripts like these into `package.json`, adapting package manager conventio
   "build:dev": "eas build --platform all --profile development",
   "build:preview": "eas build --platform all --profile preview",
   "build:production": "eas build --platform all --profile production",
-  "update:preview": "eas update --channel preview --message \"Preview update\"",
-  "update:production": "eas update --channel production --message \"Production update\""
+  "update:preview": "eas update --channel preview --environment preview --message \"Preview update\"",
+  "update:production": "eas update --channel production --environment production --message \"Production update\""
 }
 ```
 
 Add `eas-cli` as a dev dependency when scripts call `eas`, so package scripts resolve the local CLI binary on a clean checkout instead of assuming a global install. Alternatively, use package-manager one-off commands directly in scripts if that is the repository convention and the invocation has been verified. For example, Bun projects may use `bunx --bun eas-cli@latest ...` only if that syntax is verified in the current Bun/EAS environment; otherwise prefer the local dev dependency so `bun run build:preview` works on a clean checkout.
+
+For SDKs before 55, verify whether `--environment` is supported and required before adding it.
 
 `expo run:ios` and `expo run:android` create native directories when none exist. That is acceptable for local development builds, but do not commit generated `ios/` or `android/` folders unless the user asks.
 
