@@ -65,17 +65,22 @@ Use a workspace monorepo as soon as the user wants backend support, API-route se
   tsconfig.base.json
 ```
 
-Use this as the default when the user says they may add Expo API routes, backend modules, or a landing site. It keeps mobile concerns isolated while leaving clean places for server and web code.
+Use this as the default when the user says they may add backend modules, a separate API service, or a landing site. It keeps mobile concerns isolated while leaving clean places for server and web code. Do not treat a separate `packages/api` package as a complete Expo API-routes setup by itself.
 
 ## Backend Guidance
 
-For "Expo API routes" or backend support, prefer a separate package such as `packages/api` unless the user explicitly wants API routes colocated under the mobile app. The package can later be wired to:
+For generic backend support, prefer a separate package such as `packages/api` unless the user explicitly wants a standalone server app. The package can later be wired to:
 
-- Expo Router API routes if they choose Expo web/server output.
 - A standalone Hono, Elysia, Express, or serverless app.
 - Shared request handlers consumed by an Expo route adapter.
 
 Keep backend-only dependencies out of `apps/mobile/package.json` unless they are required at runtime in the mobile bundle.
+
+For actual Expo API routes, create route files under the Expo Router app route root, normally `apps/mobile/src/app/api` or `src/app/api`. Expo API routes are part of the Expo app's server/web output, so they require current Expo Router API-route configuration and deployment notes. In a monorepo, `packages/api` can contain shared handlers, validation, or domain logic, but route adapter files still live under the Expo app.
+
+Ask one clarifying question when the user says "API routes" but does not specify the runtime:
+
+- "Do you mean Expo Router API routes inside the mobile/web app, or a separate backend/API package?"
 
 ## Landing Site Guidance
 

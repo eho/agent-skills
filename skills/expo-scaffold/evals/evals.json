@@ -13,6 +13,11 @@
         "tailwind.config.js",
         "eas.json",
         "package.json"
+      ],
+      "expectations": [
+        "The generated Babel config includes both the Expo preset configured with jsxImportSource nativewind and the nativewind/babel preset for the stable NativeWind v4 path.",
+        "The app config preserves existing web settings while setting web.bundler to metro when NativeWind v4 requires it.",
+        "EAS build and update package scripts work on a clean checkout by using a local eas-cli dev dependency or an explicitly verified package-manager invocation."
       ]
     },
     {
@@ -26,6 +31,11 @@
         "package.json",
         "bun.lock",
         "eas.json"
+      ],
+      "expectations": [
+        "The scaffold uses Bun consistently without creating npm, Yarn, or pnpm lockfiles in the final project.",
+        "EAS scripts do not assume a globally installed eas binary; they use a local eas-cli dependency or a verified Bun one-off command.",
+        "Expo-generated agent context is merged into the repository AGENTS.md if create-expo-app generated agent files."
       ]
     },
     {
@@ -37,6 +47,11 @@
         "tailwind.config.js",
         "metro.config.js",
         "babel.config.js"
+      ],
+      "expectations": [
+        "If the stable NativeWind v4 path is selected, package.json pins nativewind to a v4 major and Tailwind CSS to the 3.4 line.",
+        "The v4 Babel config includes nativewind/babel and keeps react-native-reanimated/plugin last.",
+        "If NativeWind v5 is selected, the output explicitly labels it as pre-release/preview and follows the v5 docs instead of reusing v4 snippets."
       ]
     },
     {
@@ -48,6 +63,11 @@
         "apps/mobile/src/app/_layout.tsx",
         "apps/mobile/src/app/index.tsx",
         "apps/mobile/eas.json"
+      ],
+      "expectations": [
+        "The agent asks whether API routes means Expo Router API routes inside the Expo app or a separate backend/API package.",
+        "If Expo API routes are requested, route adapter files are created under apps/mobile/src/app/api or the selected Expo route root, not only in packages/api.",
+        "If only future backend support is requested, packages/api is documented as future backend support and not claimed as wired Expo API routes."
       ]
     },
     {
@@ -59,6 +79,11 @@
         "src/components/layout/AppLaunchOverlay.tsx",
         "src/lib/theme-runtime.ts",
         "app.json"
+      ],
+      "expectations": [
+        "The root layout imports global.css exactly once and wraps Expo Router with the official GluestackUIProvider from the handoff.",
+        "The starter screen uses gluestack token classes rather than broad duplicated dark: class pairs.",
+        "Native splash configuration uses the expo-splash-screen config plugin rather than legacy top-level expo.splash configuration for a new scaffold."
       ]
     },
     {
@@ -96,6 +121,26 @@
         "src/app/_layout.tsx",
         "src/app/index.tsx",
         "src/components/ui"
+      ],
+      "expectations": [
+        "The scaffold does not wire placeholder screens or report completion while the gluestack handoff outcome is interactive_cli_required.",
+        "The pause report includes the exact gluestack command for the user to run and diagnostics from attempted automated setup."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Use my existing project-bootstrap AGENTS.md as the repo rules source of truth, then scaffold a new Expo SDK 55 app. If create-expo-app generates Expo agent files, merge the useful Expo context into AGENTS.md instead of replacing it.",
+      "expected_output": "The agent preserves the existing project-bootstrap AGENTS.md structure and merges only durable Expo-specific context such as SDK docs, package-manager commands, expo install guidance, Expo Router route root, CNG/native-directory notes, dev-client workflow, and EAS boundaries. Generated CLAUDE.md and .claude/settings.json are removed unless explicitly requested.",
+      "files": [
+        "AGENTS.md",
+        "apps/mobile/AGENTS.md",
+        "CLAUDE.md",
+        ".claude/settings.json"
+      ],
+      "expectations": [
+        "The existing AGENTS.md is not overwritten wholesale by create-expo-app output.",
+        "AGENTS.md includes concise Expo-specific runtime and command guidance merged with the existing project-bootstrap package-manager, docs, testing, and safety sections.",
+        "Generated CLAUDE.md and .claude/settings.json are removed or explicitly justified if kept."
       ]
     }
   ]

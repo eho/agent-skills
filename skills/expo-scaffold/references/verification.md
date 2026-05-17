@@ -67,6 +67,7 @@ For a coding agent with browser/device automation, verify:
 - SDK 55 new projects use the expected `src/app` route layout unless the selected template generated a root-level app directory.
 - Metro resolves runtime aliases, including `@/*` and `@/assets/*`. TypeScript passing is not enough; confirm the app bundles.
 - `expo-dev-client` is installed and the development build profile exists. Do not verify against Expo Go.
+- For NativeWind v4-style setup, Babel includes both the `jsxImportSource: "nativewind"` Expo preset option and `nativewind/babel`, and app config uses Metro for web when required.
 
 ## Splash And Theme Check
 
@@ -117,8 +118,9 @@ Summarize:
 - Splash strategy selected, including whether an animated React overlay was added.
 - EAS build/update profiles and channels.
 - Whether EAS Update is local-only prepared or fully account-backed with `updates.url` and `extra.eas.projectId`.
+- Whether EAS package scripts use a local `eas-cli` dev dependency or a verified package-manager one-off invocation, rather than assuming a global `eas` install.
 - Gluestack outcome label: `cli_initialized`, `manual_installed`, `interactive_cli_required`, `blocked`, or `fallback_approved`.
 - Cleanup performed and any ignored generated artifacts.
-- Docs updated, especially architecture, tech stack, and relevant operational docs.
+- Docs updated, especially architecture, tech stack, `AGENTS.md`, and relevant operational docs. If Expo generated agent files, state whether their useful context was merged into the existing `AGENTS.md` and whether duplicate generated agent files were removed.
 - Verification commands and results.
 - Any steps blocked by Expo login, credentials, bundle identifiers, package names, or app store metadata.

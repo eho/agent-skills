@@ -68,11 +68,16 @@ Create or update `babel.config.js`:
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }]],
+    presets: [
+      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      "nativewind/babel",
+    ],
     plugins: ["react-native-reanimated/plugin"],
   };
 };
 ```
+
+When merging into an existing Babel config, preserve existing presets/plugins and keep `react-native-reanimated/plugin` last. The v4-style NativeWind setup needs both the `jsxImportSource: "nativewind"` Expo preset option and the `nativewind/babel` preset unless current NativeWind docs say otherwise.
 
 Create or update `metro.config.js`:
 
@@ -84,6 +89,20 @@ const config = getDefaultConfig(__dirname);
 
 module.exports = withNativeWind(config, { input: "./src/global.css" });
 ```
+
+Create or update `app.json` or `app.config.*` so Expo web uses Metro when the selected NativeWind version requires it:
+
+```json
+{
+  "expo": {
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
+```
+
+Preserve existing `web.output`, `favicon`, and other web settings when adding `web.bundler`.
 
 Create `nativewind-env.d.ts`:
 
@@ -110,6 +129,7 @@ If the user explicitly chooses NativeWind v5 while it is still preview/pre-relea
 - Preserve existing Babel plugins and keep `react-native-reanimated/plugin` last.
 - Preserve existing Metro resolver customizations before wrapping with `withNativeWind`.
 - Add all source roots to Tailwind `content`, including `src`, `features`, or monorepo package paths if present.
+- Preserve existing app config web settings while adding `web.bundler: "metro"` when required by NativeWind v4.
 
 ## Bun Failure Handling
 

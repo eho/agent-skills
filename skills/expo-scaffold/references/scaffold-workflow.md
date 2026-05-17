@@ -33,6 +33,7 @@ Recommended flow for non-empty targets:
 3. Copy the generated files into the target location or into `apps/mobile` for a monorepo.
 4. Prefer copying source and configuration files only, then run the chosen package manager install in the final target.
 5. Exclude `.git`, `node_modules`, `.expo`, `.expo-shared`, generated native folders unless requested, `ios/Pods`, `dist`, `build`, `.turbo`, package-manager caches, and lockfiles from package managers the project is not using.
+6. Do not blindly copy generated agent files over an existing `AGENTS.md`. Keep generated `AGENTS.md`, `CLAUDE.md`, and `.claude/settings.json` in the temporary scaffold until the agent-context merge step below, then copy only the final intended agent files.
 
 For a monorepo, create the root workspace first, then scaffold the Expo app into `apps/mobile`. After copying from a temporary scaffold, run the selected package manager install from the final workspace root. With Bun, allow that install to recreate package-local `node_modules` link folders inside apps/packages if local scripts need them.
 
@@ -57,6 +58,7 @@ Use that only for stable SDK identifiers from official Expo docs.
 After creation:
 
 - Confirm `expo`, `react`, `react-native`, and `expo-router` versions are stable.
+- Inspect generated agent files such as `AGENTS.md`, `CLAUDE.md`, and `.claude/settings.json`; current `create-expo-app` templates may create them by default.
 - Run the package manager install if the CLI did not do so.
 - Install `expo-dev-client` before adding development-build scripts:
 
@@ -88,6 +90,29 @@ declare module "*.module.css" {
 
 - Verify generated web/CSS files are either still referenced and typed or removed with their imports.
 
+## 2b. Merge Expo Agent Context
+
+If `create-expo-app` generated `AGENTS.md`, `CLAUDE.md`, or `.claude/settings.json`, merge the useful Expo-specific context into the repository's existing `AGENTS.md` rather than replacing project-bootstrap content.
+
+Use this process:
+
+1. Read the existing target `AGENTS.md`, if present. Treat it as the base document because `project-bootstrap` owns the repository rules and docs conventions.
+2. Read Expo's generated agent files from the temporary scaffold or generated app root.
+3. Extract only durable Expo-specific guidance, such as:
+   - Versioned Expo docs or SDK reference paths generated for the selected SDK.
+   - Canonical Expo commands that match the selected package manager.
+   - `expo install` guidance for SDK-compatible packages.
+   - Expo Router route root and file-based routing conventions.
+   - Continuous Native Generation notes: native `ios/` and `android/` directories are generated on demand and should not be committed unless requested.
+   - Development-build workflow notes for `expo-dev-client`, especially that this scaffold does not target Expo Go.
+   - EAS Build/Update boundaries already configured by this scaffold.
+4. Preserve existing project-bootstrap sections for package manager, docs conventions, testing expectations, safety, and current source-of-truth docs.
+5. Add a concise Expo-specific section or merge bullets into existing runtime/commands sections. Do not paste the entire generated file if it duplicates existing rules or conflicts with this scaffold.
+6. If there is no existing `AGENTS.md`, keep the generated Expo `AGENTS.md` only after removing template clutter, or run/use the `project-bootstrap` skill first when available and merge the Expo context into that output.
+7. Remove generated `CLAUDE.md` and `.claude/settings.json` from the final scaffold unless the user explicitly wants Claude-specific files. If kept, make sure they do not contradict `AGENTS.md`.
+
+The final report should state whether Expo-generated agent context was merged, skipped because no generated agent files were present, or left for follow-up because the repository had no agent-rules convention.
+
 ## 3. Add Baseline App Metadata
 
 Update `app.json` or `app.config.*` conservatively:
@@ -112,6 +137,7 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 - `metro.config.js`
 - `nativewind-env.d.ts`
 - global CSS import in the app root layout or entry file
+- `app.json` or `app.config.*` web bundler settings when required by the selected NativeWind version
 
 ## 5. Bootstrap gluestack
 
@@ -211,6 +237,18 @@ For Expo Router, wire `src/app/_layout.tsx` after NativeWind and gluestack are s
 
 Read `eas.md`, then run official EAS configuration commands where possible. Add scripts and profiles after the CLI has written baseline config. The development profile should produce an `expo-dev-client` build.
 
+## 9a. Configure Expo API Routes When Requested
+
+If the user explicitly wants Expo API routes, configure them inside the Expo Router app rather than only creating a separate backend package:
+
+- Add route handlers under the app route root, such as `src/app/api/health+api.ts` for SDK 55 `src/app` projects.
+- Configure the Expo Router/server output required by the current Expo docs for API routes and web/server deployment.
+- Add any required server runtime package, output mode, deployment notes, environment variables, and EAS deployment limitations from the current official docs.
+- Keep backend-only code out of the mobile bundle unless the API route runtime requires it.
+- In a monorepo, shared handlers may live in `packages/api`, but the Expo API route adapter files still belong under `apps/mobile/src/app/api` or the selected Expo route root.
+
+If the user asks only for future backend support or generic API support, create `packages/api` or a backend app as described in `project-structure.md` and document that Expo API routes are not yet wired.
+
 ## 10. Update Docs
 
 If the repository has living docs, update them as an explicit scaffold deliverable:
@@ -218,6 +256,7 @@ If the repository has living docs, update them as an explicit scaffold deliverab
 - `docs/architecture/architecture.md`: app/workspace shape, major apps/packages, boundaries, and generated runtime flow.
 - `docs/architecture/tech-stack.md`: Expo SDK, React Native, package manager, NativeWind/gluestack strategy, EAS build/update posture, landing/backend choices.
 - Relevant operational docs: install, development build, EAS build/update, environment variables, and credential/account steps.
+- `AGENTS.md`: merged Expo-generated context and scaffold-specific commands/rules, when agent files were generated or already present.
 
 If these docs do not exist and the repo has no docs convention, either create lightweight factual seed docs or report that docs were not present and no architecture docs were updated.
 

@@ -26,6 +26,18 @@ Install `expo-dev-client` before relying on the development profile. Prefer `cli
 
 Do not invent submit credentials, app store IDs, EAS owner, or project IDs.
 
+For starters that include EAS package scripts, add `eas-cli` as a dev dependency unless the repository intentionally relies on one-off package-manager invocations:
+
+```sh
+npm install --save-dev eas-cli
+```
+
+For Bun:
+
+```sh
+bun add -d eas-cli
+```
+
 ## Update Configuration
 
 Install the updates runtime:
@@ -70,12 +82,20 @@ With Bun:
 bunx eas-cli@latest update:configure
 ```
 
-If authentication or project creation is required, stop after local config and report the exact commands:
+If authentication or project creation is required, stop after local config and report the exact commands, using the package-manager form that matches the project:
 
 ```sh
-eas login
-eas init
-eas update:configure
+npx eas-cli@latest login
+npx eas-cli@latest init
+npx eas-cli@latest update:configure
+```
+
+For Bun:
+
+```sh
+bunx eas-cli@latest login
+bunx eas-cli@latest init
+bunx eas-cli@latest update:configure
 ```
 
 ## Recommended Scripts
@@ -95,6 +115,8 @@ Merge scripts like these into `package.json`, adapting package manager conventio
   "update:production": "eas update --channel production --message \"Production update\""
 }
 ```
+
+Add `eas-cli` as a dev dependency when scripts call `eas`, so package scripts resolve the local CLI binary on a clean checkout instead of assuming a global install. Alternatively, use package-manager one-off commands directly in scripts if that is the repository convention and the invocation has been verified. For example, Bun projects may use `bunx --bun eas-cli@latest ...` only if that syntax is verified in the current Bun/EAS environment; otherwise prefer the local dev dependency so `bun run build:preview` works on a clean checkout.
 
 `expo run:ios` and `expo run:android` create native directories when none exist. That is acceptable for local development builds, but do not commit generated `ios/` or `android/` folders unless the user asks.
 

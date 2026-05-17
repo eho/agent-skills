@@ -25,6 +25,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 - Launch experience: default to a static native splash screen; offer an optional React/Reanimated launch overlay when the user wants an animated splash.
 - NativeWind version: prefer latest stable compatible NativeWind. If the latest compatible version appears to be preview, beta, canary, or unclear for the selected Expo SDK, ask the user before proceeding.
 - EAS account metadata: configure local files; do not invent owner, project ID, bundle identifier, package name, ASC app ID, credentials, or secrets.
+- Agent context: when `create-expo-app` generates Expo-specific agent files, merge the useful Expo context into the existing `AGENTS.md` created by `project-bootstrap` instead of replacing it.
 
 ## Workflow
 
@@ -50,6 +51,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 - In Bun workspaces, expect a root lockfile plus possible workspace-local `node_modules` link folders. Do not remove package-local link folders just because a root `bun.lock` exists; remove only generated dependency trees/caches that are explicitly excluded by the cleanup rules.
 - Keep native prebuild output out of the starter unless the user asks for committed native directories. `expo run:ios` and `expo run:android` can generate native directories; include them as development-build convenience scripts only with a note about this behavior.
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
+- Keep `AGENTS.md` as the repository's project-rules source of truth. If Expo's scaffold generates `AGENTS.md`, `CLAUDE.md`, or `.claude/settings.json`, treat them as input material: extract Expo-specific SDK docs, commands, package-manager notes, and runtime constraints into the existing `AGENTS.md`, then remove duplicate generated agent files unless the user explicitly wants them kept.
 - For EAS Update, explain that config changes, native dependency changes, and runtime version changes require a new build; OTA updates cover compatible JS and asset changes.
 - When subagents are available, use them for parallel research or post-scaffold review, not for concurrent edits to the same package manifest, app config, route files, or styling setup. Keep the main agent responsible for the ordered scaffold sequence and final integration. If a subagent runs `expo-gluestack-setup`, give it ownership of gluestack files only and integrate its handoff in the main scaffold sequence.
 
@@ -70,6 +72,7 @@ At completion, the project should contain:
 - EAS Build profiles for development, preview, and production.
 - EAS Update prepared with preview and production channels locally; account-backed update URLs and project IDs are added only after authenticated EAS initialization.
 - Updated existing living docs when the scaffold creates or changes project architecture, especially `docs/architecture/architecture.md`, `docs/architecture/tech-stack.md`, and relevant operational docs. If the repo has no docs convention, create lightweight seed docs only when that fits the project or report that no architecture docs were present.
+- Existing `AGENTS.md` updated with merged Expo-generated agent context, when `create-expo-app` produced it.
 - Verification results and any follow-up steps requiring the user's Expo account or app store credentials.
 
 ## Useful Official Docs
