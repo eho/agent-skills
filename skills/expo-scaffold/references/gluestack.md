@@ -7,7 +7,8 @@ gluestack initialization is a hard gate for the default scaffold. Do not hand-wr
 Track one of these outcomes:
 
 - `initialized`: CLI init succeeded and generated the expected provider/config.
-- `blocked`: CLI init failed, hung, or did not generate the expected provider/config; stop the default workflow and report diagnostics.
+- `manual_init_required`: automated init could not complete because the CLI requires a real interactive terminal; pause and ask the user to run the exact init command manually before continuing.
+- `blocked`: init failed after manual interactive execution, failed for a non-interactivity CLI error, or still did not generate the expected provider/config after the user reported manual completion; stop the default workflow and report diagnostics.
 - `fallback_approved`: the user explicitly approved a non-official fallback after being told it will not be CLI-generated gluestack.
 
 ## Bootstrap
@@ -28,7 +29,26 @@ bunx gluestack-ui init --use-bun --path src/components/ui --projectType app
 
 If the project does not use `src`, use `components/ui` instead of `src/components/ui`. If flags have changed, use the current CLI help and keep the same choices: Expo-compatible initialization, Bun package manager when applicable, and the actual UI component path.
 
-If the first documented init attempt fails because of non-TTY execution, retry once in a TTY if the environment supports it. If it hangs at an interactive package-manager prompt, crashes, or returns a CLI bug such as `Cannot read properties of undefined`, do not keep retrying variants blindly.
+If the first documented init attempt fails because of non-TTY execution, retry once in a TTY if the environment supports it. If the TTY retry also fails, hangs at an interactive package-manager prompt, or shows that the CLI cannot be driven reliably from the agent environment, set the outcome to `manual_init_required` and pause the workflow.
+
+When pausing for manual init, tell the user:
+
+- The exact command to run from the project root.
+- That they should complete the gluestack prompts using the same choices already selected for the scaffold, such as package manager and component path.
+- To reply when the command has finished, including any error output if it fails.
+
+Also include a pause diagnostic summary:
+
+- The exact automated commands attempted.
+- Whether each command ran with a TTY.
+- Package manager and lockfile state.
+- Expo SDK, React Native, Bun/npm versions when available.
+- The exact stderr/stdout errors or hang point.
+- Any generated files left behind by the failed automated init.
+
+Do not continue to theme wiring, placeholder screens, `gluestack-ui add`, or final scaffold verification while the outcome is `manual_init_required`. After the user reports that manual init completed, inspect the generated files. If the provider/config exists, change the outcome to `initialized` and continue. If manual init fails or the expected files are still missing, change the outcome to `blocked`, report diagnostics, and stop unless the user explicitly approves a non-official fallback.
+
+If init crashes with a CLI bug such as `Cannot read properties of undefined`, and the same command has already been offered for manual interactive execution or is clearly unrelated to TTY handling, do not keep retrying variants blindly.
 
 Known blocking examples to report exactly if seen:
 
@@ -46,7 +66,7 @@ When init is blocked, stop before wiring the placeholder screen or claiming glue
 - Expo SDK, React Native, Bun/npm versions when available.
 - The exact stderr/stdout errors.
 - Any generated files left behind by the failed init.
-- The next manual command the user can try in an interactive terminal.
+- The manual command attempted or, if no manual attempt happened, the exact command the user can still try in an interactive terminal.
 
 Do not proceed to `gluestack-ui add` unless init reached `initialized`.
 
@@ -126,4 +146,4 @@ Before reporting gluestack success, verify:
 - Placeholder screen imports use CLI-generated component paths, not local fallback primitives.
 - `gluestack-ui add` did not fail with an uninitialized-project error.
 
-In the final report, include the gluestack outcome label. If the outcome is `blocked`, do not describe the scaffold as complete.
+In the final report, include the gluestack outcome label. If the outcome is `manual_init_required` or `blocked`, do not describe the scaffold as complete. If the outcome is `fallback_approved`, describe it as a user-approved non-official fallback rather than official gluestack initialization.

@@ -64,14 +64,8 @@
     {
       "id": 6,
       "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3. During gluestack init, the CLI fails with: TTY initialization failed: uv_tty_init returned EINVAL, then a TTY retry hangs at the Bun package-manager prompt, and --template-only fails with Cannot read properties of undefined (reading 'dependencies'). Do not use unofficial gluestack replacements unless I explicitly approve them.",
-      "expected_output": "The agent stops the default scaffold workflow with gluestack outcome `blocked`, reports the exact commands attempted, TTY status, package manager and lockfile state, relevant Expo/React Native/Bun versions when available, exact errors, any partial generated files, and the next manual command to try. It does not wire placeholder screens or claim a complete gluestack scaffold, and it does not create local fallback primitives without explicit user approval.",
-      "files": [
-        "package.json",
-        "src/app/_layout.tsx",
-        "src/app/index.tsx",
-        "src/components/ui/gluestack-ui-provider",
-        "gluestack-ui.config.json"
-      ]
+      "expected_output": "The agent pauses the default scaffold workflow with gluestack outcome `manual_init_required`, reports the exact commands attempted, TTY status, package manager and lockfile state, relevant Expo/React Native/Bun versions when available, exact errors, any partial generated files, and the exact init command for the user to run manually from the project root. It asks the user to reply after the command completes, does not wire placeholder screens or claim a complete gluestack scaffold while paused, and does not create local fallback primitives without explicit user approval. If the manual init also fails or generated provider/config files are missing after the user reports completion, the agent changes the outcome to `blocked` and stops with diagnostics.",
+      "files": []
     }
   ]
 }

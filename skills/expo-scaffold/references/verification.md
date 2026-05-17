@@ -53,7 +53,7 @@ For a coding agent with browser/device automation, verify:
 - The bundler starts.
 - The placeholder screen renders.
 - Gluestack components do not throw provider or import errors.
-- Gluestack status is `initialized`; if status is `blocked`, verification should report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
+- Gluestack status is `initialized`; if status is `manual_init_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If status is `blocked`, report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
 - The generated gluestack provider/config exists and the placeholder imports CLI-generated component paths.
 - NativeWind classes visibly apply.
 - The root provider uses the intended gluestack color mode, normally `mode="system"`.
@@ -99,6 +99,6 @@ Summarize:
 - Splash strategy selected, including whether an animated React overlay was added.
 - EAS build/update profiles and channels.
 - Whether EAS Update is local-only prepared or fully account-backed with `updates.url` and `extra.eas.projectId`.
-- Gluestack outcome label: `initialized`, `blocked`, or `fallback_approved`.
+- Gluestack outcome label: `initialized`, `manual_init_required`, `blocked`, or `fallback_approved`.
 - Verification commands and results.
 - Any steps blocked by Expo login, credentials, bundle identifiers, package names, or app store metadata.

@@ -104,6 +104,8 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 
 Read `gluestack.md`, then run the gluestack CLI from the project root. Add a starter component set, not the entire library unless the user requests it.
 
+If gluestack init reaches `manual_init_required`, pause the default scaffold workflow and ask the user to run the exact init command manually from the project root. Resume only after the user reports that the command completed, then inspect the generated provider/config files before continuing.
+
 If gluestack init reaches `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support. Continue only if the user explicitly approves a non-official fallback.
 
 After gluestack commands, check and repair generated config paths:
