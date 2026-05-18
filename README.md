@@ -17,6 +17,26 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Kore**](skills/kore/SKILL.md) | `/kore` | Search, browse, save, and synthesize a personal knowledge base built from bookmarks, notes, and accumulated insights. |
 | [**Blog Writer**](skills/blog-writer/SKILL.md) | `/blog-writer` | Transform technical documents, outlines, or raw notes into an engaging, human-sounding blog post. |
 | [**Public Repo Explorer**](skills/public-repo-explorer/SKILL.md) | `/public-repo-explorer` | Efficiently browse public GitHub repositories using shallow clones — scan, examine, and extract information without cluttering the workspace. |
+| [**Project Bootstrap**](skills/project-bootstrap/SKILL.md) | `/project-bootstrap` | Initialize or refresh repository conventions so coding agents have accurate project commands, docs rules, and guardrails. |
+| [**Expo Scaffold**](skills/expo-scaffold/SKILL.md) | `/expo-scaffold` | Create a production-oriented Expo starter with Expo Router, development builds, NativeWind, gluestack, EAS, and agent-friendly project context. |
+| [**Expo gluestack Setup**](skills/expo-gluestack-setup/SKILL.md) | `/expo-gluestack-setup` | Add, repair, or verify official gluestack-ui setup for Expo or React Native projects. |
+
+## Project Bootstrap Workflow
+
+Use these skills when starting or preparing a repository before normal feature work:
+
+```
+/project-bootstrap
+     ↓
+/expo-scaffold
+     └─ /expo-gluestack-setup
+```
+
+**1. Prepare the repository** — Use `/project-bootstrap` to create or refresh `AGENTS.md`, capture package-manager rules, project commands, documentation conventions, testing expectations, and repo-specific guardrails for coding agents.
+
+**2. Scaffold an Expo app** — Use `/expo-scaffold` when starting a new Expo project or Expo-centered monorepo. It sets up the app structure, Expo Router, development builds, NativeWind, EAS defaults, starter screens, and agent-friendly project context.
+
+**3. Configure gluestack when needed** — Use `/expo-gluestack-setup` directly for an existing Expo or React Native app, or let `/expo-scaffold` invoke it as the gluestack specialist during a new scaffold.
 
 ## Development Workflow
 
