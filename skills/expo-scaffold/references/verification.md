@@ -59,8 +59,8 @@ For a coding agent with browser/device automation, verify:
 - The bundler starts.
 - The placeholder screen renders.
 - Gluestack components do not throw provider or import errors.
-- Gluestack handoff outcome is `cli_initialized` or `manual_installed`; if the outcome is `interactive_cli_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If the outcome is `blocked`, report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
-- The official gluestack provider/config exists at the path from the handoff and the placeholder imports official component paths. For `manual_installed`, verify copied source paths instead of requiring CLI-generated config.
+- Gluestack handoff outcome is `components_added` for the default scaffold, or `cli_initialized` only when no starter components are required. If the outcome is `user_init_required` or `user_add_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If the outcome is `blocked`, report the scaffold as incomplete.
+- The official gluestack provider/config exists at the path from the handoff and the placeholder imports verified CLI-generated component paths.
 - NativeWind classes visibly apply.
 - For gluestack provider `mode="system"` with NativeWind v4, the Metro input CSS file contains `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`; Tailwind uses static `darkMode: "class"`; and the root layout imports that CSS before rendering `GluestackUIProvider`.
 - The root provider uses the intended gluestack color mode, normally `mode="system"`.
@@ -131,14 +131,14 @@ Summarize:
 
 - Expo SDK and React Native versions selected.
 - NativeWind version selected and why.
-- Gluestack commands run, or official manual installation steps completed, and components added/copied.
+- Gluestack user-run CLI commands completed, generated files inspected, and components added.
 - Theme strategy selected, including whether gluestack token mode follows `system`.
 - Splash strategy selected, including whether an animated React overlay was added.
 - EAS build/update profiles and channels.
 - Whether EAS Update is local-only prepared or fully account-backed with `updates.url` and `extra.eas.projectId`.
 - Whether EAS package scripts use a local `eas-cli` dev dependency or a verified package-manager one-off invocation, rather than assuming a global `eas` install.
 - For SDK 55 and later, whether EAS Update scripts include explicit `--environment` values that match their channels.
-- Gluestack outcome label: `cli_initialized`, `manual_installed`, `interactive_cli_required`, `blocked`, or `fallback_approved`.
+- Gluestack outcome label: `user_init_required`, `cli_initialized`, `user_add_required`, `components_added`, or `blocked`.
 - Cleanup performed and any ignored generated artifacts.
 - Docs updated, especially architecture, tech stack, `AGENTS.md`, and relevant operational docs. If Expo generated agent files, state whether their useful context was merged into the existing `AGENTS.md` and whether duplicate generated agent files were removed.
 - Verification commands and results.

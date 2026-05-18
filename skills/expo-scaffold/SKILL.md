@@ -7,7 +7,7 @@ description: Create, bootstrap, initialize, or scaffold a brand-new React Native
 
 Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless current official Expo docs show a newer stable SDK should replace SDK 55, or the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, gluestack setup, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
 
-This skill is the orchestrator. Delegate gluestack-specific installation, provider/component copying, CLI/manual branching, and gluestack verification to the `expo-gluestack-setup` skill when it is available. Keep this skill responsible for project shape, scaffold ordering, final integration, and final verification.
+This skill is the orchestrator. Delegate gluestack-specific CLI command construction, user-action checkpoints, generated provider/component verification, and gluestack integration repair to the `expo-gluestack-setup` skill when it is available. Keep this skill responsible for project shape, scaffold ordering, final integration, and final verification.
 
 ## Trigger Boundaries
 
@@ -48,7 +48,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 3. Use Expo SDK 55 unless official Expo docs now identify a newer stable default or the user requests differently. Check official Expo docs or `create-expo-app` output for the selected SDK's template syntax. Do not use `next`, beta, alpha, canary, or preview templates unless the user explicitly asks.
 4. Read `references/package-installation.md` before installing dependencies or repairing missing-module errors.
 5. Read `references/nativewind.md` before installing or configuring NativeWind.
-6. Invoke or follow `expo-gluestack-setup` before installing gluestack packages, copying official provider/components, or running any gluestack CLI command. Pass the app root, package manager, Expo SDK, NativeWind status, route layout, UI component path, and requested gluestack major. Require the `## Gluestack Handoff` before wiring final starter screens.
+6. Invoke or follow `expo-gluestack-setup` before installing gluestack packages, preparing gluestack CLI commands, or wiring any gluestack provider/components. Pass the app root, package manager, Expo SDK, NativeWind status, route layout, UI component path, and requested gluestack major. Require the `## Gluestack Handoff` before wiring final starter screens.
 7. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
 8. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
 9. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
@@ -57,8 +57,8 @@ Before editing files, infer these from the user request. Ask a short preflight d
 
 ## Implementation Standards
 
-- Treat gluestack setup as a hard gate for the default scaffold. If the gluestack handoff outcome is `interactive_cli_required` or `blocked`, stop before claiming the scaffold is complete. Continue with a non-official fallback only when the user explicitly approves and the handoff says `fallback_approved`.
-- Do not duplicate gluestack version-specific setup rules here. For gluestack v3, the specialist skill owns package metadata resolution, manual source copying, CLI timeout handling, provider/component verification, and exact outcome labels. For future gluestack majors, update `expo-gluestack-setup` first and keep this orchestrator consuming the same handoff contract.
+- Treat gluestack setup as a hard gate for the default scaffold. If the gluestack handoff outcome is `user_init_required`, `user_add_required`, or `blocked`, stop before claiming the scaffold is complete. Ask the user to run the exact command from the handoff for user-action outcomes, then resume only after inspecting the generated output.
+- Do not duplicate gluestack version-specific setup rules here. For gluestack v3, the specialist skill owns CLI command construction, user-action checkpoints, generated provider/component verification, config repair, and exact outcome labels. For future gluestack majors, update `expo-gluestack-setup` first and keep this orchestrator consuming the same handoff contract.
 - Keep scaffolding idempotent where reasonable. If modifying an existing project, inspect current config before changing it.
 - Scaffold into an empty temporary workspace when the target directory already contains repo files, then copy the finished scaffold into place without `.git` or accidental lockfiles.
 - Do not overwrite user code blindly. Merge with existing `app.json` or `app.config.*`, `eas.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and route files.

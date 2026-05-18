@@ -25,7 +25,7 @@
     {
       "id": 2,
       "prompt": "Scaffold an Expo Router app named DispatchDesk using Bun. Make it iOS and Android, add gluestack-ui v3, NativeWind, preview and production EAS updates, and scripts for development, preview, and production builds.",
-      "expected_output": "A Bun-friendly Expo SDK 55 Router project with src/app routes, expo-dev-client, NativeWind and official gluestack configured through the expo-gluestack-setup handoff, exact gluestack package versions when using the v3 manual path, package-local Bun workspace links preserved when needed, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
+      "expected_output": "A Bun-friendly Expo SDK 55 Router project with src/app routes, expo-dev-client, NativeWind and official gluestack configured through the expo-gluestack-setup handoff, user-run gluestack CLI checkpoints for v3 when needed, package-local Bun workspace links preserved when needed, EAS profiles/channels, package scripts, and no invented credentials or app store IDs.",
       "files": [
         "src/app/_layout.tsx",
         "src/app/index.tsx",
@@ -93,8 +93,8 @@
     },
     {
       "id": 6,
-      "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3 using Bun. Do not use the gluestack CLI unless absolutely necessary; previous runs hung at the Bun package-manager prompt. Do not use unofficial gluestack replacements unless I explicitly approve them.",
-      "expected_output": "The scaffold delegates gluestack work to expo-gluestack-setup or follows that skill's workflow. The gluestack handoff records official manual setup as the default for v3, exact package metadata, any documented undeclared-runtime-import workaround such as buffer for affected react-native-svg releases, copied official provider/component source, provider wiring, and outcome `manual_installed` after verification. It does not create unofficial replacement primitives. It uses CLI only if current official docs/source no longer provide enough manual setup detail, with timeout/capture/cancel behavior if a CLI command hangs.",
+      "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3 using Bun. The gluestack CLI may need terminal interactivity, so pause and ask me to run init/add when needed.",
+      "expected_output": "The scaffold delegates gluestack work to expo-gluestack-setup or follows that skill's workflow. The gluestack handoff uses the official CLI path for v3, records NativeWind preflight, exact user-run init/add commands, package manager, UI path, generated provider/component paths when available, and pauses with `user_init_required` or `user_add_required` until the user completes the command. It does not copy manual provider/component source or create unofficial replacement primitives.",
       "files": []
     },
     {
@@ -120,15 +120,15 @@
     },
     {
       "id": 9,
-      "prompt": "Scaffold an Expo starter with gluestack. During setup, the gluestack handoff returns `interactive_cli_required` because official manual source cannot be verified.",
-      "expected_output": "The scaffold stops before theme wiring, placeholder screen wiring, full verification, or final success language. It reports the gluestack diagnostics and exact manual command from the handoff, and resumes only after the user completes the interactive gluestack step.",
+      "prompt": "Scaffold an Expo starter with gluestack. During setup, the gluestack handoff returns `user_init_required` with an exact gluestack init command.",
+      "expected_output": "The scaffold stops before theme wiring, placeholder screen wiring, full verification, or final success language. It reports the gluestack diagnostics and exact user-run command from the handoff, and resumes only after the user completes the interactive gluestack step.",
       "files": [
         "src/app/_layout.tsx",
         "src/app/index.tsx",
         "src/components/ui"
       ],
       "expectations": [
-        "The scaffold does not wire placeholder screens or report completion while the gluestack handoff outcome is interactive_cli_required.",
+        "The scaffold does not wire placeholder screens or report completion while the gluestack handoff outcome is user_init_required or user_add_required.",
         "The pause report includes the exact gluestack command for the user to run and diagnostics from attempted automated setup."
       ]
     },

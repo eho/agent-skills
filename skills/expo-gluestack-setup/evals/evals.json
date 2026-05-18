@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Add gluestack-ui v3 to this existing Expo SDK 55 app that already has NativeWind configured under src/global.css. Use Bun, do not use the gluestack CLI unless official manual setup is impossible, and do not invent replacement primitives.",
-      "expected_output": "The agent inspects the project, confirms NativeWind files, resolves current gluestack package metadata, installs exact official gluestack packages, copies official provider and required starter component source, wires the provider, verifies imports, avoids unofficial fallback primitives, and returns a Gluestack Handoff with outcome `manual_installed` or a clear blocked state.",
+      "prompt": "Add gluestack-ui v3 to this existing Expo SDK 55 app that already has NativeWind configured under src/global.css. Use Bun, and pause for me to run any gluestack init/add commands that need terminal interactivity.",
+      "expected_output": "The agent inspects the project, confirms NativeWind preflight, prepares the exact Bun gluestack init command with working directory and prompt choices, returns a Gluestack Handoff with `user_init_required`, and does not copy manual provider/component source or claim completion before the user-run CLI output is inspected.",
       "files": [
         "src/components/ui/gluestack-ui-provider/index.tsx",
         "src/app/_layout.tsx",
@@ -15,7 +15,7 @@
     {
       "id": 2,
       "prompt": "Repair a failed gluestack-ui setup in an Expo Router app. The previous CLI run hung after a package-manager prompt and left partial files. Continue only if you can verify official gluestack setup.",
-      "expected_output": "The agent captures or reports the failed CLI state, inspects partial gluestack files and lockfiles, repairs using official manual source when possible, removes only confidently broken partial files, and returns a Gluestack Handoff with exact outcome, files changed, verification, and residual follow-up.",
+      "expected_output": "The agent inspects partial gluestack files and lockfiles, reports the failed CLI state, asks the user to rerun the exact init/add command interactively when needed, removes only confidently broken partial files, and returns a Gluestack Handoff with exact outcome, files changed, verification, and residual follow-up. It does not switch to a copy-based setup path.",
       "files": [
         "gluestack-ui.config.json",
         "src/components/ui",
@@ -46,8 +46,8 @@
     },
     {
       "id": 5,
-      "prompt": "Install gluestack-ui v3 even if the current gluestack GitHub main branch has moved to a newer major. Use official v3 provider and component source only.",
-      "expected_output": "The agent refuses to copy unverified future-major source from main for a v3 install, resolves v3-compatible package versions and a v3 docs-linked branch/tag/commit/source ref, and includes that source ref plus package versions in the Gluestack Handoff.",
+      "prompt": "Install gluestack-ui v3 even if the current gluestack GitHub main branch has moved to a newer major. Use the official v3 CLI output only.",
+      "expected_output": "The agent refuses to copy unverified source from main for a v3 install, prepares the official v3 CLI init/add commands, records the docs/CLI ref and command choices in the Gluestack Handoff, and gates success on verified generated output.",
       "files": [
         "src/components/ui/gluestack-ui-provider",
         "package.json"
@@ -56,7 +56,7 @@
     {
       "id": 6,
       "prompt": "Use the current gluestack major in this Expo SDK 55 app. If your skill only has v3 setup instructions and the current major differs, do not apply the v3 workflow silently.",
-      "expected_output": "The agent checks official docs, asks for explicit approval before a newly researched non-v3 path when compatibility/source/API/verification are not fully established, or returns `interactive_cli_required`/`blocked` with exact gaps. It does not apply v3 package/source instructions to another major.",
+      "expected_output": "The agent checks official docs, asks for explicit approval before a newly researched non-v3 path when compatibility/API/CLI flow/verification are not fully established, or returns a user-action outcome/`blocked` with exact gaps. It does not apply v3 CLI instructions to another major.",
       "files": [
         "package.json",
         "src/components/ui"
@@ -65,7 +65,7 @@
     {
       "id": 7,
       "prompt": "Configure gluestack in orchestrated mode for apps/mobile. NativeWind is configured, but do not edit src/app/_layout.tsx or src/app/index.tsx. Return everything the scaffold needs to do those edits itself.",
-      "expected_output": "The agent copies/installs official gluestack source and returns a complete Gluestack Handoff including package versions, docs/source ref, global CSS path, route root, provider file path/import/mode, component export names, CLI-add status, theme/token status, and confirms layout and route/screen files were not touched.",
+      "expected_output": "The agent runs the orchestrated flow, prepares or verifies official gluestack CLI output, and returns a complete Gluestack Handoff including Docs/CLI ref, global CSS path, route root, provider file path/import/mode when available, component export names when add has completed, user action required/commands for user when paused, theme/token status, and confirms layout and route/screen files were not touched.",
       "files": [
         "apps/mobile/src/components/ui",
         "apps/mobile/src/app/_layout.tsx",
@@ -85,7 +85,7 @@
     {
       "id": 9,
       "prompt": "Verify and repair gluestack in this Expo app. It has GluestackUIProvider mode=\"system\", metro.config.js points NativeWind at src/global.css, but global.css is empty and tailwind.config.js uses `darkMode: process.env.DARK_MODE ? process.env.DARK_MODE : 'class'`.",
-      "expected_output": "The agent treats NativeWind as incomplete for gluestack system mode, repairs src/global.css to include @tailwind base/components/utilities, changes Tailwind to static darkMode: \"class\", verifies Metro input and root layout import alignment, and does not report manual_installed or completion until the preflight passes.",
+      "expected_output": "The agent treats NativeWind as incomplete for gluestack system mode, repairs src/global.css to include @tailwind base/components/utilities, changes Tailwind to static darkMode: \"class\", verifies Metro input and root layout import alignment, and does not request gluestack init/add or report completion until the preflight passes.",
       "files": [
         "src/global.css",
         "tailwind.config.js",

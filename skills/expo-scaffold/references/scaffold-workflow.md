@@ -167,7 +167,7 @@ Use the `expo-gluestack-setup` skill for gluestack-specific installation and ver
 - Route layout, normally `src/app` for SDK 55.
 - Desired UI component path, normally `src/components/ui` for SDK 55 `src` layouts.
 - Requested gluestack major, or permission to use the current stable compatible major.
-- Whether CLI-managed components were explicitly requested.
+- Whether starter components are requested.
 - Whether layout wiring or route/screen edits are allowed. Default to no; this scaffold normally owns final route and root-layout edits.
 
 Require this handoff before continuing:
@@ -179,7 +179,7 @@ Require this handoff before continuing:
 - Version:
 - Package versions:
 - Dependency exceptions:
-- Docs/source ref:
+- Docs/CLI ref:
 - Package manager:
 - App root:
 - NativeWind prerequisite:
@@ -190,10 +190,12 @@ Require this handoff before continuing:
 - Provider file path:
 - Provider import:
 - Provider mode:
-- Components installed/copied:
-- Official source paths:
+- Components generated:
 - Component exports:
+- Generated source paths:
 - CLI component management:
+- User action required:
+- Commands for user:
 - Theme/token status:
 - Layout wiring touched:
 - Route/screen files touched:
@@ -203,13 +205,15 @@ Require this handoff before continuing:
 - Follow-up:
 ```
 
-If the outcome is `manual_installed` or `cli_initialized`, continue with official provider/components and do not run additional gluestack CLI commands unless the handoff says CLI component management is verified.
+If the outcome is `components_added`, continue with official provider/components and do not run additional gluestack CLI commands unless the handoff says more CLI-managed components are required.
+
+If the outcome is `cli_initialized`, continue only when the scaffold does not need starter components. For the default scaffold, request the component-add checkpoint through `expo-gluestack-setup` and pause until the handoff reaches `components_added`.
 
 If orchestrated mode was used and the handoff says layout or route/screen files were touched without explicit permission, inspect those edits before continuing and reconcile them in the main scaffold integration step.
 
-If the outcome is `interactive_cli_required`, pause the default scaffold workflow and ask the user to run the exact command from the handoff. Resume only after the user reports completion, then inspect the generated provider/config files before continuing.
+If the outcome is `user_init_required` or `user_add_required`, pause the default scaffold workflow and ask the user to run the exact command from the handoff. Resume only after the user reports completion, then invoke or follow `expo-gluestack-setup` to inspect the generated provider/config/component files before continuing.
 
-If the outcome is `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support. Continue only if the user explicitly approves a non-official fallback and the handoff outcome becomes `fallback_approved`.
+If the outcome is `blocked`, stop the default scaffold workflow and report diagnostics. Do not continue with theme wiring, placeholder screens, or final success language that implies official gluestack support.
 
 After gluestack setup, check and repair config paths using the handoff as source of truth:
 

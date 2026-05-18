@@ -7,7 +7,7 @@ description: Add, configure, set up, install, repair, or verify gluestack-ui for
 
 Use this skill to configure official gluestack-ui in an Expo or React Native project. It can run directly for an existing app, or as a specialist step inside a larger scaffold workflow such as `expo-scaffold`.
 
-The volatile parts are gluestack package names, CLI behavior, official manual setup source paths, provider APIs, NativeWind compatibility, and generated component structure. Verify current official docs and tool output before locking versions or paths.
+The volatile parts are gluestack CLI behavior, provider APIs, NativeWind compatibility, generated component structure, and package-manager side effects. Verify current official docs and tool output before locking command flags, paths, or verification criteria.
 
 ## Trigger Boundaries
 
@@ -49,7 +49,7 @@ Expected inputs from the orchestrator:
 - Route layout: `src/app`, root `app`, or other.
 - Desired UI component path, normally `src/components/ui` for SDK 55 `src` layouts or `components/ui` for root layouts.
 - Desired gluestack major, or permission to use the current stable compatible major.
-- Whether CLI-managed components are explicitly requested.
+- Whether starter components are requested.
 - Whether layout wiring or route/screen edits are allowed. Default to no in orchestrated mode.
 
 Return the handoff in the required format below. The orchestrator should use that handoff instead of re-deriving provider paths or setup state.
@@ -60,33 +60,32 @@ Default to the current stable gluestack major compatible with the selected Expo 
 
 If the requested or current gluestack major has no matching complete version reference in this skill, do not silently follow stale v3 steps. Check current official docs and then either:
 
-- Ask before using the newly researched path when compatibility, source provenance, provider API, CLI/manual setup, or verification criteria are not fully established in this skill.
+- Ask before using the newly researched path when compatibility, provider API, CLI flow, or verification criteria are not fully established in this skill.
 - Fall back to a documented older stable major only when the user approves or the request explicitly targets that major.
-- Return `interactive_cli_required` or `blocked` when the official path cannot be verified without user action.
+- Return a user-action outcome or `blocked` when the official path cannot be verified without user action.
 
-For gluestack-ui v3, read `references/v3.md` before installing packages, copying provider/components, running CLI commands, or verifying setup.
-For other gluestack majors, read the matching version reference if present. If none exists, proceed only after establishing the package set, provider API, source ref, CLI/manual support, NativeWind compatibility, and verification criteria from official docs.
+For gluestack-ui v3, read `references/v3.md` before preparing CLI commands, wiring provider output, or verifying setup.
+For other gluestack majors, read the matching version reference if present. If none exists, proceed only after establishing the package set, provider API, CLI support, NativeWind compatibility, and verification criteria from official docs.
 
 ## Workflow
 
 1. Inspect the project and determine standalone or orchestrated mode.
 2. Confirm NativeWind is installed and configured before starting official gluestack setup. If NativeWind must be added and no orchestrator already owns that work, follow current NativeWind docs or stop with a precise prerequisite. For `GluestackUIProvider mode="system"`, treat NativeWind as configured only when the CSS file used by Metro contains all Tailwind directives and Tailwind uses static `darkMode: "class"`.
-3. Select the gluestack major and setup path:
-   - Prefer official manual installation for v3.
-   - Use CLI-managed setup only when the user explicitly asks, or when current official docs make CLI the only reliable official path.
+3. Select the gluestack major and CLI command path. For v3, use CLI-managed init/add as the only official setup path in this skill.
 4. Follow the relevant version reference. For v3, use `references/v3.md`.
-5. Repair gluestack integration points after setup: Tailwind content/theme, Metro NativeWind input path, Babel aliases/plugins required by copied official source, TypeScript aliases, and lockfiles.
-6. In orchestrated mode, do not edit root layout or route/screen files unless the caller explicitly allowed layout wiring or route edits. Return exact provider and component import details for the orchestrator instead.
-7. Verify that the official provider and each starter component import resolve from official gluestack source or verified CLI output.
-8. Return the required handoff. If setup is blocked or interactive CLI is required, stop before claiming completion.
+5. When the CLI step requires user interactivity, pause with the exact command, working directory, prompt choices, and current diagnostics. Resume only after the user reports completion.
+6. After each user-run CLI step, inspect generated provider/config/components and repair gluestack integration points as needed: Tailwind content/theme, Metro NativeWind input path, Babel aliases/plugins required by generated source, TypeScript aliases, and lockfiles.
+7. In orchestrated mode, do not edit root layout or route/screen files unless the caller explicitly allowed layout wiring or route edits. Return exact provider and component import details for the orchestrator instead.
+8. Verify that the provider and each starter component import resolve from verified CLI-generated output.
+9. Return the required handoff. If setup is blocked or user action is required, stop before claiming completion.
 
 ## Package Installation Policy
 
 - Use Expo CLI for Expo SDK packages, React Native packages, and native modules where Expo has SDK compatibility knowledge, such as `react-native-svg` and `react-native-web`.
-- Use the selected package manager directly for gluestack JS packages, Tailwind tooling, local CLIs, and ordinary JavaScript dependencies that Expo does not version-map.
+- Let the gluestack CLI own gluestack JS package additions unless current official CLI docs require a separate package install or post-CLI verification shows a missing direct/peer dependency. Use the selected package manager directly for Tailwind tooling, local CLIs, and ordinary JavaScript dependencies that Expo does not version-map.
 - Do not manually list a package's transitive dependencies in the app manifest. Let the package manager install declared dependencies.
 - Add explicit packages only when they are direct app/runtime requirements, documented peer dependencies the app must provide, official gluestack setup-doc requirements, workspace imports, or verified undeclared runtime import workarounds.
-- Keep dependency installs in the owning app package. In a monorepo, gluestack mobile runtime packages belong in the Expo app package, not only at the workspace root.
+- Keep dependency installs in the owning app package. In a monorepo, gluestack mobile runtime packages generated or repaired after CLI setup belong in the Expo app package, not only at the workspace root.
 - For missing-module failures, diagnose the source before adding packages. If an installed library imports a module that is absent from its published dependency metadata, add the narrow missing package, document the affected library/version in the handoff, and verify with Metro bundling.
 
 ## Outcomes
@@ -94,12 +93,12 @@ For other gluestack majors, read the matching version reference if present. If n
 Track exactly one outcome:
 
 - `cli_initialized`: CLI init succeeded and generated the expected provider/config.
-- `manual_installed`: official manual installation completed with official provider/component source copied into the app.
-- `interactive_cli_required`: current official docs do not provide enough manual source/config detail, so a real terminal CLI run is required.
+- `user_init_required`: the user must run the exact `gluestack-ui init` command in an interactive terminal before setup can continue.
+- `user_add_required`: CLI init is verified, but the user must run the exact `gluestack-ui add` command before starter components can be wired.
+- `components_added`: CLI init and requested component adds succeeded and generated output was verified.
 - `blocked`: official setup is unusable or cannot be verified.
-- `fallback_approved`: the user explicitly approved a non-official fallback after being told it is not official gluestack setup.
 
-Do not hand-write lookalike primitives and report them as gluestack. A fallback is allowed only after explicit user approval and must be labeled `fallback_approved`.
+Do not hand-write lookalike primitives, copy manual provider/component source, or report non-CLI output as official gluestack setup. If the CLI cannot complete even after user-run commands, return `blocked`.
 
 ## Handoff
 
@@ -112,7 +111,7 @@ Always end with this handoff when used by another skill, and use the same shape 
 - Version:
 - Package versions:
 - Dependency exceptions:
-- Docs/source ref:
+- Docs/CLI ref:
 - Package manager:
 - App root:
 - NativeWind prerequisite:
@@ -123,10 +122,12 @@ Always end with this handoff when used by another skill, and use the same shape 
 - Provider file path:
 - Provider import:
 - Provider mode:
-- Components installed/copied:
+- Components generated:
 - Component exports:
-- Official source paths:
+- Generated source paths:
 - CLI component management:
+- User action required:
+- Commands for user:
 - Theme/token status:
 - Layout wiring touched:
 - Route/screen files touched:
@@ -136,7 +137,7 @@ Always end with this handoff when used by another skill, and use the same shape 
 - Follow-up:
 ```
 
-For `manual_installed`, include the official source URLs or repository paths used for the provider and copied components. For `cli_initialized`, state whether `gluestack-ui add` was verified. For `interactive_cli_required` or `blocked`, include exact attempted commands, TTY status when relevant, package/lockfile state, visible errors or hang points, and any partial files left behind.
+For `user_init_required` and `user_add_required`, include the exact command, working directory, package manager, expected prompt choices, package/lockfile state, and what the user should report back. For `cli_initialized`, state whether starter components are still required. For `components_added`, include the verified generated component paths and exports. For `blocked`, include exact attempted or user-run commands, package/lockfile state, visible errors or hang points, and any partial files left behind.
 
 ## Boundaries
 

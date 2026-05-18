@@ -29,7 +29,7 @@ After installing, run `expo install --check` or the package-manager equivalent. 
 
 ## Direct Package Manager Installs
 
-Use the selected package manager for packages that Expo does not version-map, such as gluestack JS packages, Tailwind tooling, app-specific libraries, local CLIs, and EAS CLI dev dependencies:
+Use the selected package manager for packages that Expo does not version-map, such as Tailwind tooling, app-specific libraries, local CLIs, and EAS CLI dev dependencies. Do not install or repair gluestack JS packages from this reference; delegate gluestack package changes to `expo-gluestack-setup`, where the gluestack CLI owns those additions unless post-CLI verification proves a missing direct or peer dependency.
 
 ```sh
 npm install <package>
@@ -43,7 +43,7 @@ bun add <package>
 bun add -d <tool>
 ```
 
-Pin versions when compatibility is known to a major or minor line, or when official docs/source for a manually copied component set require a matching package set. Avoid unpinned `latest` when the docs or source path are version-specific.
+Pin versions when compatibility is known to a major or minor line, or when official docs or generated CLI output require a matching package set. Avoid unpinned `latest` when the docs or generated output are version-specific.
 
 ## Missing Module Diagnostics
 
