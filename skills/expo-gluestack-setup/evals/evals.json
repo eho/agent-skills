@@ -98,6 +98,17 @@
         "The Gluestack Handoff includes a NativeWind preflight result.",
         "Completion is gated on the CSS directives, Metro input path, darkMode class, and root layout import."
       ]
+    },
+    {
+      "id": 10,
+      "prompt": "Can you explain whether gluestack-ui works with NativeWind in Expo? Do not change my app.",
+      "expected_output": "The expo-gluestack-setup skill should not trigger. The agent gives a normal explanatory answer and does not inspect/edit project files, run gluestack setup workflow, or return a Gluestack Handoff unless the user explicitly asks to configure/setup/repair/verify gluestack in the project.",
+      "files": [],
+      "expectations": [
+        "The answer does not treat a general question as a setup request.",
+        "No gluestack install, repair, verification workflow, or handoff is started.",
+        "The agent states that project changes require an explicit setup/repair/configure request."
+      ]
     }
   ]
 }

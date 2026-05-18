@@ -284,3 +284,16 @@ If these docs do not exist and the repo has no docs convention, either create li
 ## 11. Verify
 
 Run the checks in `verification.md` and report exact commands and results.
+
+## 12. Report Post-Scaffold Operations
+
+End the workflow with a `Post-scaffold operations` section. Use `eas.md` as the source of truth, and include exact commands adapted to the project package manager and app root. At minimum, report whether the user still needs to run:
+
+- `eas login`
+- `eas init`
+- `eas update:configure`
+- the first development build command
+- device/simulator installation and `expo start`
+- credential, store, secret, backend, or deployment setup that could not be completed locally
+
+If a command was already completed during the scaffold, say so and omit it from the required list. If it was intentionally not run because it needs account credentials or user decisions, list it as required or conditional instead of implying the scaffold is fully account-configured.

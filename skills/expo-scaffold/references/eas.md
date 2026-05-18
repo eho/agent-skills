@@ -127,3 +127,24 @@ If the user wants iOS-only or Android-only, set the platform in scripts accordin
 ## Explain The Boundary
 
 Tell the user that EAS Update can deliver compatible JavaScript and asset changes. Native dependency changes, app config changes that affect native projects, runtime version changes, and SDK upgrades require a new build.
+
+## Post-Scaffold Operations
+
+At the end of every scaffold, return a short `Post-scaffold operations` checklist. Include only items that still require the user's account, credentials, devices, store access, or deliberate product decisions. Mark each item as required, optional, or conditional.
+
+Common required or conditional operations:
+
+- `eas login`: required before account-backed EAS Build, EAS Update, or Submit can run.
+- `eas init`: required to create/link the Expo project and write account-backed project metadata when the scaffold did not run authenticated EAS initialization.
+- `eas update:configure`: required after installing `expo-updates` when `expo.updates.url` and `expo.extra.eas.projectId` are still absent.
+- First development build: required before testing in a development client. Use `eas build --platform <platform> --profile development` for cloud builds, or `expo run:ios` / `expo run:android` for local builds.
+- Install the development build on a simulator, emulator, or device, then run `expo start`; Expo Go is not the target runtime for scaffolds using `expo-dev-client`.
+- iOS credentials and Apple Developer access: required for physical-device iOS builds and store builds; iOS 16+ devices may also need Developer Mode enabled before running internal/development builds.
+- Android signing credentials or Google Play setup: required before production/store Android builds or submission. Let EAS manage credentials only with user approval.
+- Store submission setup: optional unless the user requested submit automation. Requires app store records, bundle/package identifiers, Apple/Google credentials, and `eas submit` or submit profiles.
+- EAS secrets/environment variables: required when app config, API URLs, build hooks, or runtime code reference secrets or environment-specific values.
+- Domain/backend/landing deployment: conditional when the scaffold includes a backend, Expo API routes, or a landing app. List the deployment target and any environment variables that still need real values.
+- Native rebuild after native changes: required whenever native dependencies, config plugins, app config affecting native projects, runtime version policy, or Expo SDK change after the first build.
+- Publish first OTA update: optional after `eas update:configure` and at least one compatible build exists. Use the scaffolded `update:preview` or `update:production` scripts with the matching channel/environment.
+
+Do not present these operations as failures. They are the normal boundary between a local scaffold and account/device/store-backed setup.

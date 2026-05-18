@@ -1,6 +1,6 @@
 ---
 name: expo-scaffold
-description: Create, bootstrap, initialize, or broadly scaffold a new React Native Expo app or Expo-centered monorepo with Expo Router, Expo SDK 55 by default, expo-dev-client, NativeWind, official gluestack setup via expo-gluestack-setup, starter gluestack components, EAS Build, and EAS Update. Use this skill whenever the user asks to create a new Expo starter, reusable mobile app starter, or broad Expo project setup that should include NativeWind, gluestack, EAS Build, OTA updates, preview/production channels, API routes/backend support, or a landing site. For existing Expo apps where the requested change is only to add, repair, configure, or verify gluestack, use `expo-gluestack-setup` instead.
+description: Create, bootstrap, initialize, or scaffold a brand-new React Native Expo app or Expo-centered monorepo with Expo Router, Expo SDK 55 by default, expo-dev-client, NativeWind, official gluestack setup via expo-gluestack-setup, starter gluestack components, EAS Build, and EAS Update. Use this skill only when the user is starting a new project/starter/scaffold or explicitly asks to use expo-scaffold. Do not use it for general Expo questions, code review, debugging, verification, postmortems, or existing-project changes unless the user explicitly requests a new scaffold or directly names this skill. For existing Expo apps, use a narrower skill only when the user explicitly asks to configure, set up, install, repair, or verify that specific system.
 ---
 
 # Expo Scaffold
@@ -8,6 +8,20 @@ description: Create, bootstrap, initialize, or broadly scaffold a new React Nati
 Use this skill to build a production-oriented Expo starter. Default to Expo SDK 55 and an `expo-dev-client` development-build workflow unless current official Expo docs show a newer stable SDK should replace SDK 55, or the user explicitly requests a different SDK or workflow. The volatile parts are NativeWind compatibility, gluestack setup, Expo SDK transition notes, and EAS defaults, so verify current tool output and official docs before locking versions.
 
 This skill is the orchestrator. Delegate gluestack-specific installation, provider/component copying, CLI/manual branching, and gluestack verification to the `expo-gluestack-setup` skill when it is available. Keep this skill responsible for project shape, scaffold ordering, final integration, and final verification.
+
+## Trigger Boundaries
+
+Use this skill only when the user asks to create or scaffold a new Expo project, starter, app, or Expo-centered monorepo, or when the user explicitly names `expo-scaffold`.
+
+Do not use this skill for:
+
+- General Expo, EAS, NativeWind, or gluestack questions.
+- Reviewing a failed scaffold report or explaining an error.
+- Debugging or repairing an existing app.
+- Adding a single feature to an existing app.
+- Verifying an existing app, unless the user explicitly asks to run `expo-scaffold`.
+
+For an existing app, do not infer this skill from related keywords such as Expo Router, EAS, NativeWind, gluestack, OTA updates, preview channels, or landing site. Use normal codebase work or a narrower explicitly requested skill instead.
 
 ## Initial Decisions
 
@@ -53,6 +67,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
 - Keep `AGENTS.md` as the repository's project-rules source of truth. If Expo's scaffold generates `AGENTS.md`, `CLAUDE.md`, or `.claude/settings.json`, treat them as input material: extract Expo-specific SDK docs, commands, package-manager notes, and runtime constraints into the existing `AGENTS.md`, then remove duplicate generated agent files unless the user explicitly wants them kept.
 - For EAS Update, explain that config changes, native dependency changes, and runtime version changes require a new build; OTA updates cover compatible JS and asset changes.
+- End every scaffold with post-scaffold operations that remain outside local file generation, especially EAS login/init/update configuration, first development build/install, credentials, secrets, store submission, backend/landing deployment, and native rebuild triggers.
 - When the runtime policy and user request permit subagents, use them for parallel research or post-scaffold review, not for concurrent edits to the same package manifest, app config, route files, or styling setup. Keep the main agent responsible for the ordered scaffold sequence and final integration. If a permitted subagent runs `expo-gluestack-setup`, give it ownership of gluestack files only and integrate its handoff in the main scaffold sequence.
 
 ## Expected Deliverables
@@ -75,6 +90,7 @@ At completion, the project should contain:
 - Updated existing living docs when the scaffold creates or changes project architecture, especially `docs/architecture/architecture.md`, `docs/architecture/tech-stack.md`, and relevant operational docs. If the repo has no docs convention, create lightweight seed docs only when that fits the project or report that no architecture docs were present.
 - Existing `AGENTS.md` updated with merged Expo-generated agent context, when `create-expo-app` produced it.
 - Verification results and any follow-up steps requiring the user's Expo account or app store credentials.
+- A `Post-scaffold operations` section with exact commands and required/optional/conditional account, device, credential, deployment, and update steps that still need user action.
 
 ## Useful Official Docs
 

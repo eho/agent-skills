@@ -1,6 +1,6 @@
 ---
 name: expo-gluestack-setup
-description: Add, configure, repair, or verify gluestack-ui for an existing Expo or React Native project, especially Expo apps using NativeWind. Use this skill whenever the user asks to install gluestack, configure gluestack-ui v3 or another supported gluestack major, add official gluestack provider/components, recover from gluestack CLI failures, verify an existing gluestack setup, or when another Expo scaffold workflow needs a gluestack setup handoff.
+description: Add, configure, set up, install, repair, or verify gluestack-ui for an existing Expo or React Native project only when the user explicitly asks for gluestack setup/configuration/installation/repair/verification, directly names expo-gluestack-setup, or a new-project scaffold workflow invokes it for a gluestack handoff. Do not use this skill for general gluestack questions, error explanations, code review, postmortems, design advice, or unrelated Expo/NativeWind work unless the user explicitly requests this skill or asks to configure/setup/repair gluestack in the existing project.
 ---
 
 # Expo gluestack Setup
@@ -8,6 +8,16 @@ description: Add, configure, repair, or verify gluestack-ui for an existing Expo
 Use this skill to configure official gluestack-ui in an Expo or React Native project. It can run directly for an existing app, or as a specialist step inside a larger scaffold workflow such as `expo-scaffold`.
 
 The volatile parts are gluestack package names, CLI behavior, official manual setup source paths, provider APIs, NativeWind compatibility, and generated component structure. Verify current official docs and tool output before locking versions or paths.
+
+## Trigger Boundaries
+
+Use this skill only when one of these is true:
+
+- The user explicitly asks to add, configure, set up, install, repair, or verify gluestack-ui in an existing project.
+- The user directly names `expo-gluestack-setup`.
+- `expo-scaffold` or another new-project scaffold workflow invokes it for a gluestack setup handoff.
+
+Do not use this skill merely because a message mentions gluestack, NativeWind, Expo, a startup failure, dark mode, or a previous scaffold report. For explanation, review, or debugging requests, answer normally unless the user asks you to modify the project’s gluestack setup or directly use this skill.
 
 ## Modes
 

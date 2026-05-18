@@ -162,6 +162,33 @@
         "metro.config.js points withNativeWind at the same global.css path imported by the root layout.",
         "The root layout imports global.css before rendering GluestackUIProvider mode=\"system\"."
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "Why did my existing Expo app crash after adding gluestack and NativeWind? I only want an explanation, not a scaffold or skill workflow.",
+      "expected_output": "The expo-scaffold skill should not trigger. The agent answers the debugging/explanation request normally and does not start a new project, invoke scaffold workflow, or use expo-gluestack-setup unless the user explicitly asks to repair/configure the existing project.",
+      "files": [],
+      "expectations": [
+        "No new Expo project or scaffold is created.",
+        "The answer does not use the expo-scaffold workflow just because Expo, gluestack, or NativeWind are mentioned.",
+        "The agent asks or waits for explicit permission before making existing-project gluestack setup changes."
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Create a new Expo starter with EAS Build and EAS Update, but do not log into my Expo account from the agent environment.",
+      "expected_output": "The scaffold prepares local EAS build/update files but ends with a Post-scaffold operations section listing required account-backed steps such as eas login, eas init, eas update:configure, first development build/install, secrets/credentials/store setup where applicable, and explains which steps were not run because they require user account access.",
+      "files": [
+        "eas.json",
+        "package.json",
+        "app.json"
+      ],
+      "expectations": [
+        "The final report distinguishes local EAS-ready config from fully configured account-backed EAS Update.",
+        "The final report includes eas update:configure when expo.updates.url and extra.eas.projectId are absent.",
+        "The final report includes first development build and install/start steps for expo-dev-client.",
+        "The final report lists credentials, secrets, store submission, and deployment steps only when relevant."
+      ]
     }
   ]
 }
