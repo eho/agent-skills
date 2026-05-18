@@ -44,11 +44,14 @@ For SDK 55-style projects, create `src/global.css`. For older/root-layout projec
 @tailwind utilities;
 ```
 
+These directives are required for NativeWind v4 runtime metadata. When gluestack uses `GluestackUIProvider mode="system"`, missing directives can make NativeWind behave as if runtime dark mode is `media` and crash with `Unable to manually set color scheme without using darkMode: class`.
+
 Create or update `tailwind.config.js`:
 
 ```js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
@@ -61,6 +64,8 @@ module.exports = {
   plugins: [],
 };
 ```
+
+When gluestack provider mode is `"system"`, keep `darkMode` explicit and static. Do not make it depend on `process.env.DARK_MODE`, platform checks, or any branch that can resolve to `"media"`.
 
 Create or update `babel.config.js`:
 
@@ -119,6 +124,15 @@ import "../global.css";
 ```
 
 If the project uses a root-level `app/` directory, use `./global.css` in Metro and keep the same `../global.css` import from `app/_layout.tsx`.
+
+Before handing off to gluestack setup or reporting NativeWind complete, hard-check:
+
+- The configured CSS file exists at the path passed to Metro.
+- The CSS file contains `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`.
+- `metro.config.js` wraps with `withNativeWind(config, { input: "./src/global.css" })` for `src` layouts, or the equivalent real project path.
+- `tailwind.config.js` contains static `darkMode: "class"` when gluestack provider mode is `"system"`.
+- No `process.env.DARK_MODE` or other branch can make `darkMode` resolve to `"media"`.
+- If the root layout or entry already renders gluestack UI, it imports the same global CSS file before the provider renders. If gluestack wiring happens later, make this a required final wiring check.
 
 ## Preview v5 Branch
 

@@ -62,12 +62,15 @@ For a coding agent with browser/device automation, verify:
 - Gluestack handoff outcome is `cli_initialized` or `manual_installed`; if the outcome is `interactive_cli_required`, produce an incomplete pause report and do not run full scaffold smoke checks. If the outcome is `blocked`, report the scaffold as incomplete rather than smoke-testing fallback UI as official gluestack.
 - The official gluestack provider/config exists at the path from the handoff and the placeholder imports official component paths. For `manual_installed`, verify copied source paths instead of requiring CLI-generated config.
 - NativeWind classes visibly apply.
+- For gluestack provider `mode="system"` with NativeWind v4, the Metro input CSS file contains `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`; Tailwind uses static `darkMode: "class"`; and the root layout imports that CSS before rendering `GluestackUIProvider`.
 - The root provider uses the intended gluestack color mode, normally `mode="system"`.
 - Starter surfaces use gluestack token classes rather than hardcoded light/dark color pairs.
 - SDK 55 new projects use the expected `src/app` route layout unless the selected template generated a root-level app directory.
 - Metro resolves runtime aliases, including `@/*` and `@/assets/*`. TypeScript passing is not enough; confirm the app bundles.
 - `expo-dev-client` is installed and the development build profile exists. Do not verify against Expo Go.
 - For NativeWind v4-style setup, Babel includes both the `jsxImportSource: "nativewind"` Expo preset option and `nativewind/babel`, and app config uses Metro for web when required.
+
+Run at least one bundle/runtime check that exercises NativeWind CSS processing, such as `expo export --platform ios` or a web/native smoke run. TypeScript and lint alone are not enough to catch missing Tailwind directives in `global.css`.
 
 ## Splash And Theme Check
 

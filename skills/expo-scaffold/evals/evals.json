@@ -145,6 +145,23 @@
         "AGENTS.md includes concise Expo-specific runtime and command guidance merged with the existing project-bootstrap package-manager, docs, testing, and safety sections.",
         "Generated CLAUDE.md and .claude/settings.json are removed or explicitly justified if kept."
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "Scaffold an Expo SDK 55 app with NativeWind v4 and gluestack-ui v3. Use GluestackUIProvider mode=\"system\" and make sure the app does not crash with NativeWind's `Unable to manually set color scheme without using darkMode: class` error.",
+      "expected_output": "The scaffold creates the Metro input global.css with @tailwind base/components/utilities, uses withNativeWind with the real CSS path, sets static darkMode: \"class\" in tailwind.config.js without process.env.DARK_MODE branching, imports global.css before rendering GluestackUIProvider, and includes a verification step that bundles or otherwise exercises NativeWind CSS processing.",
+      "files": [
+        "src/global.css",
+        "metro.config.js",
+        "tailwind.config.js",
+        "src/app/_layout.tsx"
+      ],
+      "expectations": [
+        "global.css contains @tailwind base, @tailwind components, and @tailwind utilities.",
+        "tailwind.config.js has static darkMode: \"class\" and no process.env.DARK_MODE fallback.",
+        "metro.config.js points withNativeWind at the same global.css path imported by the root layout.",
+        "The root layout imports global.css before rendering GluestackUIProvider mode=\"system\"."
+      ]
     }
   ]
 }

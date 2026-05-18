@@ -81,6 +81,23 @@
         "tailwind.config.js",
         "metro.config.js"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Verify and repair gluestack in this Expo app. It has GluestackUIProvider mode=\"system\", metro.config.js points NativeWind at src/global.css, but global.css is empty and tailwind.config.js uses `darkMode: process.env.DARK_MODE ? process.env.DARK_MODE : 'class'`.",
+      "expected_output": "The agent treats NativeWind as incomplete for gluestack system mode, repairs src/global.css to include @tailwind base/components/utilities, changes Tailwind to static darkMode: \"class\", verifies Metro input and root layout import alignment, and does not report manual_installed or completion until the preflight passes.",
+      "files": [
+        "src/global.css",
+        "tailwind.config.js",
+        "metro.config.js",
+        "src/app/_layout.tsx"
+      ],
+      "expectations": [
+        "The agent rejects the empty global.css as an incomplete NativeWind setup.",
+        "The agent removes env-driven darkMode and sets static darkMode: \"class\".",
+        "The Gluestack Handoff includes a NativeWind preflight result.",
+        "Completion is gated on the CSS directives, Metro input path, darkMode class, and root layout import."
+      ]
     }
   ]
 }

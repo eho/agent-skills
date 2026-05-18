@@ -28,7 +28,7 @@ gluestack's dark-mode docs describe two strategies:
 - CSS-variable tokens with provider mode.
 - Tailwind/NativeWind `dark:` classes.
 
-For token-based gluestack styling, do not add extra `DARK_MODE=...` scripts unless current docs or CLI output require it. If the scaffold deliberately uses `dark:` classes, follow the current gluestack docs: native devices may require `darkMode: "media"` while web may require `darkMode: "class"`. Re-check before writing scripts because this is explicitly documented as a temporary workaround.
+For token-based gluestack styling with `GluestackUIProvider mode="system"` and NativeWind v4, keep Tailwind `darkMode` as the static string `"class"` on every platform. Do not add `DARK_MODE=...` scripts or env-driven `darkMode` expressions. NativeWind rejects provider/manual color scheme control if its generated runtime stylesheet resolves to media dark mode.
 
 ## Status Bar And JS-Only Theme Values
 

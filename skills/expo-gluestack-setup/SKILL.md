@@ -23,6 +23,7 @@ Before editing, inspect and resolve:
 - Route/layout shape, especially `src/app`, root `app`, or a non-router entry file.
 - Existing UI component path, provider path, `tailwind.config.*`, `metro.config.*`, `babel.config.*`, global CSS path, and TypeScript aliases.
 - Whether NativeWind is already configured. If it is missing, either configure it only when the user asked for full gluestack setup, or stop with a clear prerequisite if the task is gluestack-only.
+- Whether the NativeWind CSS path used by Metro contains `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`, and whether Tailwind uses static `darkMode: "class"` when provider mode is `"system"`.
 
 ### Orchestrated Mode
 
@@ -34,6 +35,7 @@ Expected inputs from the orchestrator:
 - Package manager.
 - Expo SDK and React Native versions.
 - NativeWind status and global CSS path.
+- NativeWind preflight result: Tailwind directives present, Metro input path matches the real CSS file, static `darkMode: "class"` when provider mode is `"system"`, and root layout import status if the caller owns layout wiring.
 - Route layout: `src/app`, root `app`, or other.
 - Desired UI component path, normally `src/components/ui` for SDK 55 `src` layouts or `components/ui` for root layouts.
 - Desired gluestack major, or permission to use the current stable compatible major.
@@ -58,7 +60,7 @@ For other gluestack majors, read the matching version reference if present. If n
 ## Workflow
 
 1. Inspect the project and determine standalone or orchestrated mode.
-2. Confirm NativeWind is installed and configured before starting official gluestack setup. If NativeWind must be added and no orchestrator already owns that work, follow current NativeWind docs or stop with a precise prerequisite.
+2. Confirm NativeWind is installed and configured before starting official gluestack setup. If NativeWind must be added and no orchestrator already owns that work, follow current NativeWind docs or stop with a precise prerequisite. For `GluestackUIProvider mode="system"`, treat NativeWind as configured only when the CSS file used by Metro contains all Tailwind directives and Tailwind uses static `darkMode: "class"`.
 3. Select the gluestack major and setup path:
    - Prefer official manual installation for v3.
    - Use CLI-managed setup only when the user explicitly asks, or when current official docs make CLI the only reliable official path.
@@ -94,6 +96,7 @@ Always end with this handoff when used by another skill, and use the same shape 
 - Package manager:
 - App root:
 - NativeWind prerequisite:
+- NativeWind preflight:
 - Global CSS path:
 - Route root:
 - UI component path:

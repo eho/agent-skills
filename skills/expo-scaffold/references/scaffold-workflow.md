@@ -145,6 +145,16 @@ Read `nativewind.md`, install the selected NativeWind line, and configure:
 
 Use `examples/babel.config.js`, `examples/metro.config.js`, `examples/tailwind.config.js`, and `examples/tsconfig.json` as canonical starting points for a fresh SDK 55-style starter. Adapt paths and preserve existing settings when merging.
 
+Before calling NativeWind configured or invoking gluestack, run a file-level preflight:
+
+- `global.css` exists at the path used by Metro and contains all three directives: `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`.
+- `metro.config.js` uses `withNativeWind(config, { input: "./src/global.css" })` for SDK 55 `src` layouts, or the equivalent path for the actual app.
+- `tailwind.config.js` has explicit static `darkMode: "class"` when gluestack will use `GluestackUIProvider mode="system"`.
+- `darkMode` is not env-driven, including `process.env.DARK_MODE`, and cannot resolve to `"media"` under a different shell environment.
+- If the root layout or entry file already exists, it imports the same global CSS file. If provider wiring happens later, verify at final wiring that this import appears before rendering the provider.
+
+Treat a failed preflight as an incomplete scaffold, not as a follow-up note. Repair it before gluestack setup continues.
+
 ## 5. Bootstrap gluestack
 
 Use the `expo-gluestack-setup` skill for gluestack-specific installation and verification. Pass a concise orchestration brief:
@@ -171,6 +181,7 @@ Require this handoff before continuing:
 - Package manager:
 - App root:
 - NativeWind prerequisite:
+- NativeWind preflight:
 - Global CSS path:
 - Route root:
 - UI component path:
@@ -201,6 +212,8 @@ If the outcome is `blocked`, stop the default scaffold workflow and report diagn
 After gluestack setup, check and repair config paths using the handoff as source of truth:
 
 - Metro NativeWind input must point at the real CSS file, such as `./src/global.css` when the app uses `src`.
+- The Metro input CSS file must contain the Tailwind base/components/utilities directives.
+- Tailwind dark mode must be the static string `"class"` for gluestack provider mode `"system"`; remove env-driven `darkMode` expressions.
 - Any configured aliases must resolve source code and assets in the actual runtime, not only in TypeScript.
 - Tailwind content globs must include the actual app, src, and component directories.
 - Root layout must have one CSS import and one official provider wrapper using the provider import from the handoff.
