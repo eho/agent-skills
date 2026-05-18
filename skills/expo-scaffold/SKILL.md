@@ -46,13 +46,14 @@ Before editing files, infer these from the user request. Ask a short preflight d
 1. Read `references/project-structure.md` to choose single-app or monorepo layout.
 2. Read `references/scaffold-workflow.md` for the end-to-end sequence.
 3. Use Expo SDK 55 unless official Expo docs now identify a newer stable default or the user requests differently. Check official Expo docs or `create-expo-app` output for the selected SDK's template syntax. Do not use `next`, beta, alpha, canary, or preview templates unless the user explicitly asks.
-4. Read `references/nativewind.md` before installing or configuring NativeWind.
-5. Invoke or follow `expo-gluestack-setup` before installing gluestack packages, copying official provider/components, or running any gluestack CLI command. Pass the app root, package manager, Expo SDK, NativeWind status, route layout, UI component path, and requested gluestack major. Require the `## Gluestack Handoff` before wiring final starter screens.
-6. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
-7. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
-8. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
-9. Use the snippets in `examples/` as starting points for the standard starter files, then adapt to the actual project structure and selected package manager.
-10. Finish by running the checks in `references/verification.md`.
+4. Read `references/package-installation.md` before installing dependencies or repairing missing-module errors.
+5. Read `references/nativewind.md` before installing or configuring NativeWind.
+6. Invoke or follow `expo-gluestack-setup` before installing gluestack packages, copying official provider/components, or running any gluestack CLI command. Pass the app root, package manager, Expo SDK, NativeWind status, route layout, UI component path, and requested gluestack major. Require the `## Gluestack Handoff` before wiring final starter screens.
+7. Read `references/theme.md` before adding theme tokens, provider mode, status bar behavior, or light/dark styling.
+8. Read `references/launch-experience.md` before configuring `expo-splash-screen` or adding an animated launch overlay.
+9. Read `references/eas.md` before creating `eas.json`, build scripts, update scripts, or app config update settings.
+10. Use the snippets in `examples/` as starting points for the standard starter files, then adapt to the actual project structure and selected package manager.
+11. Finish by running the checks in `references/verification.md`.
 
 ## Implementation Standards
 
@@ -61,7 +62,7 @@ Before editing files, infer these from the user request. Ask a short preflight d
 - Keep scaffolding idempotent where reasonable. If modifying an existing project, inspect current config before changing it.
 - Scaffold into an empty temporary workspace when the target directory already contains repo files, then copy the finished scaffold into place without `.git` or accidental lockfiles.
 - Do not overwrite user code blindly. Merge with existing `app.json` or `app.config.*`, `eas.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and route files.
-- Use `expo install` for Expo/RN packages where compatibility matters.
+- Follow `references/package-installation.md`: use `expo install` for Expo/RN packages where compatibility matters, use the selected package manager for ordinary JS/tooling packages, and do not manually list transitive dependencies unless there is a documented peer/direct requirement or a verified undeclared runtime import workaround.
 - In Bun workspaces, expect a root lockfile plus possible workspace-local `node_modules` link folders. Do not remove package-local link folders just because a root `bun.lock` exists; remove only generated dependency trees/caches that are explicitly excluded by the cleanup rules.
 - Keep native prebuild output out of the starter unless the user asks for committed native directories. `expo run:ios` and `expo run:android` can generate native directories; include them as development-build convenience scripts only with a note about this behavior.
 - Add scripts that make common workflows obvious: start, iOS, Android, web when supported, build profiles, and update channels.
@@ -85,6 +86,7 @@ At completion, the project should contain:
 - Optional animated launch overlay when requested, implemented as React UI after the static native splash.
 - A starter set of official gluestack components confirmed by the gluestack handoff.
 - A placeholder screen using only gluestack components that the gluestack handoff confirms exist in the selected UI path.
+- Package manifests containing direct runtime/tooling dependencies in the owning package, with any known undeclared runtime import workaround documented and verified.
 - EAS Build profiles for development, preview, and production.
 - EAS Update prepared with preview and production channels locally; account-backed update URLs and project IDs are added only after authenticated EAS initialization.
 - Updated existing living docs when the scaffold creates or changes project architecture, especially `docs/architecture/architecture.md`, `docs/architecture/tech-stack.md`, and relevant operational docs. If the repo has no docs convention, create lightweight seed docs only when that fits the project or report that no architecture docs were present.

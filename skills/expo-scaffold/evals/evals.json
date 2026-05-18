@@ -18,7 +18,8 @@
         "The generated Babel config includes both the Expo preset configured with jsxImportSource nativewind and the nativewind/babel preset for the stable NativeWind v4 path.",
         "The app config preserves existing web settings while setting web.bundler to metro when NativeWind v4 requires it.",
         "EAS build and update package scripts work on a clean checkout by using a local eas-cli dev dependency or an explicitly verified package-manager invocation.",
-        "For SDK 55 and later, EAS update scripts include explicit --environment values matching their preview and production channels."
+        "For SDK 55 and later, EAS update scripts include explicit --environment values matching their preview and production channels.",
+        "Package installation follows Expo/package-manager guidance instead of hand-listing transitive dependencies; any react-native-svg buffer entry is documented as a narrow undeclared-runtime-import workaround and native iOS export verification passes."
       ]
     },
     {
@@ -37,7 +38,8 @@
         "The scaffold uses Bun consistently without creating npm, Yarn, or pnpm lockfiles in the final project.",
         "EAS scripts do not assume a globally installed eas binary; they use a local eas-cli dependency or a verified Bun one-off command.",
         "The preview and production EAS update scripts include matching --environment preview and --environment production flags for SDK 55 and later.",
-        "Expo-generated agent context is merged into the repository AGENTS.md if create-expo-app generated agent files."
+        "Expo-generated agent context is merged into the repository AGENTS.md if create-expo-app generated agent files.",
+        "The mobile app manifest contains app-owned runtime dependencies only; any buffer workaround for an affected react-native-svg release is documented, and final verification runs bun run --cwd apps/mobile expo export --platform ios --output-dir dist-ios-check or an equivalent native bundle check."
       ]
     },
     {
@@ -92,7 +94,7 @@
     {
       "id": 6,
       "prompt": "Scaffold an Expo SDK 55 app with gluestack-ui v3 using Bun. Do not use the gluestack CLI unless absolutely necessary; previous runs hung at the Bun package-manager prompt. Do not use unofficial gluestack replacements unless I explicitly approve them.",
-      "expected_output": "The scaffold delegates gluestack work to expo-gluestack-setup or follows that skill's workflow. The gluestack handoff records official manual setup as the default for v3, exact package metadata, copied official provider/component source, provider wiring, and outcome `manual_installed` after verification. It does not create unofficial replacement primitives. It uses CLI only if current official docs/source no longer provide enough manual setup detail, with timeout/capture/cancel behavior if a CLI command hangs.",
+      "expected_output": "The scaffold delegates gluestack work to expo-gluestack-setup or follows that skill's workflow. The gluestack handoff records official manual setup as the default for v3, exact package metadata, any documented undeclared-runtime-import workaround such as buffer for affected react-native-svg releases, copied official provider/component source, provider wiring, and outcome `manual_installed` after verification. It does not create unofficial replacement primitives. It uses CLI only if current official docs/source no longer provide enough manual setup detail, with timeout/capture/cancel behavior if a CLI command hangs.",
       "files": []
     },
     {

@@ -80,6 +80,15 @@ For other gluestack majors, read the matching version reference if present. If n
 7. Verify that the official provider and each starter component import resolve from official gluestack source or verified CLI output.
 8. Return the required handoff. If setup is blocked or interactive CLI is required, stop before claiming completion.
 
+## Package Installation Policy
+
+- Use Expo CLI for Expo SDK packages, React Native packages, and native modules where Expo has SDK compatibility knowledge, such as `react-native-svg` and `react-native-web`.
+- Use the selected package manager directly for gluestack JS packages, Tailwind tooling, local CLIs, and ordinary JavaScript dependencies that Expo does not version-map.
+- Do not manually list a package's transitive dependencies in the app manifest. Let the package manager install declared dependencies.
+- Add explicit packages only when they are direct app/runtime requirements, documented peer dependencies the app must provide, official gluestack setup-doc requirements, workspace imports, or verified undeclared runtime import workarounds.
+- Keep dependency installs in the owning app package. In a monorepo, gluestack mobile runtime packages belong in the Expo app package, not only at the workspace root.
+- For missing-module failures, diagnose the source before adding packages. If an installed library imports a module that is absent from its published dependency metadata, add the narrow missing package, document the affected library/version in the handoff, and verify with Metro bundling.
+
 ## Outcomes
 
 Track exactly one outcome:
@@ -102,6 +111,7 @@ Always end with this handoff when used by another skill, and use the same shape 
 - Mode: standalone | orchestrated
 - Version:
 - Package versions:
+- Dependency exceptions:
 - Docs/source ref:
 - Package manager:
 - App root:

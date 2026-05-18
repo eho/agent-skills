@@ -62,7 +62,8 @@ After creation:
 - Confirm `expo`, `react`, `react-native`, and `expo-router` versions are stable.
 - Inspect generated agent files such as `AGENTS.md`, `CLAUDE.md`, and `.claude/settings.json`; current `create-expo-app` templates may create them by default.
 - Run the package manager install if the CLI did not do so.
-- Install `expo-dev-client` before adding development-build scripts:
+- Follow `package-installation.md` for every dependency change. Use Expo CLI for Expo/RN packages and native modules; use the selected package manager for JS/tooling packages; do not hand-list transitive dependencies.
+- Install `expo-dev-client` with Expo CLI before adding development-build scripts:
 
 ```sh
 npx expo install expo-dev-client
@@ -177,6 +178,7 @@ Require this handoff before continuing:
 - Mode: standalone | orchestrated
 - Version:
 - Package versions:
+- Dependency exceptions:
 - Docs/source ref:
 - Package manager:
 - App root:
@@ -215,6 +217,7 @@ After gluestack setup, check and repair config paths using the handoff as source
 - The Metro input CSS file must contain the Tailwind base/components/utilities directives.
 - Tailwind dark mode must be the static string `"class"` for gluestack provider mode `"system"`; remove env-driven `darkMode` expressions.
 - Any configured aliases must resolve source code and assets in the actual runtime, not only in TypeScript.
+- Audit any missing-module or peer-dependency repairs through `package-installation.md`. Add explicit packages only for direct app imports, official documented requirements, workspace dependency edges, or verified undeclared runtime imports such as affected `react-native-svg` releases importing `buffer`.
 - Tailwind content globs must include the actual app, src, and component directories.
 - Root layout must have one CSS import and one official provider wrapper using the provider import from the handoff.
 
