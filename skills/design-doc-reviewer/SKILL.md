@@ -1,6 +1,6 @@
 ---
 name: design-doc-reviewer
-description: "Review a design document for completeness, clarity, and quality — including user story readiness for agent implementation. Produces structured feedback with specific gaps, strengths, and a prioritized improvement checklist. Use when asked to review a design doc, critique a design, check a spec, review the PRD, or audit the requirements."
+description: "One-time, read-only critique of a design doc, spec, PRD, or requirements for completeness, implementability, and user story readiness. Produces a structured review artifact with gaps, score, and next steps; does not edit or mark Revised. Use design-doc-review-loop when the user wants revisions, repeated review, or feature-delivery readiness."
 triggers:
   - review this design doc
   - review the design
@@ -11,6 +11,8 @@ triggers:
   - review the prd
   - audit the requirements
   - review the requirements
+  - one-time design review
+  - read-only design review
 metadata:
   author: eho
   version: '2.0.0'
@@ -20,7 +22,7 @@ metadata:
 
 Produce structured, actionable review feedback on a design document. Reviews should be specific — not generic praise or criticism — and directly tied to content in the doc.
 
-This is intentionally separate from the design-doc writer skill. Use this skill for independent critique and readiness assessment. Do not rewrite the design doc during review; produce a review artifact that the design-doc writer can later triage and apply.
+This is intentionally separate from the design-doc writer and design-doc-review-loop skills. Use this skill for independent critique and readiness assessment. Do not rewrite the design doc during review; produce a review artifact that the design-doc writer or review-loop coordinator can later triage and apply.
 
 ---
 

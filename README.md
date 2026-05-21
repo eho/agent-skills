@@ -7,7 +7,8 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | Skill | Command | Description |
 | :--- | :--- | :--- |
 | [**Design Doc**](skills/design-doc/SKILL.md) | `/design-doc` | Synthesize a discussion or outline into a complete design document with architecture, data contracts, and agent-ready user stories with acceptance criteria. |
-| [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | Review a design document for completeness, clarity, and implementability. Returns structured feedback, a quality score, and actionable improvements. |
+| [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | One-time, read-only design review with gaps, score, and next steps. |
+| [**Design Doc Review Loop**](skills/design-doc-review-loop/SKILL.md) | `/design-doc-review-loop` | Review, revise, and repeat until clean, then mark the design doc `Revised`. |
 | [**Design to Issues**](skills/design-to-issues/SKILL.md) | `/design-to-issues` | Parse a design document and create GitHub Issues from its user stories, optionally linked to a Milestone for tracking. |
 | [**Feature Delivery**](skills/feature-delivery/SKILL.md) | `/feature-delivery` | Orchestrate complete feature delivery from a revised design doc: sync stories to GitHub Issues, deliver each story one at a time, and run the final implementation audit. |
 | [**User Story Delivery**](skills/user-story-delivery/SKILL.md) | `/user-story-delivery` | Coordinate implementation and review for a single GitHub user story, including bounded review-fix loops until the PR is approved, merged, or blocked. |
@@ -40,14 +41,15 @@ Use these skills when starting or preparing a repository before normal feature w
 
 ## Development Workflow
 
-The eight development skills form a pipeline from idea to shipped feature. `/feature-delivery` is the top-level orchestrator once a design document is revised and ready:
+The nine development skills form a pipeline from idea to shipped feature. `/feature-delivery` is the top-level orchestrator once a design document is revised and ready:
 
 ```
 💬 Discuss
      ↓
 /design-doc  ◄─────────────────┐
      ↓                         │ iterate
-/design-doc-reviewer ──────────┘
+/design-doc-review-loop ───────┘
+     └─ /design-doc-reviewer
      ↓
 /feature-delivery
      ├─ /design-to-issues
@@ -62,7 +64,7 @@ The eight development skills form a pipeline from idea to shipped feature. `/fea
 
 **2. Write the design** — Once the direction feels right, trigger `/design-doc`. It picks up the conversation context and takes over: asking clarifying questions methodically, surfacing edge cases, and filling gaps until it has enough to produce a complete design document with architecture, data contracts, and user stories — each with explicit acceptance criteria.
 
-**3. Review and revise the design** — Run `/design-doc-reviewer` with a fresh context or a different model for a genuine second opinion. It checks whether the design is complete, internally consistent, and concrete enough to implement without ambiguity, then saves a `docs/design/review-[slug].md` review artifact. Revise the design with `/design-doc`, triage the review feedback into `## Revision Notes`, and mark the design `Status: Revised` before delivery.
+**3. Review and revise the design** — Use `/design-doc-review-loop` when you want the agent to run the full loop: start an independent `/design-doc-reviewer` pass, revise the design with `/design-doc`, repeat until no Critical Gaps or Minor Issues remain, and then mark the design `Status: Revised`. Use `/design-doc-reviewer` directly only when you want a one-time, read-only critique artifact without automatic revision.
 
 **4. Deliver the feature** — Use `/feature-delivery` when you want the agent to run the full design-to-release workflow from a revised design document. It verifies the required specialist skills, calls `/design-to-issues`, builds a dependency-aware delivery queue, runs `/user-story-delivery` one story at a time in independent implementation/review contexts, and finishes with `/post-implementation-reviewer`.
 
