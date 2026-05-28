@@ -39,6 +39,8 @@ The generated `DESIGN.md` must include these sections exactly:
 
 `[Section 1] System Overview` must briefly summarize the design system aesthetic.
 
+It must also include a compact `### Document Map` subsection that helps implementation agents decide what to read first for common tasks.
+
 `[Section 2] Design Tokens` must group foundational values into tables:
 
 - Colors: include role, hex value, CSS variable or utility class, and states such as hover, active, disabled.
@@ -83,6 +85,8 @@ design_system:
 
 ## [Section 1] System Overview
 
+### Document Map
+
 ## [Section 2] Design Tokens
 
 ## [Section 3] Core Components
@@ -94,9 +98,22 @@ design_system:
 
 Include:
 
+- A compact `### Document Map` table that routes common implementation tasks to the right sections.
 - One concise paragraph describing the aesthetic and product context.
 - 4-8 principles that future implementation must preserve.
 - Explicit anti-goals when drift risk is high.
+
+The document map should be a task router, not a detailed table of contents. Keep it to 5-8 rows and avoid duplicating token values or component specs.
+
+Recommended format:
+
+| Task | Read First | Then Read |
+|---|---|---|
+| Implement global styles | `[Section 2] Design Tokens` | `[Section 4] Implementation Guidelines` |
+| Build buttons, inputs, cards, badges, or modals | `[Section 3] Core Components` | `[Section 2] Design Tokens` |
+| Add a new screen | `[Section 1] System Overview` | `[Section 2] Design Tokens`, `[Section 3] Core Components` |
+| Configure Tailwind, CSS variables, or font loading | `[Section 4] Implementation Guidelines` | `[Section 2] Design Tokens` |
+| Check visual drift | `[Section 1] System Overview` | Component rules and quality checks |
 
 ## Section 2: Design Tokens
 

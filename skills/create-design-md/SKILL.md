@@ -19,7 +19,8 @@ Use this skill to produce a `DESIGN.md` file that can guide future implementatio
 6. Include CSS variable names or utility class names for every token.
 7. Include an implementation token contract that maps design tokens to expected code artifacts such as global CSS variables, Tailwind theme entries, font loading, component folders, chart primitives, and content schemas when relevant.
 8. Add implementation rules that prevent drift: layout rules, component states, accessibility rules, content tone, data/privacy rules when relevant, and quality checks.
-9. Validate the Markdown structure and required headings after writing.
+9. Add a compact task-oriented document map near the top so implementation agents can route themselves to the right sections without rereading the whole file.
+10. Validate the Markdown structure and required headings after writing.
 
 ## Required Document Shape
 
@@ -30,6 +31,7 @@ For Google Stitch-style or agent-ready `DESIGN.md` files:
 - Use standard Markdown.
 - Prefer Markdown tables for token groups.
 - Include optional YAML front matter only when it helps tools parse tokens.
+- Include a short document map in `[Section 1] System Overview` that points common implementation tasks to the relevant sections.
 - Keep the file human-readable and implementation-specific.
 - Avoid vague design adjectives without concrete rules.
 - Include examples of CSS variables and Tailwind utilities when the project is likely to use Tailwind.
@@ -58,6 +60,7 @@ A good `DESIGN.md` must let another agent implement the first screen without ask
 Before finishing, check:
 
 - Required section headings are present.
+- The document map is concise, task-oriented, and does not duplicate the full contents of the file.
 - Color, typography, spacing, shadows, and radii are specified with exact values.
 - Breakpoints, motion, z-index, and implementation mapping are covered.
 - Buttons, inputs, cards, badges, and modals have structure, variants, states, and interaction rules.
