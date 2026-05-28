@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create DESIGN.md"
+  short_description: "Generate agent-ready design system specs"
+  default_prompt: "Use $create-design-md to create a DESIGN.md for this product design."
