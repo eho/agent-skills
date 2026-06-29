@@ -71,6 +71,9 @@ This workflow is designed to use subagents so issue sync, per-story implementati
 6. **Deliver One Story at a Time**
    - For each queued story, run the `user-story-delivery` workflow.
    - Pass the story ID, issue number or URL, design doc path, milestone when known, and any dependency context.
+   - Once a story-delivery subagent starts, let it continue unless it returns a final handoff, reports a blocker, or at least 20 minutes have elapsed with no observable PR or branch movement.
+   - Treat PR or branch movement as creation or update of the story branch, pushed commits, a PR being opened or updated, or a handoff/status message that names the active branch or PR.
+   - Before spawning any recovery worker for a stalled story, ask the existing story-delivery subagent for status and wait for its response. Only start a recovery worker if the original subagent confirms it is blocked, fails to respond with useful status, or the status shows no safe path forward.
    - Require this final handoff for each story:
      ```markdown
      ## Story Delivery Handoff
@@ -222,6 +225,7 @@ If the workflow stops early, still include the matrix for completed and attempte
 - Use GitHub Issues as the delivery ledger once issue sync succeeds.
 - Deliver one story at a time. Do not batch multiple implementation stories into one worker unless the user explicitly overrides the workflow.
 - Keep implementation and review independent by relying on `user-story-delivery` rather than calling implementer and reviewer directly from this skill.
+- Do not interrupt or replace an active story-delivery subagent until 20 minutes have elapsed with no PR or branch movement. Ask that subagent for status before spawning any recovery worker.
 - Do not continue past a blocked story when later stories depend on it.
 - Do not run the final audit until all in-scope stories have a final delivery handoff.
 - Do not silently skip issue sync. If the user wants local-only delivery, state that this skill is optimized for GitHub-tracked delivery and ask for explicit confirmation.
