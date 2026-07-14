@@ -1,0 +1,4 @@
+interface:
+  display_name: "iOS WidgetKit Development"
+  short_description: "Build and diagnose WidgetKit integrations"
+  default_prompt: "Use $ios-widgetkit-development to implement and verify this iOS widget change end to end."
