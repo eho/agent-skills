@@ -1,0 +1,4 @@
+interface:
+  display_name: "iOS Simulator Automation"
+  short_description: "Coordinate reliable iOS Simulator automation"
+  default_prompt: "Use $ios-simulator-automation to automate and verify this iOS Simulator flow reliably."

@@ -18,6 +18,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Kore**](skills/kore/SKILL.md) | `/kore` | Search, browse, save, and synthesize a personal knowledge base built from bookmarks, notes, and accumulated insights. |
 | [**Blog Writer**](skills/blog-writer/SKILL.md) | `/blog-writer` | Transform technical documents, outlines, or raw notes into an engaging, human-sounding blog post. |
 | [**Public Repo Explorer**](skills/public-repo-explorer/SKILL.md) | `/public-repo-explorer` | Efficiently browse public GitHub repositories using shallow clones — scan, examine, and extract information without cluttering the workspace. |
+| [**iOS Simulator Automation**](skills/ios-simulator-automation/SKILL.md) | `/ios-simulator-automation` | Coordinate agent-device and serve-sim for reliable app/system automation, bounded fallback, cleanup, and evidence handoff. |
 | [**Project Bootstrap**](skills/project-bootstrap/SKILL.md) | `/project-bootstrap` | Initialize or refresh repository conventions so coding agents have accurate project commands, docs rules, and guardrails. |
 | [**Expo Scaffold**](skills/expo-scaffold/SKILL.md) | `/expo-scaffold` | Create a production-oriented Expo starter with Expo Router, development builds, NativeWind, gluestack, EAS, and agent-friendly project context. |
 | [**Expo gluestack Setup**](skills/expo-gluestack-setup/SKILL.md) | `/expo-gluestack-setup` | Add, repair, or verify official gluestack-ui setup for Expo or React Native projects. |
