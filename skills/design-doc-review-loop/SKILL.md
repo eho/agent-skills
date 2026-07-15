@@ -91,7 +91,7 @@ A request such as "use the design-doc-review-loop skill", "repeat review until n
    - Repeat the review-revision cycle until the reviewer reports:
      - `Critical gaps count: 0`
      - `Minor issues count: 0`
-   - Use a default maximum of 3 review passes. If major or minor gaps remain after 3 passes, stop and report the remaining findings rather than looping indefinitely.
+   - Use a default maximum of 5 review passes. If major or minor gaps remain after 5 passes, stop and report the remaining findings rather than looping indefinitely.
 
 7. **Prepare for Feature Delivery**
    - Once the latest review reports no Critical Gaps and no Minor Issues, update the design doc status to `Revised`.
@@ -168,5 +168,5 @@ If the loop stops because it is blocked or reached the pass limit, do not mark t
 - **A clean review gates the status.** Only mark `Revised` after the latest review reports no Critical Gaps and no Minor Issues.
 - **Reviewer independence matters.** Use a separate reviewer subagent for review passes so the critique is not biased by the revision work.
 - **Do not rubber-stamp feedback.** Revision should triage reviewer findings against product intent, constraints, and the design-doc contract.
-- **Bound the loop.** Aim for convergence, but stop after 3 review passes by default and surface remaining issues clearly.
+- **Bound the loop.** Aim for convergence, but stop after 5 review passes by default and surface remaining issues clearly.
 - **Keep delivery separate.** This skill prepares a design doc for `feature-delivery`; it does not publish issues, implement stories, or review PRs.

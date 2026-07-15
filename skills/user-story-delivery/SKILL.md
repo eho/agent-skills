@@ -76,8 +76,8 @@ This workflow is designed to use subagents so implementation and review remain i
 
 6. **Repeat Review**
    - Re-run the reviewer on the same story and PR after fixes are pushed.
-   - Repeat the review-fix cycle at most 2 times by default.
-   - If blocking findings remain after 2 cycles, stop and report the remaining issues instead of looping indefinitely.
+   - Repeat the review-fix cycle at most 5 times by default.
+   - If blocking findings remain after 5 cycles, stop and report the remaining issues instead of looping indefinitely.
 
 ## Subagent Prompts
 
@@ -170,6 +170,6 @@ If the story was merged, say so explicitly. If it was approved but not merged, e
 - Keep review independent by using a separate reviewer subagent from the implementer.
 - Do not start a review without a concrete PR number or URL.
 - Do not create a second PR for revision work unless the user explicitly asks for that.
-- Do not loop forever. Two review-fix cycles are the default cap.
+- Do not loop forever. Five review-fix cycles are the default cap.
 - Keep the user informed when the workflow changes state: implementation started, PR ready, review started, fixes started, review repeated, and final status.
 - If subagent final output is missing required handoff fields, request the missing fields from that same subagent before moving to the next phase.
