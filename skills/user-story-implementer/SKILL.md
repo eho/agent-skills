@@ -1,84 +1,71 @@
 ---
 name: user-story-implementer
-description: Implement one specific user story or task from a GitHub Issue backlog, usually identified by a story ID such as USERST-001 or an issue number. Assigns the issue, implements the acceptance criteria, verifies the change, commits, pushes, and creates a PR. You MUST use this skill when asked to "implement USERST-001", "implement a user story", "run one iteration", "do the next task", or "complete a task from the backlog".
+description: 'Implement or revise exactly one canonical GitHub user story, including acceptance-criteria verification, focused tests, documentation, commit, push, and creation or resumption of one PR. Use for a specific story ID or issue, for requested changes on an existing story PR, or as the implementation worker in user-story-delivery and feature-delivery.'
 metadata:
   author: eho
-  version: '2.0.1'
+  version: '3.0.0'
 ---
 
-# Instructions
+# User Story Implementer
 
-You are acting as an autonomous sub-agent to implement a user story or task managed via GitHub Issues.
+Own the implementation phase for exactly one GitHub Issue. Do not review or merge your own work as the independent reviewer.
 
-Your objective is to complete exactly **one** user story or task from the GitHub repository, verify its acceptance criteria, push the changes to the appropriate feature branch, and create or update a Pull Request. For new implementation work, create a new branch and PR. For requested revisions to an existing PR, check out that PR branch, commit fixes there, and push to the same PR.
+## Resolve current state
 
-**PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) for this skill to function.
+1. Resolve the exact issue from a supplied issue number or exact story ID.
+2. Read the issue body and comments, including every acceptance criterion, design revision marker, dependency, blocker, and scope boundary.
+3. Stop on ambiguous duplicate issues. Do not guess.
+4. Verify dependencies are delivered, not merely closed:
+   - inspect the dependency issue;
+   - confirm its intended PR merged or a repository-policy exception exists.
+5. Find an existing PR through closing references, exact issue number, and story ID. Resume it when it belongs to this issue; never open a duplicate delivery PR.
+   - Prefer PRs carrying both `<!-- feature-delivery:story=<STORY-ID> -->` and `<!-- feature-delivery:design-revision=<REVISION> -->`.
+   - Treat PRs for older design revisions as historical delivery, not as the current implementation PR.
+   - For a markerless legacy open PR, adopt it only when it is the sole unambiguous candidate and its issue, branch, commits, and diff align with the current story. Add the current story and design-revision markers to its body with `gh pr edit --body-file` before resuming it.
+   - If a markerless PR may have been built for older requirements, or more than one candidate exists, stop and request disambiguation rather than stamping it with the current revision.
+6. Read `AGENTS.md`, repository verification commands, and branch/merge conventions.
+7. Inspect `git status --short`. Preserve unrelated changes and coordinate rather than overwriting them.
 
-## Workflow
+## Choose mode
 
-1. **Identify the Target Story**: Prefer the specific story ID or issue number supplied by the user.
-   - If the user provides an issue number, run `gh issue view <issue-number> --json number,title,state,body,comments,labels,assignees,url`.
-   - If the user provides a story ID such as `USERST-001`, search for the matching issue:
-     ```bash
-     gh issue list --state all --search "USERST-001" --json number,title,state,body,labels,assignees,url --limit 20
-     ```
-     Use the issue whose title or body clearly contains that exact story ID. If no issue or multiple plausible issues match, ask the user to identify the intended issue before writing code.
-   - If the user explicitly asks for the next task within a feature prefix or label (e.g., `AUTH`), run `gh issue list --label "user-story" --label "<prefix>" --limit 10 --search "sort:created-asc" --json number,title,state,body,labels,assignees,url`.
-   - If the user explicitly asks for the next task in a milestone, run `gh issue list --label "user-story" --milestone "<milestone-name>" --limit 10 --search "sort:created-asc" --json number,title,state,body,labels,assignees,url`.
-   - If no story ID, issue number, prefix, label, or milestone is provided, ask the user to provide the target story ID or issue number. Avoid guessing across unrelated design docs.
-   - Only check current-user PRs with changes requested when the user asks for an unspecified "next task" or "run one iteration". For a specific story ID or issue number, stay focused on that target unless its own PR already exists and needs revision.
-2. **Validate Availability and Blockers**: Before editing files, make sure this issue is available to implement.
-   - Stop if the issue is closed unless the user explicitly asked to revise a closed issue.
-   - Skip or stop if the issue has a `blocked` label.
-   - If the issue is assigned to someone other than the current GitHub user, stop and report who owns it.
-   - Read both the issue body and comments for dependency markers such as `Depends on #123`, `Depends on: #123`, dependency task lists, or a `Dependencies` section. For each dependency, run `gh issue view <dependency-number> --json state -q '.state'`. If any dependency is still open, stop and report the blocker.
-   - Check whether there is already an open PR for this issue or story ID using `gh pr list --state open --search "<story-id-or-issue-number>" --json number,title,headRefName,url --limit 20`. If a matching PR exists, check out that branch and continue there instead of creating a duplicate PR.
-   - Once the target issue is validated, note the issue number, title, URL, body, and every Acceptance Criterion.
-3. **State Management**: Before starting work, assign the issue to yourself (or the current user) using `gh issue edit <issue-number> --add-assignee "@me"`. This provides visibility and prevents conflicts.
-4. **Branching**: Follow standard Git flow.
-   - Run `git status --short` first. Do not overwrite unrelated local changes.
-   - Base work on the repository's default branch unless continuing an existing PR branch.
-   - Create and check out a branch based on the issue number and title, such as `feature/us-<issue-number>-short-title`.
-   - If the branch already exists locally or remotely, resume it only when it clearly belongs to the same issue. Otherwise create a unique branch name.
-5. **Reconnaissance**: Before making changes, inspect the codebase enough to understand the intended implementation.
-   - Read the issue body, linked design doc, context paths, technical notes, and related files referenced by the issue.
-   - Inspect existing tests, nearby code, package scripts, and project conventions before adding new abstractions or dependencies.
-   - Identify the smallest coherent implementation that satisfies the acceptance criteria without widening scope.
-6. **Execute**: Implement the code, configuration, or documentation changes required to complete that single user story.
-   - Ensure you fulfill all of the listed Acceptance Criteria in the GitHub issue body.
-   - Add or update focused tests for behavior changes. If tests are not appropriate for this story, state why in the PR and perform the strongest available verification.
-   - For UI stories, run the app when practical and verify meaningful layout, navigation, form, or interaction changes in a browser.
-   - Update relevant user-facing documentation when the story changes commands, options, UI behavior, APIs, or setup steps.
-   - Add or preserve diagnostic logging only where the project already logs comparable operations or where failures would otherwise be hard to diagnose. Do not log secrets, tokens, personal data, or noisy high-volume client interactions.
-   - If requirements are missing, product decisions are ambiguous, credentials or external services are unavailable, dependency issues block the work, or the scope cannot fit into one coherent issue, move to step 7 instead of guessing.
-7. **Handling Blockers**: If you encounter missing requirements, ambiguity, or blockers that prevent completion, add a comment to the issue detailing the blocker using `gh issue comment <issue-number> --body "<Details>"`, add a `blocked` label using `gh issue edit <issue-number> --add-label "blocked"`, and stop work on this issue.
-8. **Self-Review**: Before considering the task complete, perform this specific checklist:
-   - [ ] For each Acceptance Criterion listed in the issue, is there code implementing it? (Check each one individually.)
-   - [ ] Are focused tests added or updated for behavior changes, or is the reason for no tests documented?
-   - [ ] Do the tests exercise the core feature rather than only superficial rendering or wiring?
-   - [ ] Do tests or manual verification cover the happy path and relevant error or edge cases?
-   - [ ] Were the appropriate verification commands run locally, and did they pass?
-   - [ ] If diagnostics or docs were relevant, were they updated without adding noise or leaking sensitive data?
-   - If all checkboxes pass, proceed to step 9. If any fail, return to step 6 to address gaps.
-9. **Commit Code**: Once your user story or chunk is complete, you must commit your changes to your feature branch.
-   - Do not use `git commit -a`. Select files manually.
-10. **Pull Request & Linking**:
-   - Push the branch: `git push -u origin HEAD`.
-   - If this is revision work on an existing PR, do not create a second PR. Push the commit to the existing PR branch and report the existing PR URL.
-   - If no matching PR exists yet, create a Pull Request using the bundled script to ensure clean formatting and avoid agent shell warnings.
-     The `scripts/` directory is a sibling of this SKILL.md file. Resolve its absolute path and call:
-     ```bash
-     bash /absolute/path/to/scripts/create_pr.sh "<issue-number>" "feat: <issue-title>" "<Summary of work done>"
-     ```
-     Use the appropriate conventional commit prefix (`feat:`, `fix:`, `docs:`, etc.). The script automatically includes `Closes #<issue-number>` so merging the PR automatically closes the issue.
+- `Created`: no delivery PR exists. Start from the repository default branch, create a focused branch, and open one PR.
+- `Resumed`: an existing branch or PR has unfinished implementation. Check out and continue it.
+- `Revised`: reviewer or final-audit findings require changes on the existing PR, or a stale delivered story was reopened and needs a new traceable delivery PR.
 
-## Final Response and Handoffs
+When a previously delivered issue was reopened because its design revision changed, do not mutate the old merged PR. Create a new PR linked to the reopened canonical issue.
 
-Always end with a concise implementation summary that includes the story, issue, branch, PR, verification performed, and any blocker or residual risk.
+## Implement
 
-If the caller requests a specific handoff format, such as the `Implementation Handoff` used by the `user-story-delivery` coordinator, return that format exactly in the final response. The handoff is a reporting format only; it does not change this skill's implementation, verification, commit, push, or PR-linking requirements.
+1. Assign the issue to the current user if repository policy permits.
+2. Read the linked design context and inspect exact nearby code, tests, contracts, and documentation before editing.
+3. Implement the smallest coherent change satisfying the complete current issue.
+4. For each acceptance criterion, record its evidence:
+   - code path;
+   - focused automated test;
+   - manual or browser verification where appropriate;
+   - documentation or operational change.
+5. Add meaningful happy-path and relevant error/edge coverage. UI behavior requires visual/browser verification when the runtime supports it.
+6. Run the strongest relevant targeted verification, then broader typecheck, lint, build, or tests required by the repository.
+7. Self-review the diff for regressions, security, permissions, data safety, migrations, concurrency, compatibility, diagnostics, and documentation.
 
-For revision work requested by a reviewer or coordinator, include the review findings addressed:
+If correctness depends on a missing product decision, credential, external service, or undelivered dependency, record a specific blocker on the issue and stop. Add a `blocked` label only when it exists or repository policy permits creating it.
+
+## Commit and PR
+
+- Stage only intended files; do not use `git add .` or `git commit -a`.
+- Use repository commit conventions and include the story ID when helpful.
+- Push the story branch.
+- For a new PR, resolve and invoke `scripts/create_pr.sh` relative to this skill:
+
+  ```bash
+  bash /absolute/path/to/scripts/create_pr.sh \
+    "<issue-number>" "<pr-title>" "<summary>" "<story-id>" "<design-revision>"
+  ```
+
+- The PR body must link the canonical issue, carry immutable story and design-revision markers, describe implementation and verification, and identify anything not verified.
+- For revision work, push to the same open PR. Create a new PR only when the previous PR is already merged/closed and the canonical issue was legitimately reopened.
+
+## Handoff
 
 ```markdown
 ## Implementation Handoff
@@ -86,33 +73,13 @@ For revision work requested by a reviewer or coordinator, include the review fin
 - Issue:
 - Branch:
 - PR:
-- Review findings addressed:
+- Mode: Created | Resumed | Revised
+- Review or audit findings addressed:
+- Acceptance criteria evidence:
 - Verification:
 - Known residual risk:
 - Blocked: yes/no
+- Blocker:
 ```
 
-## Available Scripts
-
-This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
-
-- `create_pr.sh "<issue_number>" "<issue_title>" "<summary_of_work>"`: Safely executes `gh pr create` with multi-line bodies to avoid shell escaping errors.
-
-## Examples
-
-**Example 1:**
-*Input:* "Implement USERST-001"
-*Action:*
-1. Search for the matching issue: `gh issue list --state all --search "USERST-001" --json number,title,state,body,labels,assignees,url --limit 20`. Confirm the exact story ID appears in the title or body.
-2. Read the issue body and comments, check dependencies, blocked labels, assignees, and existing PRs.
-3. Assign: `gh issue edit 12 --add-assignee "@me"`.
-4. Branch: `git checkout -b feature/us-12-add-priority-selector`.
-5. Read referenced context, nearby implementation files, and existing tests.
-6. Implement the feature and add focused tests or documented verification.
-7. Review the code against every Acceptance Criterion in Issue #12.
-8. Commit: `git add src/components/TaskEdit.tsx src/components/TaskEdit.test.tsx` and `git commit -m "feat: add priority selector (USERST-001)"`.
-9. Push: `git push -u origin HEAD`.
-10. Create PR (resolve absolute path to `scripts/` sibling of this SKILL.md, e.g. `/path/to/skills/user-story-implementer/scripts/create_pr.sh`):
-   ```bash
-   bash /path/to/skills/user-story-implementer/scripts/create_pr.sh "12" "feat: Add priority selector" "Added priority selector to task edit."
-   ```
+Do not claim completion, approval, or release readiness. The coordinator and an independent reviewer determine those states.

@@ -1,175 +1,91 @@
 ---
 name: user-story-delivery
-description: 'Orchestrate the complete delivery workflow for one GitHub user story: implement it with the user-story-implementer skill, review the resulting PR with the user-story-reviewer skill, address reviewer feedback, and repeat until the PR is approved, merged, or blocked. You MUST use this skill when asked to "implement and review a user story", "run the full user story workflow", "deliver USERST-001", "complete USERST-001 end to end", or "run implementation and review together".'
+description: 'Deliver one specific GitHub user story end to end through implementation, independent review, revision, and merge-policy completion. Use when asked to implement and review, finish, resume, or fully deliver one story or issue. This is the single-story facade for the same completion contract used by feature-delivery; approval or comment-only review is not completion while merge is still required.'
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '2.0.0'
 ---
 
 # User Story Delivery
 
-You are acting as the coordinator for one complete user story delivery cycle. Your job is to compose two specialist workflows:
+Coordinate exactly one canonical GitHub Issue through implementation and independent review. For multi-story design documents, use `feature-delivery`.
 
-- `user-story-implementer`: implements exactly one story, verifies it, commits, pushes, and creates or updates a PR.
-- `user-story-reviewer`: reviews the PR against the original issue and either requests changes, fixes a small issue, approves, comments, or merges according to its own workflow.
+## Shared contract
 
-Keep implementation and review responsibilities separate. Do not duplicate either specialist skill's detailed workflow here. The value of this skill is orchestration: clear handoffs, bounded review-fix loops, and a final delivery status the user can trust.
+If `feature-delivery/references/contracts.md` is installed alongside this skill, read its handoff schemas and story `done` invariant. Otherwise apply the equivalent invariant below:
 
-**PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) because the specialist skills rely on it.
+- the issue reflects current requirements;
+- one intended PR is independently reviewed with no blocking findings;
+- required checks and acceptance verification pass;
+- the PR is merged and the issue is closed, unless repository policy records an explicit exception;
+- relevant documentation is current.
 
-## Delegation Requirement
-
-This workflow is designed to use subagents so implementation and review remain independent. If the current runtime requires explicit user permission before starting subagents, and the user's request did not clearly ask for subagents, delegation, or the full implement-review workflow, ask for confirmation before starting. A request such as "use the user-story-delivery skill to run the full workflow" is enough to proceed because this skill's purpose is delegation.
+An approval, comment-only sign-off, open PR, or follow-up issue is intermediate state.
 
 ## Workflow
 
-1. **Identify the Target Story**
-   - Prefer the specific story ID or issue number supplied by the user.
-   - If the user asks for the next story in a prefix, label, milestone, or backlog slice, pass that exact selection rule to the implementer.
-   - If the user provides no story ID, issue number, prefix, label, milestone, or unambiguous selection rule, ask for the target before starting.
+1. Resolve the exact story ID and canonical issue. Do not select an unrelated “next” issue without an explicit selection rule.
+2. Inspect issue state, dependencies, assignee, existing branch/PR, reviews, checks, and current worktree before acting.
+3. Invoke `user-story-implementer` in a worker context:
+   - create a branch and PR only when none exists;
+   - otherwise resume the existing PR branch;
+   - require an Implementation Handoff.
+4. Invoke `user-story-reviewer` in a separate reviewer context and require a Review Handoff.
+5. Handle review findings:
+   - `Request changes`: send findings to the implementer on the same PR.
+   - `Fix small issue`: verify the pushed fix and run a fresh review.
+   - `Approve` or `Comment only`: apply repository merge policy; do not declare completion yet.
+   - `Merge`: verify actual merged PR and closed issue state.
+6. Repeat implementation and fresh review until the story meets the `done` invariant.
+7. Re-read GitHub after every handoff. Current external state wins over prose.
 
-2. **Start Implementation**
-   - Start a worker subagent using the `user-story-implementer` skill.
-   - Tell the worker it owns the implementation workflow for exactly one story.
-   - Tell the worker it is not alone in the codebase and must not revert unrelated changes.
-   - Require this final handoff format:
-     ```markdown
-     ## Implementation Handoff
-     - Story ID:
-     - Issue:
-     - Branch:
-     - PR:
-     - Verification:
-     - Known residual risk:
-     - Blocked: yes/no
-     ```
-   - If the implementation worker reports `Blocked: yes`, stop and relay the blocker. Do not start review.
-   - If the worker does not provide a PR number or URL, ask it for the missing handoff before starting review.
+Five review-fix cycles are an escalation checkpoint. Reassess unclear requirements or a flawed approach rather than declaring the story complete or abandoning it automatically.
 
-3. **Start Review**
-   - Start a separate reviewer subagent using the `user-story-reviewer` skill.
-   - Give it the story ID and PR number or URL from the implementation handoff.
-   - Tell the reviewer to complete its own workflow. If there are no blocking findings, it should approve, comment, or merge according to the reviewer skill's rules.
-   - Require this final handoff format:
-     ```markdown
-     ## Review Handoff
-     - Story ID:
-     - PR:
-     - Decision: Request changes | Fix small issue | Approve | Comment only | Merge
-     - Blocking findings:
-     - Reviewer-fixed commits:
-     - Required follow-up:
-     - Verification:
-     ```
+## Blockers
 
-4. **Handle Review Decision**
-   - If `Decision` is `Approve`, `Comment only`, or `Merge`, stop the loop and provide the final delivery report.
-   - If `Decision` is `Fix small issue`, check that the reviewer pushed the fix and then continue to a follow-up review.
-   - If `Decision` is `Request changes`, address the feedback on the existing PR branch.
-   - If the requested changes alter product scope, contradict the issue, require missing credentials, or require a decision the agent cannot safely make, stop and ask the user.
+Stop only when the story itself has no safe next action. Record the blocker on the issue and report the exact external decision, permission, credential, or dependency required. Do not create a second PR as a recovery mechanism.
 
-5. **Address Requested Changes**
-   - Prefer starting a worker subagent using the `user-story-implementer` skill to revise the existing PR branch.
-   - Give the worker the story ID, PR number, review findings, and a clear instruction to update the existing PR rather than creating a new one.
-   - Require the same `Implementation Handoff` format, plus a short list of review findings addressed.
-   - The worker must commit and push fixes to the same PR branch.
+## Handoffs
 
-6. **Repeat Review**
-   - Re-run the reviewer on the same story and PR after fixes are pushed.
-   - Repeat the review-fix cycle at most 5 times by default.
-   - If blocking findings remain after 5 cycles, stop and report the remaining issues instead of looping indefinitely.
-
-## Subagent Prompts
-
-Use concise prompts that include the handoff requirements. Adapt the target story details as needed.
-
-### Initial implementation prompt
-
-```text
-Use the user-story-implementer skill to implement exactly one user story: <story-id-or-selection-rule>.
-
-You are not alone in the codebase. Do not revert unrelated changes. Follow the implementer workflow, verify the acceptance criteria, commit, push, and create or update the PR.
-
-Return this final handoff:
+```markdown
 ## Implementation Handoff
 - Story ID:
 - Issue:
 - Branch:
 - PR:
+- Mode: Created | Resumed | Revised
+- Acceptance criteria evidence:
 - Verification:
 - Known residual risk:
 - Blocked: yes/no
+- Blocker:
 ```
 
-### Review prompt
-
-```text
-Use the user-story-reviewer skill to review this implemented story.
-
-Story: <story-id>
-PR: <pr-number-or-url>
-
-Complete the reviewer workflow. If there are no blocking findings, approve, comment, or merge according to the reviewer skill's rules. If there are findings, request changes unless the reviewer skill permits fixing a small issue directly.
-
-Return this final handoff:
+```markdown
 ## Review Handoff
 - Story ID:
+- Issue:
 - PR:
 - Decision: Request changes | Fix small issue | Approve | Comment only | Merge
 - Blocking findings:
 - Reviewer-fixed commits:
 - Required follow-up:
+- Acceptance criteria evidence:
 - Verification:
 ```
 
-### Revision prompt
-
-```text
-Use the user-story-implementer skill to revise the existing PR for this story.
-
-Story: <story-id>
-PR: <pr-number-or-url>
-Reviewer feedback to address:
-<findings>
-
-You are not alone in the codebase. Do not revert unrelated changes. Check out and update the existing PR branch, address the review findings, verify the affected behavior, commit, and push to the same PR.
-
-Return this final handoff:
-## Implementation Handoff
-- Story ID:
-- Issue:
-- Branch:
-- PR:
-- Review findings addressed:
-- Verification:
-- Known residual risk:
-- Blocked: yes/no
-```
-
-## Final Delivery Report
-
-When the workflow stops, report:
+## Final report
 
 ```markdown
-## Delivery Status
+## Story Delivery Status
 - Story:
 - Issue:
 - PR:
-- Final decision:
+- State: Done | Blocked
 - Review cycles:
-- Implementation summary:
+- Acceptance criteria evidence:
 - Verification:
-- Remaining blockers or residual risk:
+- Residual risk or blocker:
 ```
 
-If the story was merged, say so explicitly. If it was approved but not merged, explain why. If it stopped because of blockers or remaining findings, lead with the unresolved items and include the exact next action needed.
-
-## Operating Rules
-
-- Coordinate the workflow, but let each specialist skill own its domain.
-- Keep review independent by using a separate reviewer subagent from the implementer.
-- Do not start a review without a concrete PR number or URL.
-- Do not create a second PR for revision work unless the user explicitly asks for that.
-- Do not loop forever. Five review-fix cycles are the default cap.
-- Keep the user informed when the workflow changes state: implementation started, PR ready, review started, fixes started, review repeated, and final status.
-- If subagent final output is missing required handoff fields, request the missing fields from that same subagent before moving to the next phase.
+Keep implementation and review independent. Follow repository `AGENTS.md`, branch, approval, and merge requirements.

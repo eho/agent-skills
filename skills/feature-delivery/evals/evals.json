@@ -1,0 +1,101 @@
+{
+  "skill_name": "feature-delivery",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Resume the active goal to fully deliver docs/design/auth-refresh.md. AUTH-001 is merged, AUTH-002 has an open PR with changes requested, AUTH-003 depends on AUTH-002, and AUTH-004 is independent. Continue until the design is actually release-ready.",
+      "expected_output": "Rehydrates GitHub state, resumes AUTH-002 before opening duplicate work, continues AUTH-004 if AUTH-002 becomes externally blocked, and does not mark the goal complete before all stories and the final audit satisfy completion invariants.",
+      "files": [],
+      "assertions": [
+        "Treats the active goal as the outer completion contract rather than a story ledger.",
+        "Reconstructs state from the design document and GitHub before acting.",
+        "Does not stop the feature merely because one story is blocked when independent work remains.",
+        "Requires a final Ready audit before default goal completion."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use feature delivery for docs/design/team-export.md. GitHub already has closed issues for all stories, but the design doc was revised yesterday and two acceptance criteria changed after those issues were delivered.",
+      "expected_output": "Detects design drift through reconciliation, treats affected delivered stories as stale, reopens or otherwise re-enters their delivery, and refuses to accept old closed issues or merged PRs as proof of current completion.",
+      "files": [],
+      "assertions": [
+        "Reconciles existing issues instead of only creating missing issues.",
+        "Detects delivered stories whose design revision is stale.",
+        "Requires new acceptance-criteria evidence for changed stories.",
+        "Avoids reporting the feature Ready from historical closure alone."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Fully ship docs/design/offline-mode.md. All story PRs were approved, but one remains unmerged. The final audit then finds a blocking integration bug that is not owned by a single original story.",
+      "expected_output": "Does not treat approval as story completion, merges according to repository policy, turns the integration finding into traceable delivery work, implements and independently reviews it, and reruns the complete audit.",
+      "files": [],
+      "assertions": [
+        "Does not classify an approved but unmerged PR as done.",
+        "Routes a blocking integration finding back into implementation.",
+        "Does not equate creation of a follow-up issue with remediation.",
+        "Reruns the complete final audit after remediation."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Resume delivery of docs/design/billing.md. BILL-002 was delivered for revision abc123 and later reopened for revision def456. Two merged PRs link the same canonical issue, and there is one open replacement PR. Determine what to resume without losing the history.",
+      "expected_output": "Uses story and design-revision PR markers to distinguish historical delivery from the current revision chain, resumes the current replacement PR, and does not reject valid history under an exactly-one-lifetime-PR rule.",
+      "files": [],
+      "assertions": [
+        "Distinguishes PRs by both story ID and design revision.",
+        "Preserves older-revision PRs as history.",
+        "Selects exactly one current-revision delivery chain.",
+        "Does not treat the older merged PR as proof of current completion."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Reconcile docs/design/imports.md. IMP-001 has the current design-revision marker but someone manually deleted half its acceptance criteria. IMP-LEGACY is an older markerless closed issue with the right title. A previously managed IMP-OLD issue was removed from the design.",
+      "expected_output": "Repairs body drift despite a matching marker, conservatively migrates the markerless legacy issue based on content equivalence, and discovers the removed story by enumerating issues with the design identity.",
+      "files": [],
+      "assertions": [
+        "Compares actual and desired issue bodies even when revision markers match.",
+        "Defines a conservative migration path for markerless legacy issues.",
+        "Enumerates managed issues by design identity to detect orphans.",
+        "Does not silently close or ignore the removed story."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The final audit for docs/design/search.md says Ready with follow-ups, but the active goal requires Ready. One follow-up is a small in-scope documentation omission; another is an optional redesign outside the design doc. Continue correctly.",
+      "expected_output": "Delivers the in-scope omission and reruns the audit, while asking for an explicit scope expansion or acceptance decision for the out-of-scope redesign instead of looping forever or silently completing.",
+      "files": [],
+      "assertions": [
+        "Routes in-scope follow-ups through implementation and review.",
+        "Requests an explicit choice for out-of-scope expansion.",
+        "Does not repeat an unchanged audit indefinitely.",
+        "Does not complete a Ready-only goal at Ready with follow-ups."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Deliver docs/design/notifications.md while an unrelated active goal says to migrate the database. The repo requires its merge queue, does not permit selecting a direct merge method, and retains source branches.",
+      "expected_output": "Runs feature delivery without mutating the unrelated goal and submits through the required merge queue without forcing a merge method or deleting the branch.",
+      "files": [],
+      "assertions": [
+        "Does not adopt or complete the unrelated active goal.",
+        "Discovers repository merge policy before merging.",
+        "Submits to the merge queue without forcing a direct merge method.",
+        "Does not delete the source branch."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Resume STORY-009 from before the workflow refactor. There is one markerless open PR linked to the canonical issue. Its branch and diff might reflect the prior design revision, but the issue now carries a newer revision marker.",
+      "expected_output": "Inspects the issue, branch, commits, and diff before adopting the legacy PR; adds current markers only if equivalence with current requirements is unambiguous, otherwise blocks for disambiguation rather than stamping it as current.",
+      "files": [],
+      "assertions": [
+        "Does not automatically assign the current revision to a markerless PR.",
+        "Requires issue, branch, commit, and diff evidence before migration.",
+        "Adds markers before treating an equivalent legacy PR as current.",
+        "Blocks when equivalence is uncertain."
+      ]
+    }
+  ]
+}

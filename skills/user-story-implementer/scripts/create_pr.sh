@@ -2,16 +2,18 @@
 set -euo pipefail
 
 # scripts/create_pr.sh
-# Usage: ./scripts/create_pr.sh "<issue_number>" "<issue_title>" "<summary_of_work>"
+# Usage: ./scripts/create_pr.sh "<issue_number>" "<issue_title>" "<summary_of_work>" ["<story_id>" "<design_revision>"]
 
-if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <issue_number> <issue_title> <summary_of_work>" >&2
+if [ "$#" -ne 3 ] && [ "$#" -ne 5 ]; then
+    echo "Usage: $0 <issue_number> <issue_title> <summary_of_work> [<story_id> <design_revision>]" >&2
     exit 64
 fi
 
 ISSUE_NUMBER=$1
 PR_TITLE=$2
 SUMMARY=$3
+STORY_ID=${4:-}
+DESIGN_REVISION=${5:-}
 
 # Use a temporary file to safely handle multi-line formatting
 TMP_BODY=$(mktemp)
@@ -23,6 +25,18 @@ Closes #$ISSUE_NUMBER
 ### Summary
 $SUMMARY
 EOF
+
+if [ -n "$STORY_ID" ] && [ -n "$DESIGN_REVISION" ]; then
+    TMP_MARKED_BODY=$(mktemp)
+    trap 'rm -f "$TMP_BODY" "$TMP_MARKED_BODY"' EXIT
+    {
+        printf 'Closes #%s\n\n' "$ISSUE_NUMBER"
+        printf '<!-- feature-delivery:story=%s -->\n' "$STORY_ID"
+        printf '<!-- feature-delivery:design-revision=%s -->\n\n' "$DESIGN_REVISION"
+        printf '### Summary\n%s\n' "$SUMMARY"
+    } > "$TMP_MARKED_BODY"
+    mv "$TMP_MARKED_BODY" "$TMP_BODY"
+fi
 
 # Safely create the pull request
 gh pr create --title "$PR_TITLE" --body-file "$TMP_BODY"
