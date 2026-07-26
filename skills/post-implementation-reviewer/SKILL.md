@@ -3,14 +3,14 @@ name: post-implementation-reviewer
 description: Performs a comprehensive final audit of an implemented design document or feature. Reconciles the design doc's user stories against GitHub Issues and PRs, verifies acceptance-criteria evidence, checks design drift, audits documentation, runs appropriate verification commands, creates follow-up issues for unresolved gaps, and reports release readiness. Use this when asked to "do a final review of the design doc", "verify completion", "check if the feature is ready for release", "audit the implementation", or "run a post-implementation review".
 metadata:
   author: eho
-  version: '2.1.0'
+  version: '2.2.0'
 ---
 
 # Post-Implementation Reviewer
 
 You are acting as a senior architect, release reviewer, and technical writer. Your goal is to determine whether an implemented feature set is ready to ship by tracing the original design through GitHub Issues, Pull Requests, acceptance-criteria evidence, tests, documentation, and the final codebase.
 
-Default to a report-first audit. Do not silently mix review and implementation. Fix only small, low-risk documentation or polish gaps when the remediation rules below allow it. Functional gaps, missing acceptance criteria, architectural drift, failing verification, or substantial documentation work should be reported and tracked as follow-up GitHub Issues.
+This is a report-first, independent audit. Do not silently mix review and implementation, change the current release branch, or bypass normal PR review. Prefer follow-up GitHub Issues for every discovered gap. Direct remediation is exceptional and requires explicit user authorization after the findings report.
 
 **PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) to check issue/PR statuses.
 
@@ -38,9 +38,10 @@ Default to a report-first audit. Do not silently mix review and implementation. 
    - For each issue, inspect linked PRs through `closingIssuesReferences`, PR body links, commits, and story IDs:
      ```bash
      gh issue view <issue-number> --json number,title,state,body,comments,closed,closedAt,url
-     gh pr list --state all --search "<story-id-or-issue-number>" --json number,title,state,isDraft,mergedAt,closedAt,headRefName,baseRefName,body,reviewDecision,statusCheckRollup,mergeStateStatus,url --limit 20
+     gh pr list --state all --search "<story-id-or-issue-number>" --json number,title,state,isDraft,mergedAt,closedAt,headRefName,baseRefName,body,mergeCommit,reviewDecision,statusCheckRollup,mergeStateStatus,url --limit 20
      ```
    - Do not treat a closed issue as sufficient evidence by itself. Verify whether the closing PR was merged, whether it references the intended story, whether review completed, and whether CI/checks were passing or explicitly waived.
+   - Fetch the remote default branch and verify each intended merge commit is reachable from it. A merged PR whose code is not present on the release base is a blocking reconciliation finding.
    - Flag stories that are open, blocked, unimplemented, manually closed without evidence, approved but unmerged, merged without closing the issue, or closed by partial/won't-fix work.
    - If the project used the `user-story-delivery` workflow, use its PR reviews and comments as supporting evidence, but still perform an independent final audit.
 
@@ -67,13 +68,20 @@ Default to a report-first audit. Do not silently mix review and implementation. 
    - If a command cannot be run because of missing dependencies, credentials, external services, or environment limitations, state that clearly and include the residual risk.
 
 8. **Remediation Rules**:
-   - Report first. Before making any changes, produce findings and identify whether remediation is safe.
-   - You may directly fix small, low-risk documentation or polish gaps only when all of these are true:
+   - Finish and present the findings, traceability matrix, verification, and provisional readiness decision before any remediation.
+   - Prefer a follow-up issue even for low-risk documentation or polish. This preserves audit independence and makes unattended runs auditable.
+   - Direct remediation is allowed only when the user explicitly authorizes it after seeing the report and all of these are true:
      - The change is clearly implied by the implemented behavior.
      - The change does not alter product behavior, architecture, data model, tests, dependencies, or public contracts.
      - The change is small enough to review in one pass.
-     - The worktree can be updated without overwriting unrelated user changes.
-   - If you make fixes, commit them on an appropriate branch or the current release branch according to the repository workflow, and report the changed files, commit hash, and verification run.
+     - The worktree is clean and the intended base branch is explicit.
+   - Never commit directly to the current release/default branch. For authorized remediation:
+     1. Stop on any output from `git status --porcelain=v1 --untracked-files=all`; never stash, clean, or overwrite user changes.
+     2. Fetch the intended remote base, switch to its local branch, require no local-ahead/divergent commits, and fast-forward only.
+     3. Create a unique `audit/<feature>-<issue-or-date>` branch.
+     4. Make only the authorized low-risk change, stage specific files, verify, commit, push, and open a PR.
+     5. Do not approve or merge that PR in this audit. Return its branch, PR, commit, changed files, and verification as an auditable handoff.
+   - If safe branch isolation or PR creation is unavailable, create/recommend the follow-up issue and leave the worktree unchanged.
    - For functional gaps, missing acceptance criteria, design drift, failing tests, substantial docs work, or uncertain product decisions, create follow-up GitHub Issues instead of modifying code directly:
      ```bash
      gh issue create --title "<title>" --body "<body>" --label "follow-up"
@@ -85,6 +93,7 @@ Default to a report-first audit. Do not silently mix review and implementation. 
    - Lead with blocking findings if the feature is not ready.
    - If there are no blocking findings, say `No blocking findings found.`
    - Make the release-readiness decision explicit.
+   - After any authorized remediation PR is opened, refresh the report. The feature remains `Ready with follow-ups` or `Not ready` until the remediation PR is independently reviewed and merged.
 
 ## Final Report Format
 
@@ -123,6 +132,25 @@ Decision: Ready | Ready with follow-ups | Not ready
 Rationale:
 ```
 
+## Exact handoff
+
+When called by `feature-delivery`, end with:
+
+```markdown
+## Final Audit Handoff
+- Design doc:
+- Decision: Ready | Ready with follow-ups | Not ready
+- Remediation PR:
+- Blocking findings:
+- Follow-up issues:
+- Verification:
+- Residual risk:
+- Blocked: yes/no
+- Blocker:
+```
+
+Use `Remediation PR: none` unless an explicitly authorized isolated remediation PR was actually opened. A local commit or dirty worktree is never an acceptable remediation handoff.
+
 ## Review Checklist
 
 - [ ] **Functional**: All stories in the design doc are implemented and verified.
@@ -145,6 +173,6 @@ Rationale:
 2. Reconcile each story against GitHub Issues using exact story IDs, then list milestone or prefix issues to catch extras.
 3. Inspect linked PRs and verify they were merged, reviewed, and associated with the intended issues.
 4. Compare `src/auth/`, routes, data contracts, and config against the design doc.
-5. Inspect README and auth usage docs. If the password reset flow is missing from docs and the behavior is already implemented, update docs only if the remediation rules allow it; otherwise create a follow-up issue.
+5. Inspect README and auth usage docs. If the password reset flow is missing, report it and prefer a follow-up issue. Make a direct docs fix only after explicit authorization and only through an isolated branch and PR.
 6. Inspect project scripts and run the relevant verification commands, such as `bun test src/auth`, `bun run typecheck`, or the repository's documented alternatives.
 7. Present the final report with a story completion matrix and release-readiness decision.

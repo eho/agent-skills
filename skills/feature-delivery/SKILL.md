@@ -1,197 +1,176 @@
 ---
 name: feature-delivery
-description: 'Orchestrate end-to-end delivery of a complete feature from a revised design document: sync user stories to GitHub Issues with design-to-issues, deliver each story one at a time with user-story-delivery, and finish with post-implementation-reviewer. You MUST use this skill when asked to "deliver this design doc", "implement this feature from the design", "run the full feature delivery workflow", "turn this design into issues and ship it", or coordinate multiple user stories from a design document through implementation, review, and final audit.'
+description: 'Orchestrate fresh or resumed delivery of a revised multi-story feature: idempotently sync design stories to GitHub Issues, reconcile completed/in-progress/blocked/deferred/remaining work from live issue and PR state plus prior handoffs, deliver dependencies one at a time, and run a final release audit. Use for complete design-to-release delivery or continuing an interrupted feature run.'
 metadata:
   author: eho
-  version: '1.0.0'
+  version: '1.1.0'
 ---
 
 # Feature Delivery
 
-You are acting as the top-level coordinator for a complete feature delivery lifecycle. Your job is to compose the existing specialist workflows:
+Act as the top-level coordinator. Compose, but do not duplicate, these specialists:
 
-- `design-to-issues`: publishes revised, agent-ready user stories from a design document into GitHub Issues.
-- `user-story-delivery`: implements and reviews exactly one GitHub user story through a bounded implement-review loop.
-- `post-implementation-reviewer`: audits the completed feature against the original design document, GitHub Issues, PRs, verification evidence, and documentation.
+- `design-to-issues`: exact, idempotent requirements synchronization.
+- `user-story-delivery`: independent implement-review delivery for one story.
+- `post-implementation-reviewer`: report-first release audit.
 
-Keep this skill focused on orchestration. Do not duplicate the specialist skills' detailed implementation, issue creation, or audit workflows. The value of this skill is sequencing, state tracking, stop conditions, and a final feature-level delivery report.
+The workflow must be safe both on a fresh run and after interruption. GitHub is the durable ledger; prior handoffs accelerate reconciliation but do not override live state.
 
-**PREREQUISITES**:
-
-- The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) because all downstream delivery steps rely on GitHub Issues and PRs.
-- The `design-to-issues`, `user-story-delivery`, and `post-implementation-reviewer` skills MUST be available. Verify these skills are present before starting the workflow. If any required skill is missing, stop and report the missing prerequisite instead of attempting to recreate its behavior here.
-
-## Delegation Requirement
-
-This workflow is designed to use subagents so issue sync, per-story implementation/review, and final audit can stay independent. If the current runtime requires explicit user permission before starting subagents, and the user's request did not clearly ask for the full feature workflow, ask for confirmation before starting. A request such as "use the feature-delivery skill", "deliver this design doc", or "run the full feature delivery workflow" is enough to proceed.
+**Prerequisites:** `gh` must be installed and authenticated, and all three specialist skills must be available.
 
 ## Workflow
 
-1. **Resolve the Feature Scope**
-   - Expect the user to supply a specific design document path or an unambiguous design document reference.
-   - If no clear design document is specified, ask the user to confirm the exact design document before continuing. Do not auto-select a design document.
-   - Read the design document enough to identify the feature name, story prefix, user story IDs, dependency notes, and expected milestone if present.
-   - Confirm the document contains a `## User Stories` section with story IDs and acceptance criteria. If it does not, stop and route the user back to `design-doc`.
+1. **Resolve scope and readiness**
+   - Require one exact design-document path. Never auto-select a design.
+   - Require `## User Stories`, stable story IDs, acceptance criteria, and `Status: Revised` or equivalent explicit authorization.
+   - Extract story order, dependencies, prefix, milestone, and explicit user deferrals.
 
-2. **Verify Required Skills**
-   - Confirm the `design-to-issues`, `user-story-delivery`, and `post-implementation-reviewer` skills are available in the current environment.
-   - If any required skill is unavailable, stop and tell the user exactly which skill is missing.
-   - Do not inline or approximate a missing specialist workflow inside this skill.
+2. **Synchronize issues**
+   - Run `design-to-issues`.
+   - Require its exact `Issue Sync Handoff`, including every current story, issue state, deferred stories, removed stories, dependency result, and blocker.
+   - Stop on duplicate IDs, incomplete mapping, or blocked dependency synchronization.
 
-3. **Check Design Readiness**
-   - Validate that the design document status is `Revised`.
-   - Prefer an explicit status field such as `**Status:** Revised`, `Status: Revised`, or equivalent frontmatter/metadata in the design document.
-   - If the design document status is missing or is not `Revised`, stop before creating issues and ask the user to revise or confirm the design document.
-   - Do not check a companion review file as part of this workflow.
-
-4. **Sync Stories to GitHub Issues**
-   - Run the `design-to-issues` workflow for the design document.
-   - Require the issue-sync result to include a story-to-issue mapping:
-     ```markdown
-     ## Issue Sync Handoff
-     - Design doc:
-     - Milestone:
-     - Story prefix:
-     - Issues:
-       - <Story ID>: #<issue-number> <url> (<Created|Existing>)
-     - Dependencies linked: yes/no
-     - Blocked: yes/no
-     - Blocker:
+3. **Collect durable evidence**
+   - Gather any prior `Feature Delivery Status`, `Story Delivery Handoff`, implementation/review handoffs, or final-audit handoff available in the conversation or supplied artifacts.
+   - Query live GitHub state for every mapped story:
+     ```bash
+     gh issue view <issue> --json number,title,state,body,comments,labels,assignees,closedAt,url
+     gh pr list --state all --search "<story-id>" \
+       --json number,title,state,isDraft,headRefName,baseRefName,body,mergedAt,closedAt,mergeCommit,reviewDecision,statusCheckRollup,mergeStateStatus,url --limit 50
      ```
-   - If issue sync reports `Blocked: yes`, stop and report the blocker.
-   - If the issue mapping is incomplete, ask the same worker for the missing mapping before continuing.
+   - Confirm PR identity through exact story ID, issue-closing references, body, branch, or commits. Stop on multiple plausible PRs.
+   - Fetch the remote default branch before checking merge ancestry. Never infer freshness from a local branch alone.
 
-5. **Build the Delivery Queue**
-   - Use the design document as the source of truth for story order and dependencies.
-   - Use the GitHub issue mapping from `design-to-issues` to bind each story ID to an issue number or URL.
-   - Deliver stories in dependency order. When the design document does not state dependencies, preserve the order in the `## User Stories` section.
-   - Exclude stories only when the user explicitly marks them out of scope or deferred.
-   - Before starting each story, check that all declared dependency stories have completed successfully. If a dependency is incomplete or blocked, stop instead of skipping ahead.
+4. **Reconcile every story**
+   - Classify each in-scope story exactly once:
+     - `completed`: its intended PR is merged and the merge commit is reachable from `origin/<default>`. An open issue may be ledger drift but does not invalidate merged code; record it.
+     - `in_progress`: exactly one intended PR is open. Record branch, review state, checks, and whether changes are requested or human merge is pending.
+     - `blocked`: a current blocked label/handoff, ambiguous PRs, a closed-unmerged PR without explicit replacement, failed state reconciliation, missing dependency evidence, or an issue closed without merged implementation evidence.
+     - `deferred`: explicitly deferred by the user for this run. Do not infer this state from GitHub lifecycle and do not mutate the issue merely to reflect it.
+     - `remaining`: an open, non-blocked issue with no intended PR.
+   - Validate prior handoffs against these rules. Stale handoffs are history, not current state.
+   - Never send `completed` or `deferred` stories to an implementer. Resume `in_progress` through its existing PR. Only `remaining` stories start new branches.
 
-6. **Deliver One Story at a Time**
-   - For each queued story, run the `user-story-delivery` workflow.
-   - Pass the story ID, issue number or URL, design doc path, milestone when known, and any dependency context.
-   - Once a story-delivery subagent starts, let it continue unless it returns a final handoff or reports a blocker.
-   - Treat PR or branch movement as creation or update of the story branch, pushed commits, a PR being opened or updated, or a handoff/status message that names the active branch or PR.
-   - If 20 minutes elapse with no observable PR or branch movement, ask the existing story-delivery subagent for status and continue waiting for that same subagent. Do not start a recovery worker for a stalled story.
-   - Require this final handoff for each story:
-     ```markdown
-     ## Story Delivery Handoff
-     - Story ID:
-     - Issue:
-     - PR:
-     - Final decision: Request changes | Approve | Comment only | Merge | Blocked
-     - Review cycles:
-     - Verification:
-     - Known residual risk:
-     - Blocked: yes/no
-     - Blocker:
-     ```
-   - Treat `Merge`, `Approve`, and `Comment only` as story-complete only if the handoff explains why that decision satisfies the repository workflow.
-   - Prefer merged PRs for completed stories. If a story is approved but not merged, record the reason and ask the user before continuing unless the repository workflow clearly leaves merging to a human.
-   - If a story reports `Blocked: yes`, stop the feature workflow and report the blocker, completed stories, and remaining queue.
-   - Do not start the next story until the current story has a concrete final status and verification evidence.
+5. **Build the dependency queue**
+   - Preserve design order among stories at the same dependency level.
+   - A dependency is satisfied only by `completed` state. Pass its issue, PR, and reachable merge OID to the dependent story.
+   - A deferred or blocked dependency blocks its dependents unless the user explicitly revises scope/dependencies.
+   - A fresh run stays simple: when every story is `remaining`, this becomes the original dependency-ordered queue.
 
-7. **Handle Story Failures**
-   - If `user-story-delivery` ends with unresolved blocking findings, do not continue to later stories by default.
-   - If the user explicitly chooses to defer a blocked story, update the delivery queue and mark dependent stories blocked unless their dependencies still hold.
-   - If the failure is caused by ambiguous requirements, route back to `design-doc` or ask for the missing product decision.
-   - If the failure is caused by issue sync mistakes, re-run the relevant `design-to-issues` step or repair the GitHub issue state before continuing.
+6. **Deliver and checkpoint one story**
+   - Select the earliest eligible `in_progress` story before starting any `remaining` story; interrupted work should be resumed first.
+   - Run `user-story-delivery` with story, issue, existing PR if any, design path, milestone, and dependency evidence.
+   - Require its exact `Story Delivery Handoff`.
+   - Requery GitHub after the handoff. Accept `completed` only when the PR is merged and reachable from remote default.
+   - If `in_progress` is awaiting a required human merge, stop with a resumable checkpoint. If `blocked`, stop with the blocker.
+   - Before the next story, fetch remote default and reconcile the entire matrix again. This catches external merges, closures, new PRs, or changed blockers and prevents duplicate work.
 
-8. **Run Final Feature Audit**
-   - After all in-scope stories are complete, run `post-implementation-reviewer` against the original design document.
-   - Pass the design doc path, milestone, story prefix, completed issue mapping, PR list, and any known residual risks from story delivery.
-   - Require the final audit to make a release-readiness decision:
-     ```markdown
-     ## Final Audit Handoff
-     - Design doc:
-     - Decision: Ready | Ready with follow-ups | Not ready
-     - Blocking findings:
-     - Follow-up issues:
-     - Verification:
-     - Residual risk:
-     ```
-   - If the final audit reports `Not ready`, lead the final report with the blocking findings and exact next actions.
+7. **Bound monitoring and review**
+   - Let the active story coordinator own its bounded five-cycle implement-review loop.
+   - Do not replace an active specialist with a recovery worker. If there is no observable branch/PR movement for 20 minutes, request status from the same worker.
+   - Keep implementer and reviewer roles independent.
 
-## Subagent Prompts
+8. **Run the final audit**
+   - Start only when every in-scope, non-deferred story is live-verified `completed`; no `in_progress`, `remaining`, or `blocked` entries may remain.
+   - Pass the design, milestone, complete issue/PR/merge-commit matrix, deferrals, ledger drift, verification, and residual risks to `post-implementation-reviewer`.
+   - Require its exact `Final Audit Handoff`.
 
-Use concise prompts that invoke the specialist skill explicitly and require the handoff needed by this workflow. Adapt details to the repository and feature.
+## Exact story handoff
 
-### Issue sync prompt
+`user-story-delivery` must return:
 
-```text
-Use the design-to-issues skill to sync this revised design document to GitHub Issues:
-
-Design doc: <path>
-
-Preserve every user story and acceptance criterion. Create or reuse issues idempotently, link dependencies, and attach the milestone according to the design-to-issues workflow.
-
-Return this final handoff:
-## Issue Sync Handoff
-- Design doc:
-- Milestone:
-- Story prefix:
-- Issues:
-  - <Story ID>: #<issue-number> <url> (<Created|Existing>)
-- Dependencies linked: yes/no
-- Blocked: yes/no
-- Blocker:
-```
-
-### Story delivery prompt
-
-```text
-Use the user-story-delivery skill to deliver exactly one story from this feature.
-
-Design doc: <path>
-Story: <story-id>
-Issue: <issue-number-or-url>
-Milestone: <milestone-or-none>
-Dependencies already completed: <story-id-list-or-none>
-
-You are part of a larger feature delivery workflow. Do not pick a different story. Follow the user-story-delivery workflow through implementation, review, and bounded review-fix loops.
-
-Return this final handoff:
+```markdown
 ## Story Delivery Handoff
 - Story ID:
 - Issue:
+- State: completed | in_progress | blocked
+- Branch:
 - PR:
-- Final decision: Request changes | Approve | Comment only | Merge | Blocked
+- PR state: OPEN | MERGED | CLOSED | none
+- Merge commit:
+- Final decision: Merge | Awaiting human merge | Blocked
 - Review cycles:
+- Dependencies verified:
 - Verification:
 - Known residual risk:
 - Blocked: yes/no
 - Blocker:
 ```
 
-### Final audit prompt
+## Exact issue-sync handoff
 
-```text
-Use the post-implementation-reviewer skill to audit this completed feature against the original design document.
+`design-to-issues` must return:
 
-Design doc: <path>
-Milestone: <milestone-or-none>
-Story prefix: <prefix>
-Completed issues and PRs:
-<mapping>
-Known residual risks:
-<risks-or-none>
+```markdown
+## Issue Sync Handoff
+- Design doc:
+- Milestone:
+- Story prefix:
+- Issues:
+  - <Story ID>: #<number> <url> (<Created|Updated|Unchanged>; issue <OPEN|CLOSED>)
+- Deferred stories:
+- Removed stories:
+- Dependencies: Synchronized | Blocked
+- Blocked: yes/no
+- Blocker:
+```
 
-Run the full post-implementation review workflow and make a release-readiness decision.
+## Exact final-audit handoff
 
-Return this final handoff:
+```markdown
 ## Final Audit Handoff
 - Design doc:
 - Decision: Ready | Ready with follow-ups | Not ready
+- Remediation PR:
 - Blocking findings:
 - Follow-up issues:
 - Verification:
 - Residual risk:
+- Blocked: yes/no
+- Blocker:
 ```
 
-## Final Feature Delivery Report
+## Specialist prompts
 
-When the workflow stops, report:
+### Issue synchronization
+
+```text
+Use design-to-issues to synchronize this revised design with GitHub:
+Design doc: <path>
+
+Perform exact body/title reconciliation, marker-based dependency upserts, and safe removal/deferral reporting. Return the exact Issue Sync Handoff from that skill.
+```
+
+### Story delivery
+
+```text
+Use user-story-delivery for exactly one story.
+Design doc: <path>
+Story: <id>
+Issue: <number-or-url>
+Existing PR: <number-or-none>
+Milestone: <milestone>
+Completed dependencies: <story, issue, PR, reachable merge OID list>
+Entry state: <remaining-or-in_progress>
+
+Resume an existing PR when supplied; never create a duplicate. Return the exact Story Delivery Handoff.
+```
+
+### Final audit
+
+```text
+Use post-implementation-reviewer for a report-first final audit.
+Design doc: <path>
+Milestone: <milestone>
+Story prefix: <prefix>
+Reconciled story matrix: <story, issue, PR, merge OID, verification>
+Deferred stories: <list>
+Ledger drift and residual risks: <list>
+
+Return the exact Final Audit Handoff. Do not edit the release branch directly.
+```
+
+## Final status report
 
 ```markdown
 ## Feature Delivery Status
@@ -200,34 +179,38 @@ When the workflow stops, report:
 - Story prefix:
 - Final state: Ready | Ready with follow-ups | Not ready | Blocked
 
-## Story Delivery Matrix
-| Story | Issue | PR | Final Decision | Verification | Residual Risk |
-| --- | --- | --- | --- | --- | --- |
+## Story State Matrix
+| Story | Issue | State | Branch | PR | PR State | Merge Commit | Dependencies | Verification | Residual Risk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+## Reconciliation
+- Completed:
+- In progress:
+- Blocked:
+- Deferred:
+- Remaining:
+- Removed from design:
+- Ledger drift:
 
 ## Final Audit
 - Decision:
+- Remediation PR:
 - Blocking findings:
 - Follow-up issues:
 - Verification:
 
-## Remaining Work
-- Completed:
-- Deferred:
-- Blocked:
-- Next action:
+## Next Action
+- <exact resumable next action or "None">
 ```
 
-If the workflow stops early, still include the matrix for completed and attempted stories, then lead with the blocker and next action. If the feature is ready, say `No blocking findings found.` and include the verification evidence from the final audit.
+Always emit this report when pausing or finishing. It is a checkpoint for the next run, but the next run must still validate it against GitHub.
 
-## Operating Rules
+## Operating rules
 
-- Treat the design document as the source of truth for story scope and acceptance criteria until the user explicitly changes scope.
-- Use GitHub Issues as the delivery ledger once issue sync succeeds.
-- Deliver one story at a time. Do not batch multiple implementation stories into one worker unless the user explicitly overrides the workflow.
-- Keep implementation and review independent by relying on `user-story-delivery` rather than calling implementer and reviewer directly from this skill.
-- Do not interrupt, replace, or start a recovery worker for an active story-delivery subagent. If there is no PR or branch movement for 20 minutes, ask that subagent for status and continue waiting.
-- Do not continue past a blocked story when later stories depend on it.
-- Do not run the final audit until all in-scope stories have a final delivery handoff.
-- Do not silently skip issue sync. If the user wants local-only delivery, state that this skill is optimized for GitHub-tracked delivery and ask for explicit confirmation.
-- Keep the user informed when the workflow changes state: scope resolved, issues synced, queue built, each story started, each story completed, final audit started, and final status.
-- If any specialist handoff is missing required fields, ask the same specialist for the missing fields before moving forward.
+- Synchronize requirements before reconciling delivery state.
+- Closed issue alone is never completion; approval alone is never completion.
+- Merged and reachable code is completion even if issue closure bookkeeping lags.
+- Resume open PRs before starting remaining stories.
+- Reconcile the whole matrix after every story transition.
+- Never skip blocked dependencies, duplicate a branch/PR, or run the final audit early.
+- Keep specialist separation and bounded review loops intact.

@@ -1,151 +1,135 @@
 ---
 name: design-to-issues
-description: Parses a design document to extract User Stories and creates corresponding GitHub Issues. It can optionally link them to a GitHub Milestone. This skill acts as a setup phase for GitHub-native issue tracking. Make sure to use this skill whenever the user asks to "send the design doc to GitHub", "create issues from the design doc", "setup the milestone", or mentions turning requirements into actionable GitHub issues.
+description: Parses a revised design document and idempotently synchronizes its user stories, acceptance criteria, labels, dependencies, and milestone with GitHub Issues. Use whenever the user asks to send a design doc to GitHub, create or refresh issues from a design, set up a feature milestone, or reconcile revised requirements with an existing issue backlog.
 metadata:
   author: eho
-  version: '1.1.0'
+  version: '1.2.0'
 ---
 
-# Instructions
+# Design to Issues
 
-You are acting as an autonomous sub-agent to publish reviewed, agent-ready user stories from a design document into GitHub Issues. The design document is expected to come from the `design-doc` skill and may have a companion review from `design-doc-reviewer`; treat GitHub issues as the implementation handoff, so preserve every detail an implementation agent needs without requiring it to reopen the full design doc.
+Act as the requirements-publishing specialist. Convert every in-scope story in a revised design document into an exact, self-contained GitHub Issue. Reruns are synchronization runs: update changed canonical content, preserve unchanged content, and never duplicate issues or dependency comments.
 
-**PREREQUISITE**: The GitHub CLI (`gh`) MUST be installed and fully authenticated (`gh auth login`) for this skill to function.
+**Prerequisite:** `gh` must be installed and authenticated.
 
 ## Workflow
 
-1. **Resolve Inputs and Skill Directory**: Identify the design doc path from the user request. Resolve `SKILL_DIR` as the directory containing this `SKILL.md` from the base directory provided in the skill invocation. If no base directory is provided, locate it at `<git repo root>/.agents/skills/design-to-issues`.
-2. **Check Design Readiness**: Before creating or editing GitHub issues, read the specified design doc and look for the companion review file at `docs/design/review-[original-filename].md`.
-   - If a review file exists, read it and confirm the design doc has been revised after review. Strong signals include `**Status:** Revised`, a `## Revision Notes` section, or an explicit user instruction to publish despite outstanding review feedback.
-   - If the review contains Critical Gaps and the design doc does not show revision notes addressing them, stop and tell the user the doc is not ready to publish to GitHub.
-   - If no review file exists, warn the user that the expected `design-doc-reviewer` artifact is missing. Continue only if the user explicitly asked to publish anyway or the current request clearly says to proceed without review.
-3. **Get Repository Metadata**: Run `gh repo view --json nameWithOwner,defaultBranchRef -q '{owner: .nameWithOwner, branch: .defaultBranchRef.name}'`. Use `owner` for issue URLs and `branch` for design-doc blob links. Do not assume the default branch is `main`.
-4. **Parse User Stories**: Extract every story under `## User Stories` by story ID heading, e.g. `### PRI-001: Title`. Preserve each story's complete details from the design-doc contract:
-   - Description and Outcome
-   - Design References
-   - Context, including files to read, relevant data contracts, files likely to change, dependencies, and out-of-scope boundaries
-   - Acceptance Criteria, including verification commands, test requirements, browser checks, and documentation decisions
-   - Any Technical Notes or other story-specific implementation context
-5. **Setup Labels**: Before creating any issues, verify the `user-story` label exists and that a label for the specific feature prefix (e.g., `PRI`) exists. Prefer JSON output over text matching:
-   ```bash
-   gh label list --limit 1000 --json name -q '.[].name'
-   gh label create "user-story" --color "0e8a16" --description "User story task"
-   gh label create "<prefix>" --color "1d76db" --description "Feature prefix: <prefix>"
-   ```
-   Only create labels that are missing. If a create command reports that the label already exists, continue.
-6. **Build an Issue Map for Idempotency**: Before creating issues, build a complete `story_id -> issue_number/url/title/status` map for all extracted stories. For each story ID, search open and closed issues using the story ID as the stable key, not only the title:
-   ```bash
-   gh issue list --state all --label "user-story" --search "<Story ID> in:title" --json number,title,url,state -q '.[]'
-   ```
-   Reuse an existing issue only when its title starts with `<Story ID>:`. If more than one matching issue exists, stop and ask the user to resolve the duplicate before publishing.
-7. **Create Missing Issues**: Loop through the extracted stories. For each story missing from the issue map, construct a GitHub blob URL to the design doc using the repository's default branch, then create an issue whose body faithfully carries the full story content:
-   ```
-   ## Story
-   <The complete story content from the design doc, normalized only enough to render cleanly in GitHub Markdown>
+1. **Resolve inputs and skill directory**
+   - Require an unambiguous design-document path.
+   - Resolve `SKILL_DIR` from the skill invocation or as the directory containing this file. Its scripts are authoritative; do not recreate their behavior with ad-hoc shell.
 
-   ## Implementation Context
-   <Files to read, relevant data contracts, files likely to change, dependencies, and out-of-scope boundaries>
+2. **Check design readiness**
+   - Read the design and, when present, `docs/design/review-<filename>.md`.
+   - Require evidence that review feedback was incorporated: `Status: Revised`, revision notes, or explicit user authorization to publish despite the review state.
+   - If an existing review has unresolved critical gaps, stop. If no review exists, continue only when the request explicitly authorizes publication or the caller has already established readiness.
 
-   ## Acceptance Criteria
-   <The exact checklist from the design doc, including verification, tests, browser checks, and documentation requirements>
+3. **Read repository metadata**
+   - Run:
+     ```bash
+     gh repo view --json nameWithOwner,defaultBranchRef -q '{owner: .nameWithOwner, branch: .defaultBranchRef.name}'
+     ```
+   - Do not assume the default branch name. Use it for design-document links.
 
-   ## Design Doc
-   [View in Design Doc](https://github.com/<owner>/<repo>/blob/<default-branch>/<design-doc-path>)
-   ```
-   The issue body may include additional sections such as `## Outcome`, `## Design References`, `## Dependencies`, or `## Technical Notes` when present in the story. Do not omit fields from the design-doc story contract.
+4. **Parse the complete story set**
+   - Extract every story under `## User Stories` by its stable ID heading, such as `### PRI-001: Title`.
+   - Preserve description, outcome, design references, implementation context, files, contracts, dependencies, out-of-scope boundaries, acceptance criteria, verification commands, tests, browser checks, documentation decisions, and technical notes.
+   - Record explicit user deferrals separately. A story is not deferred merely because its issue is closed or absent.
 
-   Run the bundled script to create the issue safely. Capture its output to extract the issue number and URL, then add the new issue to the same issue map used for existing issues.
-   **Script location:** The script is at `SKILL_DIR/scripts/create_issue.sh`, where `SKILL_DIR` is the directory containing this SKILL.md file. Resolve it using the base directory provided at the top of the skill invocation (look for "Base directory for this skill:"). If not available, locate it at `<git repo root>/.agents/skills/design-to-issues/scripts/create_issue.sh`.
-   ```bash
-   # Use a temporary file for the body to keep the command clean and avoid shell escaping issues
-   SKILL_DIR="<base directory from skill invocation>"
-   cat <<'EOF' > issue_body.md
-   ## Description
-   ...
-   EOF
+5. **Ensure labels and milestone**
+   - Read existing labels as JSON. Create only missing `user-story` and feature-prefix labels. Treat an already-existing response as success.
+   - Resolve the milestone from the design or feature title, then run:
+     ```bash
+     "$SKILL_DIR/scripts/create_milestone.sh" "<milestone-title>"
+     ```
+   - Label and milestone setup must be safe on every rerun.
 
-   OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "<Story ID>: <Title>" "user-story,<prefix>" issue_body.md)
-   ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
-   ISSUE_URL=$(echo "$OUTPUT" | grep "Created Issue:" | sed 's/^Created Issue: //')
-   rm issue_body.md
-   ```
-8. **Link Dependencies**: After the issue map contains both existing and newly created issues, add dependency comments to dependent issues listing their blockers. Use story IDs from the design doc to look up issue numbers in the map:
-   ```bash
-   gh issue comment <dependent-issue-number> --body "Depends on: #<blocker-issue-number>"
-   ```
-   For example: `gh issue comment 43 --body "Depends on: #42"`. If a dependency points to a story ID that was not extracted or mapped, stop and report the missing dependency instead of creating partial links.
-9. **Create & Link to Milestone**:
-   - Determine the milestone name: Check if the design doc explicitly organizes stories by milestone. If yes, use that name. Otherwise, use the feature name from the doc title.
-   - Create the milestone first (ensures it exists): `"$SKILL_DIR/scripts/create_milestone.sh" "<Milestone Title>"` (where `SKILL_DIR` is the base directory from the skill invocation; if not available, locate it at `<git repo root>/.agents/skills/design-to-issues/scripts/create_milestone.sh`).
-   - Link all mapped issues, existing and newly created, to the milestone: `gh issue edit <issue-number> --milestone "<Milestone Title>"`.
-10. **Output Mapping**: Generate a markdown table and present to user:
-   ```
-   | Story ID | Title | Issue # | Status | URL |
-   |----------|-------|---------|--------|-----|
-   | PRI-001 | User Login | #12 | Existing | https://github.com/.../issues/12 |
-   | PRI-002 | User Logout | #13 | Created | https://github.com/.../issues/13 |
-   ```
-   Include the milestone name and note whether dependencies were linked.
+6. **Build a unique issue map**
+   - Search open and closed issues by exact story ID:
+     ```bash
+     gh issue list --state all --label user-story --search "<story-id> in:title" \
+       --json number,title,url,state,body,labels,milestone --limit 100
+     ```
+   - Reuse an issue only when its title begins with `<story-id>:`. Stop on duplicate matches; never guess which duplicate is canonical.
+   - Also list all issues carrying both `user-story` and the feature-prefix label. Report any issue whose story ID is no longer in the design as `Removed from design`; do not close, delete, unlabel, or rewrite it without explicit user direction.
 
-## Available Scripts
+7. **Render and synchronize canonical issues**
+   - Render each current story body deterministically with these sections when applicable:
+     ```markdown
+     ## Story
+     <description, outcome, and design references>
 
-This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
+     ## Implementation Context
+     <files, contracts, dependencies, boundaries, and technical notes>
 
-- `create_issue.sh "<title>" "<labels>" "<body_file_path>"`: Safely executes `gh issue create` and extracts the issue number.
-- `create_milestone.sh "<milestone_title>"`: Safely executes `gh api` to create a new milestone.
+     ## Acceptance Criteria
+     <the exact checklist and verification requirements>
 
-## Examples
+     ## Design Doc
+     [View in Design Doc](<blob-url>)
+     ```
+   - Use a temporary directory outside the worktree:
+     ```bash
+     TMP_DIR=$(mktemp -d)
+     trap 'rm -rf "$TMP_DIR"' EXIT
+     BODY_FILE="$TMP_DIR/<story-id>.md"
+     ```
+   - Do not use a fixed `issue_body.md` or another worktree file.
+   - For each story, run:
+     ```bash
+     "$SKILL_DIR/scripts/sync_issue.sh" \
+       "<existing-number-or-new>" "<story-id>: <title>" "user-story,<prefix>" "$BODY_FILE"
+     ```
+   - The script compares exact title and body content, updates only changed fields, adds only missing required labels, and creates the issue when `new` is supplied.
+   - Attach every current mapped issue to the milestone. Do not reopen or close issues during requirements synchronization.
 
-**Example 1:**
-*Input:* "Create issues from docs/design/login.md and add them to the 'v1.0' milestone"
-*Action:*
-1. Read `docs/design/login.md` and `docs/design/review-login.md`. Continue only if the review is absent by explicit user instruction, or if review feedback has been addressed in the design doc.
-2. Get repo info: `gh repo view --json nameWithOwner,defaultBranchRef -q '{owner: .nameWithOwner, branch: .defaultBranchRef.name}'` → returns owner `myorg/myapp` and branch `trunk`.
-3. Setup labels from `gh label list --limit 1000 --json name -q '.[].name'`. Ensure `user-story` and `LOGIN` exist.
-4. Extract LOGIN-001 (Login), LOGIN-002 (Logout) with dependencies: LOGIN-002 depends on LOGIN-001.
-5. Search for existing issues by story ID: `gh issue list --state all --label "user-story" --search "LOGIN-001 in:title" --json number,title,url,state`.
-6. Create any missing issue, preserving the full story content:
-   ```bash
-   cat <<'EOF' > issue_body.md
-   ## Story
-   **Description:** As a user, I want to log in so that I can access my account.
+8. **Upsert dependency relationships**
+   - Resolve every declared blocker through the complete issue map. Stop if any dependency is missing or ambiguous.
+   - Render one canonical dependency comment per dependent issue:
+     ```markdown
+     <!-- agent-skills:dependencies -->
+     Depends on: #42, #43
+     ```
+   - Sort blocker issue numbers and call:
+     ```bash
+     "$SKILL_DIR/scripts/upsert_dependency_comment.sh" "<issue-number>" "$DEPENDENCY_FILE"
+     ```
+   - The marker makes reruns idempotent. If multiple marker comments already exist, stop and report them instead of deleting history.
+   - For a story whose dependencies were removed, upsert the canonical marker comment with `Depends on: None` so stale dependency state is not retained.
 
-   **Outcome:** Authenticated users receive an active session.
+9. **Handle deferrals and removals safely**
+   - Report explicit deferrals in the handoff, but do not close, delete, or alter their issues unless the user specifically requests that GitHub state change.
+   - Report removed stories discovered by prefix-label reconciliation. Their existing issues remain untouched.
 
-   **Design References:**
-   - Architecture Overview: Login form posts credentials to the auth endpoint.
-   - API & Data Contracts: `LoginRequest`, `LoginResponse`
-   - Integration Points: `src/auth/login.ts`, `src/auth/session.ts`
+10. **Return the exact handoff**
 
-   ## Implementation Context
-   - Files to read: `src/auth/login.ts`, `src/auth/session.ts`
-   - Relevant data contracts: `LoginRequest`, `LoginResponse`
-   - Files likely to change: `src/auth/login.ts`
-   - Depends on: None
-   - Out of scope: Password reset
+## Exact handoff
 
-   ## Acceptance Criteria
-   - [ ] Form validates email in `src/auth/login.ts`
-   - [ ] Form validates password in `src/auth/login.ts`
-   - [ ] Typecheck passes using `bun run build`
-   - [ ] Unit tests cover invalid email and invalid password in `src/auth/login.test.ts`
-   - [ ] Documentation impact: None, because this changes internal validation only
+```markdown
+## Issue Sync Handoff
+- Design doc:
+- Milestone:
+- Story prefix:
+- Issues:
+  - <Story ID>: #<number> <url> (<Created|Updated|Unchanged>; issue <OPEN|CLOSED>)
+- Deferred stories:
+- Removed stories:
+- Dependencies: Synchronized | Blocked
+- Blocked: yes/no
+- Blocker:
+```
 
-   ## Design Doc
-   [View in Design Doc](https://github.com/myorg/myapp/blob/trunk/docs/design/login.md)
-   EOF
+Every current in-scope story must appear exactly once. `Updated` means title, body, labels, dependencies, or milestone changed; `Unchanged` means no synchronization mutation was needed.
 
-   OUTPUT=$("$SKILL_DIR/scripts/create_issue.sh" "LOGIN-001: User Login" "user-story,LOGIN" issue_body.md)
-   ISSUE_NUMBER=$(echo "$OUTPUT" | grep "Issue Number:" | awk '{print $3}')
-   ISSUE_URL=$(echo "$OUTPUT" | grep "Created Issue:" | sed 's/^Created Issue: //')
-   rm issue_body.md
-   ```
-7. Add every existing and created issue to the issue map, then comment on LOGIN-002: `gh issue comment 43 --body "Depends on: #42"`.
-8. Create milestone `v1.0` and link both issues, including any that already existed.
-9. Output summary:
-   ```
-   | Story ID | Title | Issue # | Status | URL |
-   |----------|-------|---------|--------|-----|
-   | LOGIN-001 | User Login | #42 | Existing | https://github.com/myorg/myapp/issues/42 |
-   | LOGIN-002 | User Logout | #43 | Created | https://github.com/myorg/myapp/issues/43 |
-   ```
+## Operating rules
+
+- The design document is the requirements source of truth; GitHub issue/PR state is the delivery ledger.
+- Synchronize content, not lifecycle. Never infer that a revised design authorizes closing, reopening, or deleting an issue.
+- Preserve full acceptance criteria exactly enough for an implementer to work from the issue alone.
+- Use stable story IDs, exact body comparison, and marker comments; title-only heuristics and unconditional comments are not idempotent.
+- Stop on duplicate IDs, missing dependency targets, or ambiguous scope.
+
+## Scripts
+
+- `sync_issue.sh "<issue-number|new>" "<title>" "<labels>" "<body-file>"`: create or exactly reconcile one issue.
+- `upsert_dependency_comment.sh "<issue-number>" "<body-file>"`: create, update, or leave unchanged the single marker comment.
+- `create_milestone.sh "<title>"`: ensure one milestone exists.

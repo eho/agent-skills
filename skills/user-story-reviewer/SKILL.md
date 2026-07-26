@@ -3,7 +3,7 @@ name: user-story-reviewer
 description: Review an implemented user story or task (via GitHub Pull Request) for completeness, test coverage, and code quality. Use this when asked to QA, review a PR, verify implementation, review a user story like USERST-001, or as a follow-up to the user-story-implementer skill.
 metadata:
   author: eho
-  version: '2.3.1'
+  version: '2.4.0'
 ---
 
 # User Story Reviewer
@@ -32,8 +32,8 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
      gh pr view <pr-number> --json number,title,body,author,isDraft,headRefName,baseRefName,files,commits,closingIssuesReferences,reviewDecision,statusCheckRollup,mergeStateStatus,url
      gh pr checks <pr-number>
      ```
-   - Stop if the PR is a draft, does not reference the requested story identifier, or has no reliable requirements source. Report the blocker clearly.
-   - If CI/checks are failing or pending, you may still review the code, but the Decision cannot be `Approve` or `Merge` until checks are passing or the user explicitly accepts the risk.
+   - Stop if the PR is a draft, closed, does not reference the requested story identifier, or has no reliable requirements source. Report the blocker clearly.
+   - If CI/checks are failing or pending, you may still review the code, but the Decision cannot be `Approve`, `Comment only`, or `Merge`. User acceptance of risk belongs in the final handoff as a blocker or human decision; it does not let this reviewer bypass merge readiness.
 3. **Read the Requirements (The Issue)**:
    - Identify the linked issue using `closingIssuesReferences` first. Also check PR title, body, branch name, and commits for the story identifier. PR bodies may use `Closes`, `Fixes`, `Resolves`, full GitHub URLs, or multiple issue references.
    - If the PR metadata does not expose the linked issue, search issues for the story identifier:
@@ -44,6 +44,7 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
    - If multiple issues match, or no issue contains clear acceptance criteria, stop and ask for the intended issue or requirements source.
 4. **Analyze the Implementation**: Review the code changes made in the Pull Request.
    - Run `gh pr diff <pr-number>` to view the changes.
+   - Before checkout, require a clean worktree with `git status --porcelain=v1 --untracked-files=all`. Stop rather than stashing, cleaning, or overwriting unrelated changes.
    - For anything beyond a trivial documentation-only change, checkout the PR branch locally (`gh pr checkout <pr-number>`) so you can inspect changed files in context, nearby call sites, existing tests, configuration, migrations, generated types, and runtime behavior.
    - Do not rely on the diff alone when the change touches shared code, data models, auth, persistence, UI behavior, build configuration, or public APIs.
 5. **Conduct the Review**: Evaluate the implementation across the key dimensions (see Review Dimensions below). Produce the Review Output before taking action. Findings come first, ordered by severity, and each finding should be grounded in a file/line reference or diff hunk when code evidence exists.
@@ -52,27 +53,30 @@ Too often, implementations miss subtle acceptance criteria, lack meaningful test
    - If there ARE gaps:
      - First record the issue as a review finding.
      - **Request changes by default** if the gap affects acceptance criteria, behavior, architecture, data safety, security, compatibility, or test confidence. Write the detailed review to a file and run `gh pr review <pr-number> --request-changes --body-file <file>`.
-     - **Fix yourself only after choosing the `Fix small issue` Decision** and only if the gap is small, mechanical, low-risk, and clearly within the reviewer workflow (e.g., missing focused test, typo in comment, adding 1-2 obvious lines of code). Checkout the PR branch with `gh pr checkout <pr-number>`, make the fix, commit with `git add <specific-files>` (not `git add .`), and push. Call out the fix commit in the review.
+     - **Fix yourself only after choosing the `Fix small issue` Decision** and only if the gap is small, mechanical, low-risk, and clearly within the reviewer workflow (e.g., missing focused test or typo in a comment). Checkout the existing PR branch, make the fix, commit with `git add <specific-files>` (not `git add .`), and push to that same PR. Call out the fix commit in the review. Do not sign off in the same cycle; a follow-up independent review is required.
    - If you request changes, stop after posting the review and final response. Do not continue toward approval until a follow-up review is requested.
-7. **Sign off (Approve or Merge)**: Determine if you are the author of the PR. GitHub prevents users from approving their own PRs, so self-authored PRs should be handled by leaving a comment review and then merging once there are no blocking findings and CI/checks are passing. If you are not the author, formally approve the PR. The bundled script handles this logic automatically: current-user PRs are comment-and-merge by default, while non-current-user PRs receive an approval review.
+7. **Sign off (Approve or Merge)**: Refresh PR metadata immediately before action. Require non-draft open state, a mergeable head, no pending/failing checks, and no new commits since the reviewed head. Determine if you are the author. GitHub prevents self-approval, so self-authored PRs receive a comment review and merge only when GitHub reports the PR merge-ready. If you are not the author, formally approve it. The bundled script repeats these readiness checks as defense in depth.
 
    **Review comment**: Before approving or merging, write a specific, self-documenting review comment. Do NOT use generic statements like "All acceptance criteria met." Instead:
    - Summarize what was verified — list the key acceptance criteria checked and confirm each passed.
    - Call out any fixes made — if you fixed a gap, describe what was wrong and how you resolved it (include the commit hash).
    - Note anything worth flagging — edge cases covered, design decisions observed, minor concerns that don't block approval, residual risks, or anything not verified.
 
-   **Script usage**: Write your detailed review comment to a temporary text file (e.g., `review_comment.txt`). Then, call the bundled script passing the PR number and the path to your comment file.
+   **Script usage**: Capture the reviewed head OID from PR metadata. Write the detailed review comment to a `mktemp` file outside the worktree and clean it with a trap. Then call the bundled script with the PR number, body file, and reviewed head OID.
 
    The `scripts/` directory is a sibling of this SKILL.md file. Resolve its absolute path and call:
    ```bash
-   echo "My detailed review comment..." > review_comment.txt
-   bash /absolute/path/to/scripts/approve_or_merge_pr.sh <pr-number> review_comment.txt
-   rm review_comment.txt
+   REVIEW_FILE=$(mktemp)
+   trap 'rm -f "$REVIEW_FILE"' EXIT
+   # Write the detailed review to "$REVIEW_FILE".
+   bash /absolute/path/to/scripts/approve_or_merge_pr.sh \
+     <pr-number> "$REVIEW_FILE" <reviewed-head-oid>
    ```
 
    To leave a comment-only sign-off without merging a current-user PR, pass `--comment-only`:
    ```bash
-   bash /absolute/path/to/scripts/approve_or_merge_pr.sh <pr-number> review_comment.txt --comment-only
+   bash /absolute/path/to/scripts/approve_or_merge_pr.sh \
+     <pr-number> "$REVIEW_FILE" <reviewed-head-oid> --comment-only
    ```
 
 ## Review Output
@@ -100,7 +104,7 @@ Before approving, requesting changes, fixing, or merging, produce this structure
 - Include PR preflight status: story identifier matched, linked issue found, draft status, CI/check status, and whether the PR branch was checked out locally.
 
 ### Decision
-- Choose one: `Request changes`, `Fix small issue`, `Approve`, `Comment only`, or `Merge`.
+- Choose one: `Request changes`, `Fix small issue`, `Approve`, `Comment only`, `Merge`, or `Blocked`.
 - Explain the decision in one or two sentences.
 
 ## Final Response and Handoffs
@@ -117,15 +121,24 @@ Use `Decision` in the handoff to report the final state after the review action:
 - `Comment only`: a non-approval sign-off comment was left.
 - `Merge`: the PR was merged.
 
+### Exact review handoff
+
 ```markdown
 ## Review Handoff
 - Story ID:
+- Issue:
+- State: in_progress | completed | blocked
+- Branch:
 - PR:
-- Decision: Request changes | Fix small issue | Approve | Comment only | Merge
+- PR state: OPEN | MERGED | CLOSED
+- Merge commit:
+- Decision: Request changes | Fix small issue | Approve | Comment only | Merge | Blocked
 - Blocking findings:
 - Reviewer-fixed commits:
 - Required follow-up:
 - Verification:
+- Blocked: yes/no
+- Blocker:
 ```
 
 ## Review Dimensions
@@ -154,7 +167,7 @@ Use `Decision` in the handoff to report the final state after the review action:
 
 This skill bundles the following scripts in the `scripts/` subdirectory relative to this SKILL.md file:
 
-- `approve_or_merge_pr.sh "<pr-number>" "<review-comment-file>" [--comment-only]`: Safely extracts author information and determines whether to comment-and-merge (if the PR belongs to the current user) or approve the PR, avoiding agent shell parsing errors. Pass `--comment-only` to skip merging a current-user PR. A real review comment file is required; the script will not post a generic approval body.
+- `approve_or_merge_pr.sh "<pr-number>" "<review-comment-file>" "<reviewed-head-oid>" [--comment-only]`: Revalidates PR identity, head SHA, draft/open/mergeable state, and checks before approving or comment-and-merging. Pass `--comment-only` to skip merging a current-user PR.
 
 ## Examples
 
@@ -169,15 +182,4 @@ This skill bundles the following scripts in the `scripts/` subdirectory relative
 6. Produce the Review Output. Notice that changes were made to save immediately, but no tests verify the immediate save functionality. Record the missing test as a finding with a file/line or diff hunk reference.
 7. Choose `Fix small issue` only if the reviewer workflow allows it. Write the missing test in `TaskEdit.test.tsx` and update the README if needed.
 8. Commit and push: `git add TaskEdit.test.tsx README.md && git commit -m "test: add immediate save test"` and `git push`.
-9. Approve, comment, or merge the PR as appropriate (resolve absolute path to `scripts/` sibling of this SKILL.md):
-   ```bash
-   echo "Verified:
-   - Priority selector dropdown works in modal
-   - Shows current priority correctly
-   - Saves immediately
-   - Fixed missing test for immediate save in TaskEdit.test.tsx (see commit <hash>)
-   - Residual risk: none beyond existing coverage limits
-   " > review_comment.txt
-   bash /path/to/skills/user-story-reviewer/scripts/approve_or_merge_pr.sh 13 review_comment.txt
-   rm review_comment.txt
-   ```
+9. Return `Fix small issue` and stop. A separate follow-up reviewer rechecks the new head and may then approve, comment, or merge with `approve_or_merge_pr.sh`.
