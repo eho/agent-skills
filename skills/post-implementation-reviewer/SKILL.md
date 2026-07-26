@@ -3,37 +3,39 @@ name: post-implementation-reviewer
 description: 'Run an independent, report-only final audit of a delivered design document or multi-story feature. Reconcile every current design story with canonical GitHub Issues, merged PRs, review and acceptance evidence, integration behavior, documentation, and verification, then decide Ready, Ready with follow-ups, or Not ready. Use for final audits, release-readiness checks, goal completion gates, and feature-delivery audit-remediation loops.'
 metadata:
   author: eho
-  version: '3.0.0'
+  version: '3.1.0'
 ---
 
 # Post-Implementation Reviewer
 
 Determine whether the current implementation satisfies the complete design. Remain report-only so the feature coordinator can route findings through implementation and independent story review.
 
-Do not edit code, merge PRs, close issues, or create follow-up issues during this audit unless the user explicitly invokes this skill outside an orchestrated delivery workflow and requests those mutations.
+This skill is always report-first and report-only. Do not edit code, push commits, merge PRs, change issues, create follow-up issues, or otherwise remediate during the audit. If the user also requests fixes, finish and hand off the complete audit first; remediation must run through the normal implementation and independent-review workflow in a separate phase.
 
 ## Audit
 
-1. Read the exact design document in full. Extract every in-scope story, dependency, and acceptance criterion before querying GitHub.
-2. Identify the design revision and canonical issue marker convention.
-3. Build the complete traceability matrix:
+1. Read repository and scoped `AGENTS.md` files plus project documentation before inspecting implementation state.
+2. Read the exact design document in full. Extract every in-scope story, dependency, and acceptance criterion before querying GitHub.
+3. Compute the whole-document and per-story revisions with the installed `design-to-issues/scripts/story_contract.py` when available; otherwise apply its exact normalization contract. Identify the complete composite marker convention.
+4. Build the complete traceability matrix:
    - current design story;
-   - canonical issue and design revision;
-   - intended delivery PRs;
+   - canonical issue, design identity, document revision, and story revision;
+   - delivery IDs, supersession graph, unique current leaf, and any carry-forward record;
    - review and merge evidence;
    - issue closure;
    - acceptance-criteria evidence.
-4. Flag missing, duplicate, orphaned, or stale issues. A historical closed issue is insufficient when its design revision differs.
-5. Verify each delivered story:
-   - intended PR merged or a documented repository-policy exception exists;
-   - independent review has no unresolved blocker;
+   Also enumerate every canonical audit-gap issue under the feature milestone. A gap remains in scope across audit passes until its current gap revision satisfies the ordinary delivery invariant or a user-authorized terminal scope decision exists.
+5. Flag missing, duplicate, unresolved orphaned, or stale issues. Treat a terminal `scope=removed|deferred;decided-at-revision=<REVISION>` marker as resolved scope history across unrelated later revisions until an explicit restoration/supersession decision or the story reappears. A historical closed issue without that durable scope decision is insufficient when either revision differs or its managed delivery contract drifted.
+6. Verify each delivered story:
+   - current delivery-leaf PR merged, a documented repository-policy exception exists, or an independently reviewed current-revision carry-forward record proves the historical merged head;
+   - independent review covers the delivered head SHA and has no unresolved blocker;
    - required checks passed or an explicit exception exists;
    - every criterion has meaningful code, test, documentation, or manual evidence.
-6. Inspect the current codebase, not only PR descriptions. Compare architecture, APIs, data contracts, state ownership, persistence, auth, permissions, failures, migrations, compatibility, rollout, and rollback with the design.
-7. Test cross-story integration and critical user flows. Individual story success does not prove the assembled feature works.
-8. Audit user-facing and operational documentation, examples, configuration, diagnostics, and terminology.
-9. Discover repository verification commands and run the strongest relevant suite. Do not imply unrun checks passed.
-10. Classify every finding:
+7. Inspect the current codebase, not only PR descriptions. Compare architecture, APIs, data contracts, state ownership, persistence, auth, permissions, failures, migrations, compatibility, rollout, and rollback with the design.
+8. Test cross-story integration and critical user flows. Individual story success does not prove the assembled feature works.
+9. Audit user-facing and operational documentation, examples, configuration, diagnostics, and terminology.
+10. Discover repository verification commands and run the strongest relevant suite. Do not imply unrun checks passed.
+11. Classify every finding:
     - blocking story gap;
     - blocking integration gap;
     - blocking documentation/operational gap;
@@ -56,8 +58,8 @@ Creating a follow-up issue would not make a blocking finding non-blocking. Repor
 - If none: No blocking findings found.
 
 ## Story Completion Matrix
-| Story | Design Revision | Issue | PR | Review | Merge/Closure | Acceptance Evidence | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| Story | Document Revision | Story Revision | Delivery Leaf | Issue | PR | Reviewed Head | Merge/Closure | Acceptance Evidence | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## Integration and Design Alignment
 - Critical flows:
@@ -93,6 +95,8 @@ Rationale:
 ```markdown
 ## Final Audit Handoff
 - Design doc:
+- Design revision:
+- Audited default-branch SHA:
 - Decision: Ready | Ready with follow-ups | Not ready
 - Blocking findings:
 - Non-blocking follow-ups:

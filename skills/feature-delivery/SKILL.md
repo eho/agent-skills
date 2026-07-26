@@ -3,7 +3,7 @@ name: feature-delivery
 description: 'Fully deliver every in-scope user story from a revised design document through GitHub issue reconciliation, implementation, independent PR review, merge, and a final audit-remediation loop. This is a goal-aware, resumable workflow: use it for active goals or requests to deliver, ship, fully implement, resume, or finish a complete design doc or multi-story feature. Do not stop at issue creation, open or approved PRs, follow-up issues, or a Not ready audit.'
 metadata:
   author: eho
-  version: '2.0.0'
+  version: '2.1.0'
 ---
 
 # Feature Delivery
@@ -33,24 +33,28 @@ Resolve these paths relative to this `SKILL.md`.
 
 ## Entry and resumption
 
-1. Resolve the exact design document. Do not guess when multiple documents are plausible.
-2. Confirm it has a `## User Stories` section with stable story IDs, dependencies, and binary acceptance criteria.
-3. Require `Status: Revised` or an equivalent explicit readiness marker. A direct user instruction to deliver a non-revised document is an explicit override; record the risk.
-4. Inspect the active goal when the runtime exposes goal state. Reuse a matching active goal. Never create a goal unless the user explicitly requested goal creation.
-5. Rehydrate delivery state before taking action:
+1. Read repository and scoped `AGENTS.md` files plus project documentation before any repository or GitHub action.
+2. Resolve the exact design document. Do not guess when multiple documents are plausible.
+3. Confirm it has a `## User Stories` section with stable story IDs, dependencies, and binary acceptance criteria.
+4. Require `Status: Revised` or an equivalent explicit readiness marker. A direct user instruction to deliver a non-revised document is an explicit override; record the risk.
+5. Inspect the active goal when the runtime exposes goal state. Reuse a matching active goal. Never create a goal unless the user explicitly requested goal creation.
+6. Rehydrate delivery state before taking action:
    - parse every in-scope design story and dependency;
+   - compute the whole-document and per-story revisions with the bundled `design-to-issues` contract script;
    - run `design-to-issues` to reconcile, not merely create, GitHub Issues;
-   - inspect matching PRs, reviews, checks, merge state, and issue state;
+   - inspect matching local/remote branches, worktrees, PRs, reviews, checks, merge state, and issue state;
    - classify each story using `references/state-machine.md`.
-6. Do not trust a prior prose handoff over current GitHub and repository state. Handoffs accelerate resumption; they are not the ledger.
+7. Do not trust a prior prose handoff over current GitHub and repository state. Handoffs accelerate resumption; they are not the ledger.
 
 ## Delivery loop
 
 Continue while any in-scope story is not `done`:
 
 1. Select an actionable story whose dependencies are `done`.
+   - For a reopened delivery whose story source is unchanged, the coordinator may first invoke the independent reviewer's carry-forward mode. Follow the ordered transition and exact comment schema in `references/contracts.md`; absent a valid `Carry forward` decision, continue normal implementation.
 2. Invoke `user-story-implementer` for exactly that issue:
    - resume its existing PR when one exists;
+   - resume its canonical local/remote branch when work exists but no PR does;
    - otherwise implement, verify, commit, push, and open one PR;
    - require the Implementation Handoff from `references/contracts.md`.
 3. Invoke a separate reviewer context with `user-story-reviewer`:
@@ -58,19 +62,20 @@ Continue while any in-scope story is not `done`:
    - require the Review Handoff from `references/contracts.md`.
 4. Handle the decision:
    - `Request changes`: send the concrete findings back through `user-story-implementer` on the same PR.
-   - `Fix small issue`: verify the reviewer pushed the fix, then run a fresh review.
+   - `Fix small issue`: verify the reviewer pushed the fix, then run a fresh review in a context independent of both the implementer and the reviewer who authored the fix.
    - `Approve` or `Comment only`: treat as reviewed but not done; merge only when repository policy permits.
    - `Merge`: re-read the PR and issue to verify the merge and closure actually occurred.
 5. Repeat until the story meets every `done` invariant in `references/contracts.md`.
 6. Rehydrate the whole feature state before selecting the next story. This catches merges, user changes, stale branches, and newly surfaced blockers.
 
-Use five review-fix cycles as an escalation checkpoint, not a completion condition. At the checkpoint, reassess scope, requirements, and implementation strategy. Continue when a safe path remains; request a product decision only when correctness genuinely depends on one.
+Use review epochs of at most five review-fix cycles. Write blocking findings as a JSON array with exactly `stable_key`, `severity`, `location`, `behavior`, `impact`, and `required_change`, then run `scripts/fingerprint_findings.py` to assign stable IDs to each finding. After every review, post the exact `feature-delivery:review-ledger` issue-comment schema from `references/contracts.md`; include the IDs in the Review Handoff. Reconstruct counters only from ledger comments matching the current delivery ID and head SHA after interruption. At an epoch boundary, stop automatic retry, rehydrate state, summarize repeated finding IDs, and start a new implementation strategy and fresh independent reviewer context only when evidence supports a materially different safe approach. If the same blocking finding ID survives two epochs, record it as a concrete story blocker and request the missing product or architecture decision. A review limit is never completion.
 
 ## Blockers and partial progress
 
 - A blocked story does not automatically block the feature.
 - Record the blocker on its GitHub Issue, then continue stories that neither depend on it nor conflict with its work.
 - Do not defer or remove a story from scope unless the user explicitly changes the design scope.
+- When scope changes, require `design-to-issues` to record a durable `deferred` or `removed` orphan resolution with the deciding revision and reason; do not rediscover the same unresolved orphan on every pass.
 - Continue safe diagnostics, issue repair, verification, and independent stories while useful work remains.
 - Treat the overall workflow as blocked only when no meaningful in-scope progress remains and the goal runtime's blocked policy is satisfied.
 - Permission, usage, and token-budget pauses are runtime states, not evidence that the feature is complete.
@@ -83,7 +88,8 @@ When all stories appear `done`:
 2. Require the Final Audit Handoff from `references/contracts.md`.
 3. If the decision is `Not ready`:
    - map each blocking finding to the affected existing story where possible;
-   - otherwise create a clearly traceable delivery-gap issue under the same milestone;
+   - when that story's prior PR is already merged, reopen the canonical issue with an audit-gap comment, retain the current design/story identity, and create exactly one new delivery attempt whose PR explicitly supersedes the prior leaf rather than attempting to revise merged history;
+   - otherwise normalize the finding with `scripts/audit_gap_contract.py`, reconcile exactly one canonical audit-gap issue under the same milestone using the audit-gap contract in `references/contracts.md`, and run its gap ID through the ordinary attempt/branch/implementation/review lifecycle;
    - run that issue through implementation and independent review;
    - rerun the complete final audit.
 4. If the decision is `Ready with follow-ups`, verify every follow-up is genuinely non-blocking. The default full-delivery goal remains active unless its objective explicitly permits non-blocking follow-ups.
@@ -99,7 +105,7 @@ Before reporting success, independently re-check:
 
 - every in-scope design story has one canonical GitHub Issue;
 - every story satisfies the `done` invariant;
-- no dependency or blocking-delivery-gap issue remains open;
+- no dependency or blocking audit-gap issue remains open;
 - required CI and repository verification pass;
 - user-facing and operational documentation is current;
 - the latest full-feature audit satisfies the goal's release-readiness threshold.
@@ -111,6 +117,7 @@ Only then mark the matching goal adopted during entry complete, when the runtime
 ```markdown
 ## Feature Delivery Status
 - Design doc:
+- Design revision:
 - Goal:
 - Milestone:
 - Final state: Ready | Ready with follow-ups | Blocked

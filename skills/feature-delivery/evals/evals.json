@@ -45,7 +45,7 @@
       "assertions": [
         "Distinguishes PRs by both story ID and design revision.",
         "Preserves older-revision PRs as history.",
-        "Selects exactly one current-revision delivery chain.",
+        "Selects exactly one non-superseded current-revision delivery leaf.",
         "Does not treat the older merged PR as proof of current completion."
       ]
     },
@@ -95,6 +95,90 @@
         "Requires issue, branch, commit, and diff evidence before migration.",
         "Adds markers before treating an equivalent legacy PR as current.",
         "Blocks when equivalence is uncertain."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Resume docs/design/payments.md after its shared API & Data Contracts section changed, but PAY-001's story text and old merged PR are unchanged. Decide whether PAY-001 is still delivered.",
+      "expected_output": "Computes a changed whole-document revision, updates the composite issue identity, and reopens PAY-001 by default because shared design evidence changed rather than carrying forward its old merge automatically.",
+      "files": [],
+      "assertions": [
+        "Distinguishes whole-document revision from per-story revision.",
+        "Does not accept an unchanged story hash as proof that shared design contracts are unchanged.",
+        "Reopens before any carry-forward decision, then permits re-closing only after independent revalidation and a durable current-tuple record.",
+        "Requires current-revision acceptance and review evidence."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Resume NOTIF-003 after interruption. A canonical remote branch exists but no PR was opened, the current checkout has unrelated dirty changes, and NOTIF-003 depends on two PRs merged to main.",
+      "expected_output": "Discovers and resumes the existing remote branch without replacing it, preserves the dirty checkout, and verifies that both dependency merge SHAs are ancestors of the fetched remote default branch before continuing.",
+      "files": [],
+      "assertions": [
+        "Searches local branches, remote branches, and worktree ownership before creating work.",
+        "Does not create a duplicate branch or PR.",
+        "Does not switch or rewrite the dirty worktree.",
+        "Verifies dependency merge ancestry against the fetched remote default branch."
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Review and merge PR #88 for STORY-014. Checks pass at reviewed head abc123, but another commit is pushed immediately after review. The repository requires squash merge and does not use a queue.",
+      "expected_output": "Records abc123 as the reviewed head, rechecks the PR after review, refuses the changed head, and uses a head-match guard so no unreviewed commit can be merged.",
+      "files": [],
+      "assertions": [
+        "Treats head changes as invalidating sign-off.",
+        "Rechecks draft, base, checks, mergeability, review decision, and policy before merge.",
+        "Uses the reviewed head SHA as an atomic merge guard.",
+        "Requires a fresh independent review of the new head."
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "The report-only final audit finds a blocking bug owned by STORY-004, whose canonical issue is closed and PR is merged. Remediate without rewriting merged history.",
+      "expected_output": "Leaves the auditor report-only, has the coordinator reopen the canonical issue with traceable audit-gap evidence, creates one new delivery attempt that supersedes the merged leaf, independently reviews it, and reruns the full audit.",
+      "files": [],
+      "assertions": [
+        "The final auditor makes no mutations.",
+        "The coordinator explicitly reopens the canonical issue.",
+        "Creates one replacement PR instead of modifying the merged PR.",
+        "Routes the replacement through independent review and reruns the full audit."
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "A revised design removed LEGACY-002. On the prior pass the user explicitly decided it was removed, but the next resumed run discovers its old issue again.",
+      "expected_output": "Reads the terminal scope marker and deciding design revision, reports the issue as a resolved removed orphan, and does not repeatedly block or silently restore it.",
+      "files": [],
+      "assertions": [
+        "Requires an explicit scope decision before marking removal.",
+        "Persists removal identity, revision, and reason.",
+        "Distinguishes resolved orphans from unresolved ones.",
+        "Does not rediscover the same resolved orphan as a blocker."
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "DOC-002 was merged for the current revision, then a final audit reopened the same canonical issue for a blocking gap without changing the design text. Resume after the replacement PR also merged.",
+      "expected_output": "Builds the immutable delivery-attempt and supersession graph, selects the replacement as the unique current leaf, preserves the original merge as history, and does not report duplicate current delivery.",
+      "files": [],
+      "assertions": [
+        "Distinguishes delivery attempt identity from design and story revision identity.",
+        "Requires the replacement PR to supersede the previous leaf.",
+        "Selects one non-superseded current delivery leaf.",
+        "Does not rewrite markers on the historical merged PR."
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Reconcile a revised design where one story has no Depends on declaration, another references a missing story ID, and two headings form a dependency cycle.",
+      "expected_output": "Fails before GitHub mutation with precise design-contract errors instead of treating malformed dependencies as None or beginning stories in unsafe order.",
+      "files": [],
+      "assertions": [
+        "Requires exactly one dependency declaration per story.",
+        "Rejects unknown and self dependencies.",
+        "Rejects cyclic or out-of-order dependency graphs.",
+        "Makes no issue or milestone mutation after manifest validation fails."
       ]
     }
   ]

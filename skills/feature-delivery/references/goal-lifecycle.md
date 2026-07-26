@@ -12,6 +12,7 @@ Use goals as durable outer objectives, not as detailed workflow storage.
 - Let the runtime own pause, usage-limit, and token-budget states.
 - Mark complete only after the feature completion invariant is independently rechecked.
 - Mark blocked only when no meaningful work remains, the blocker is concrete, and the runtime's blocked-state policy is satisfied.
+- A review checkpoint, exhausted local retry budget, or temporary inability to change branches is not completion. Persist the exact blocker and resume from external state.
 
 Do not hard-code one vendor's slash command or tool name into the workflow. Use the goal capability exposed by the current runtime.
 
@@ -39,3 +40,5 @@ A story blocker is local state. Keep the goal active while any of these remain p
 - audit findings can be classified or remediated.
 
 Escalate to a goal blocker only when the remaining work requires an external state change or a product decision that the agent cannot safely infer.
+
+When the runtime requires repeated confirmation before a goal can become blocked, keep the goal active and rehydrate on each continuation until that threshold is actually met. Do not synthesize prior blocked turns or mark blocked early.
