@@ -1,4 +1,4 @@
 interface:
   display_name: "iOS Simulator Automation"
   short_description: "Coordinate reliable iOS Simulator automation"
-  default_prompt: "Use $ios-simulator-automation to automate and verify this iOS Simulator flow reliably."
+  default_prompt: "Use $ios-simulator-automation to choose the lightweight or formal path, reuse healthy infrastructure, verify this iOS Simulator flow with bounded strategies, and record evidence without claiming product pass."

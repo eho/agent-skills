@@ -1,0 +1,53 @@
+{
+  "skill_name": "ios-simulator-automation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Verify the signed-in Settings flow on the iPhone 17e simulator. Two simulators are booted, Metro may already be running from another worktree, and the app uses an Expo development client.",
+      "expected_output": "Selects and routes by exact UDID, diagnoses listener ownership and Metro identity before reuse, creates a runtime ledger for this formal flow, asserts a stable app-owned element, and does not rebuild or start a competing Metro process without evidence.",
+      "files": [],
+      "assertions": [
+        "Uses an exact UDID for every device-specific command.",
+        "Checks Metro project, revision, interface, and public-environment fingerprint.",
+        "Creates or resumes the runtime ledger before interaction.",
+        "Requires an app-owned stability assertion rather than trusting launch success."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Automate local OTP sign-in in an Expo dev client. The Mac smoke test passes, but the simulator submits nothing and the configured API URL might be loopback or private LAN. Do not expose secrets.",
+      "expected_output": "Proves served configuration and simulator-to-backend topology before repeating UI actions, distinguishes missing requests from backend failures, requests authority for private-LAN exposure when needed, and uses only redaction-safe authentication helpers.",
+      "files": [],
+      "assertions": [
+        "Does not diagnose the backend from the Mac-only smoke result.",
+        "Fingerprints public configuration without emitting values.",
+        "Treats private-LAN authority separately from localhost access.",
+        "Does not put OTPs or credentials in logs, screenshots, manifests, or regular files."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The email field is filled, the software keyboard covers Send code, and an agent-device tap did not submit. A previous worker already attempted one coordinate fallback.",
+      "expected_output": "Reads the inherited attempt ledger, avoids another coordinate retry, uses semantic submit or documented hardware Return/HID only if its budget remains, and returns manual verification when no materially different supported path exists.",
+      "files": [],
+      "assertions": [
+        "Inherits attempts consumed by the previous worker.",
+        "Does not repeat the failed coordinate strategy.",
+        "Prefers semantic submit or documented hardware Return/HID.",
+        "Stops at the shared budget rather than spawning another fresh attempt."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Capture a compact and large-iPhone Dynamic Type matrix plus one system permission recovery flow. VoiceOver and dark mode must be restored afterward.",
+      "expected_output": "Changes one configuration dimension at a time, records the asserted configuration, uses agent-device for app state and serve-sim only at the system boundary, captures semantic and visual evidence, then restores settings and cleans task-owned helpers.",
+      "files": [],
+      "assertions": [
+        "Routes app and system surfaces to different appropriate tools.",
+        "Asserts each device/accessibility configuration before product evidence.",
+        "Uses semantic assertions and screenshots for their distinct purposes.",
+        "Restores changed settings and records cleanup."
+      ]
+    }
+  ]
+}

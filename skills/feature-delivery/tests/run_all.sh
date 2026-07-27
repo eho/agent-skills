@@ -24,5 +24,6 @@ bash "$SKILLS_ROOT/design-to-issues/tests/create_milestone_test.sh"
 bash "$SKILLS_ROOT/user-story-implementer/tests/create_pr_test.sh"
 bash "$SKILLS_ROOT/user-story-implementer/tests/prepare_story_branch_test.sh"
 bash "$SKILLS_ROOT/user-story-reviewer/tests/approve_or_merge_pr_test.sh"
+bash "$SKILLS_ROOT/ios-simulator-automation/tests/run_all.sh"
 
 echo "feature-delivery chain tests passed"

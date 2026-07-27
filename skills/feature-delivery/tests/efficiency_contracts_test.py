@@ -38,9 +38,11 @@ class EfficiencyContractsTest(unittest.TestCase):
         self.assertIn("one exhaustive finding set", content)
 
     def test_simulator_ledger_is_shared(self) -> None:
+        feature = read("feature-delivery/SKILL.md")
         content = read("ios-simulator-automation/SKILL.md")
-        self.assertIn("retry ledger is shared", content)
-        self.assertIn("runtime manifest", content)
+        self.assertIn("use `ios-simulator-automation`", feature)
+        self.assertIn("retry budgets survive agents and resumed turns", content)
+        self.assertIn("runtime ledger", content)
 
 
 if __name__ == "__main__":

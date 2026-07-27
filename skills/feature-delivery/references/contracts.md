@@ -14,8 +14,8 @@ When the runtime can limit inherited context, pass this packet instead of the co
 - Dependency merge SHAs:
 - Finding IDs to address:
 - Verification-policy comment:
+- Runtime ledger, selected criteria, and attempts consumed:
 - Reusable evidence references:
-- Runtime attempts consumed:
 - Required handoff:
 ```
 

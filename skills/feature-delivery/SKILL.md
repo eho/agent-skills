@@ -21,6 +21,8 @@ This skill owns orchestration and recovery. Specialist skills own issue reconcil
 
 If a specialist is unavailable, report the exact missing prerequisite. Do not silently approximate a review or implementation workflow that depends on independence.
 
+When a criterion requires iOS Simulator evidence, use `ios-simulator-automation`. Share its ledger and compatible infrastructure across the feature; independent reviewers still record fresh behavioral observations.
+
 ## Load the workflow contracts
 
 Read these bundled references before starting:
@@ -168,4 +170,3 @@ If blocked, report completed work and all remaining stories. If ready, say `No b
 - Keep user updates tied to meaningful state transitions rather than every low-level action.
 - Use the runtime's wait mechanism for active specialists. Do not poll with repeated prompts or restate unchanged status; request one compact delta only when a worker exceeds a meaningful expected boundary.
 - Reuse immutable exact-head evidence and deterministic artifacts; rerun work when the head, environment contract, risk, or repository policy invalidates it.
-- Prefer one feature-owned runtime harness and authenticated synthetic fixture over rebuilding or reauthenticating per story.
