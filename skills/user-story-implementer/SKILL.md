@@ -3,7 +3,7 @@ name: user-story-implementer
 description: 'Implement or revise exactly one canonical GitHub user story, including acceptance-criteria verification, focused tests, documentation, commit, push, and creation or resumption of one PR. Use for a specific story ID or issue, for requested changes on an existing story PR, or as the implementation worker in user-story-delivery and feature-delivery.'
 metadata:
   author: eho
-  version: '3.1.0'
+  version: '3.2.0'
 ---
 
 # User Story Implementer
@@ -66,14 +66,15 @@ Immediately after branch preparation, comment on the canonical issue with delive
 1. Assign the issue to the current user if repository policy permits.
 2. Read the linked design context and inspect exact nearby code, tests, contracts, and documentation before editing.
 3. Implement the smallest coherent change satisfying the complete current issue.
-4. For each acceptance criterion, record its evidence:
+4. Read the feature verification policy when supplied. Reuse valid exact-head evidence, inherit consumed runtime attempts, and do not retry owner-manual criteria.
+5. For each acceptance criterion, record its evidence:
    - code path;
    - focused automated test;
    - manual or browser verification where appropriate;
    - documentation or operational change.
-5. Add meaningful happy-path and relevant error/edge coverage. UI behavior requires visual/browser verification when the runtime supports it.
-6. Run the strongest relevant targeted verification, then broader typecheck, lint, build, or tests required by the repository.
-7. Self-review the diff for regressions, security, permissions, data safety, migrations, concurrency, compatibility, diagnostics, and documentation.
+6. Add meaningful happy-path and relevant error/edge coverage. UI behavior requires visual/browser verification when the verification policy assigns it to the agent and the shared runtime budget remains.
+7. Run focused verification for the changed risk. Run a broader gate when repository policy requires it or no reusable exact-head result covers the current head; do not repeat an unchanged broad gate merely to populate a handoff.
+8. Self-review the diff for regressions, security, permissions, data safety, migrations, concurrency, compatibility, diagnostics, and documentation.
 
 If correctness depends on a missing product decision, credential, external service, or undelivered dependency, record a specific blocker on the issue and stop. Add a `blocked` label only when it exists or repository policy permits creating it.
 
@@ -120,3 +121,5 @@ If correctness depends on a missing product decision, credential, external servi
 ```
 
 Do not claim completion, approval, or release readiness. The coordinator and an independent reviewer determine those states.
+
+Keep the handoff compact. Put detailed criterion evidence and command output on the PR once, then reference it. For a revision of the same delivery tuple, report the changed head, addressed finding IDs, verification delta, and residual risk without restating unchanged design or issue prose.

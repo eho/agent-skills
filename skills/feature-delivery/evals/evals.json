@@ -180,6 +180,55 @@
         "Rejects cyclic or out-of-order dependency graphs.",
         "Makes no issue or milestone mutation after manifest validation fails."
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "Fully deliver docs/design/mobile-settings.md. The user says that if simulator automation cannot complete after a bounded attempt, preserve the remaining iPhone matrix for owner verification after delivery. The first story already consumed one agent-device attempt and one serve-sim fallback.",
+      "expected_output": "Records one durable feature verification policy, carries the consumed retry state into later workers and reviewers, stops further simulator retries, preserves the rows as owner-manual pending rather than passed, and continues delivery when the goal permits that residual risk.",
+      "files": [],
+      "assertions": [
+        "Persists the owner-manual policy once with criterion scope, authority, owner, and residual risk.",
+        "Treats runtime attempts as feature-wide rather than resetting them for a replacement agent.",
+        "Does not convert pending owner verification into a pass.",
+        "Does not block later stories solely to repeat the exhausted automation path."
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Resume a seven-story feature after STORY-003 merged. The design and earlier issue bodies are unchanged, the default branch advanced only by that merge, and STORY-004 is now dependency-ready. Continue efficiently without weakening exact-head review.",
+      "expected_output": "Rehydrates STORY-003, its dependents, default-branch head, and volatile PR state instead of rereading immutable history for all stories; it still performs a full rehydration before final audit and preserves exact-head review checks.",
+      "files": [],
+      "assertions": [
+        "Uses incremental rehydration between stable story transitions.",
+        "Rechecks the completed story, dependents, default head, and volatile PR/check state.",
+        "Passes specialists a minimal task packet instead of the complete feature transcript when context inheritance is configurable.",
+        "Retains full rehydration for inconsistency, resumption, scope change, and final audit.",
+        "Does not weaken exact-head merge protection."
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "A PR reviewer receives an immutable full-suite result for the exact current head plus focused tests for the changed files. Repository policy does not require the full suite to be rerun by every reviewer. Review and merge efficiently.",
+      "expected_output": "Validates and reuses the exact-head broad result, independently reruns focused risk-relevant checks, and avoids duplicating the entire suite unless suspicious evidence, changed configuration, risk, or repository policy requires it.",
+      "files": [],
+      "assertions": [
+        "Binds reused evidence to the exact head and environment contract.",
+        "Runs focused independent verification.",
+        "Does not rerun a broad gate merely for ceremony.",
+        "Still reruns when policy, configuration, evidence quality, or risk invalidates reuse."
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "The final audit finds a concurrency bug in STORY-004 early in its inspection. The same merged feature also contains a stale operator runbook and an outdated lifecycle index. Return the audit result.",
+      "expected_output": "Completes code, integration, lifecycle, user-facing documentation, and operational-documentation inspection before returning one exhaustive Not ready report containing all three blockers.",
+      "files": [],
+      "assertions": [
+        "Does not stop auditing after the first blocking finding.",
+        "Reports the concurrency, runbook, and lifecycle blockers in one pass.",
+        "Classifies and fingerprints every blocking finding.",
+        "Allows the coordinator to remediate the complete set before rerunning the audit."
+      ]
     }
   ]
 }

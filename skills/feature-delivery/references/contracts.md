@@ -2,6 +2,63 @@
 
 Use these handoffs between coordinator and specialists. Validate handoffs against current GitHub state before transitioning.
 
+## Minimal specialist task packet
+
+When the runtime can limit inherited context, pass this packet instead of the complete coordinator transcript:
+
+```markdown
+- Role: issue sync | implement | review | final audit
+- Design doc and revision:
+- Story/gap ID and canonical issue:
+- Delivery ID, PR, and expected head:
+- Dependency merge SHAs:
+- Finding IDs to address:
+- Verification-policy comment:
+- Reusable evidence references:
+- Runtime attempts consumed:
+- Required handoff:
+```
+
+Omit fields irrelevant to the role. Repository files and GitHub remain the source of truth; conversation history is not a substitute for either.
+
+## Verification efficiency contract
+
+Create one policy for the feature and pass it by reference to every specialist. This prevents each context from rediscovering evidence requirements, retrying the same broken runtime path, or rerunning broad gates without new information.
+
+For each criterion, record one mode:
+
+- `automated`: a command or deterministic artifact can verify it;
+- `agent-manual`: supported interactive tooling can verify it within the shared runtime budget;
+- `owner-manual`: the user explicitly accepted verification after delivery;
+- `not-applicable`: the criterion does not apply, with a reason;
+- `unverified-blocking`: required evidence is unavailable and no exception exists.
+
+An owner-manual entry is an authorized pending verification, not a pass. It is valid only when the durable record names the criterion, user authority, owner, residual risk, and goal threshold that permits completion with it pending. Persist this compact issue comment on every affected canonical issue:
+
+```markdown
+<!-- feature-delivery:verification-policy -->
+- Design revision: <SHA-256>
+- Story revision: <SHA-256>
+- Criteria: <criterion=mode; ...>
+- Owner: <agent|user|role>
+- Runtime budget: <attempt/time boundary or none>
+- Authority: <user instruction reference or none>
+- Residual risk: <concise risk or none>
+```
+
+Treat retry state as feature-wide. One primary attempt, one diagnosed fallback, and one environment repair are the default ceiling for an interactive criterion unless the user or repository policy requires more. A new agent inherits consumed attempts.
+
+Reusable evidence must be bound to:
+
+- the exact head SHA or immutable artifact;
+- the command or observation;
+- the relevant environment/configuration fingerprint without secret values;
+- the result and evidence location.
+
+Reuse it when those bindings remain valid. Reviewers rerun focused risk-relevant checks independently, but need not duplicate a broad exact-head gate solely for ceremony. Repository policy, changed code/configuration, suspicious output, or a high-risk finding overrides reuse.
+
+Keep handoffs terse: identity fields are hashes and references; criterion detail and command output live once on the PR/issue or in an artifact. On revision cycles, report only changed head, addressed finding IDs, verification delta, and residual risk while retaining the full schema.
+
 ## Issue Sync Handoff
 
 ```markdown
@@ -139,7 +196,7 @@ A story is `done` only when all applicable conditions hold:
 4. The merged PR closes the canonical issue, or issue closure is independently verified and explained.
 5. Independent review found no unresolved blocking findings.
 6. Required checks passed, or a user-authorized exception is recorded with residual risk.
-7. Every acceptance criterion has direct code, test, documentation, or manual-verification evidence.
+7. Every acceptance criterion has direct code, test, documentation, or completed manual-verification evidence, or a durable owner-manual policy explicitly permits completion with that criterion pending.
 8. Relevant user-facing documentation is current.
 9. The reviewed head SHA is the delivered head, and no later dependency merge or design revision invalidated the evidence.
 
@@ -214,4 +271,4 @@ The feature is complete only when:
 - all blocking integration and audit gaps have passed through implementation and independent review;
 - the latest full-feature audit reports the threshold required by the goal;
 - strongest relevant repository verification passes;
-- no known blocking risk is merely deferred.
+- no known blocking risk is merely deferred; authorized owner-manual criteria remain disclosed as pending rather than reported as passed.

@@ -3,7 +3,7 @@ name: feature-delivery
 description: 'Fully deliver every in-scope user story from a revised design document through GitHub issue reconciliation, implementation, independent PR review, merge, and a final audit-remediation loop. This is a goal-aware, resumable workflow: use it for active goals or requests to deliver, ship, fully implement, resume, or finish a complete design doc or multi-story feature. Do not stop at issue creation, open or approved PRs, follow-up issues, or a Not ready audit.'
 metadata:
   author: eho
-  version: '2.1.0'
+  version: '2.2.0'
 ---
 
 # Feature Delivery
@@ -44,7 +44,12 @@ Resolve these paths relative to this `SKILL.md`.
    - run `design-to-issues` to reconcile, not merely create, GitHub Issues;
    - inspect matching local/remote branches, worktrees, PRs, reviews, checks, merge state, and issue state;
    - classify each story using `references/state-machine.md`.
-7. Do not trust a prior prose handoff over current GitHub and repository state. Handoffs accelerate resumption; they are not the ledger.
+7. Establish one feature-wide verification policy before implementation:
+   - map each acceptance criterion to automated, agent-manual, owner-manual, or not-applicable evidence;
+   - record any user-authorized owner-manual deferral durably on the affected issue;
+   - define the strongest broad gate, focused story gates, reusable exact-head evidence, and runtime retry budget;
+   - run shared environment capability checks once before the first criterion that needs them.
+8. Do not trust a prior prose handoff over current GitHub and repository state. Handoffs accelerate resumption; they are not the ledger.
 
 ## Delivery loop
 
@@ -56,9 +61,11 @@ Continue while any in-scope story is not `done`:
    - resume its existing PR when one exists;
    - resume its canonical local/remote branch when work exists but no PR does;
    - otherwise implement, verify, commit, push, and open one PR;
+   - pass the feature verification policy and any reusable exact-head evidence;
    - require the Implementation Handoff from `references/contracts.md`.
 3. Invoke a separate reviewer context with `user-story-reviewer`:
    - require an evidence-based review against every acceptance criterion;
+   - require focused independent verification, but do not automatically duplicate a broad gate whose immutable exact-head result is reusable under the verification policy;
    - require the Review Handoff from `references/contracts.md`.
 4. Handle the decision:
    - `Request changes`: send the concrete findings back through `user-story-implementer` on the same PR.
@@ -66,9 +73,15 @@ Continue while any in-scope story is not `done`:
    - `Approve` or `Comment only`: treat as reviewed but not done; merge only when repository policy permits.
    - `Merge`: re-read the PR and issue to verify the merge and closure actually occurred.
 5. Repeat until the story meets every `done` invariant in `references/contracts.md`.
-6. Rehydrate the whole feature state before selecting the next story. This catches merges, user changes, stale branches, and newly surfaced blockers.
+6. Rehydrate the completed story, its dependents, the default-branch head, and any volatile PR/check state before selecting the next story. Rehydrate the whole feature only on entry or resumption, after a design/scope change, when the incremental state is inconsistent, and before final audit. This preserves safety without repeatedly querying immutable history.
 
 Use review epochs of at most five review-fix cycles. Write blocking findings as a JSON array with exactly `stable_key`, `severity`, `location`, `behavior`, `impact`, and `required_change`, then run `scripts/fingerprint_findings.py` to assign stable IDs to each finding. After every review, post the exact `feature-delivery:review-ledger` issue-comment schema from `references/contracts.md`; include the IDs in the Review Handoff. Reconstruct counters only from ledger comments matching the current delivery ID and head SHA after interruption. At an epoch boundary, stop automatic retry, rehydrate state, summarize repeated finding IDs, and start a new implementation strategy and fresh independent reviewer context only when evidence supports a materially different safe approach. If the same blocking finding ID survives two epochs, record it as a concrete story blocker and request the missing product or architecture decision. A review limit is never completion.
+
+Keep handoffs compact. Put durable criterion detail, commands, and evidence links on the canonical issue or PR once; return identifiers, head SHAs, decisions, finding IDs, evidence references, and deltas rather than repeating issue/design prose. A coordinator status request asks only for the next safe-boundary delta. Do not request another full handoff when the prior identity tuple remains current.
+
+When the runtime supports controlling inherited context, start specialists with the smallest useful context rather than copying the full feature transcript. Send the task-packet fields from `references/contracts.md`; the specialist reads canonical repository and GitHub state directly. Final auditors need the full design scope, not the coordinator's historical narration.
+
+Runtime retry budgets apply across all agents, not per context. A replacement worker inherits prior attempts and may continue only with a materially different diagnosed strategy. Once the durable policy marks a criterion owner-manual, later implementers, reviewers, and auditors must preserve that status rather than retrying or converting it into a pass.
 
 ## Blockers and partial progress
 
@@ -98,6 +111,8 @@ When all stories appear `done`:
 5. Finish only when the audit reports `Ready`, or when the adopted goal explicitly allows `Ready with follow-ups`.
 
 The auditor identifies gaps; the coordinator owns remediation. Creating a follow-up issue is never remediation by itself.
+
+Before the first audit, finalize lifecycle/index/acceptance-ledger documentation that could not truthfully describe the last story's merge from inside that story's own PR. Route any required mutation through the normal reviewed delivery path.
 
 ## Completion
 
@@ -151,3 +166,6 @@ If blocked, report completed work and all remaining stories. If ready, say `No b
 - Do not overwrite unrelated worktree changes.
 - Follow repository-specific branch, review, and merge policy from `AGENTS.md` and project documentation.
 - Keep user updates tied to meaningful state transitions rather than every low-level action.
+- Use the runtime's wait mechanism for active specialists. Do not poll with repeated prompts or restate unchanged status; request one compact delta only when a worker exceeds a meaningful expected boundary.
+- Reuse immutable exact-head evidence and deterministic artifacts; rerun work when the head, environment contract, risk, or repository policy invalidates it.
+- Prefer one feature-owned runtime harness and authenticated synthetic fixture over rebuilding or reauthenticating per story.

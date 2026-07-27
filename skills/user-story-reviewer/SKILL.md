@@ -3,7 +3,7 @@ name: user-story-reviewer
 description: 'Independently review one implemented GitHub user story or audit-gap PR, or revalidate a historical merged delivery for carry-forward, against its canonical issue, current design revision, criteria, tests, documentation, and repository policy. Use for PR QA, story review, carry-forward review, or as the reviewer in feature delivery.'
 metadata:
   author: eho
-  version: '3.1.0'
+  version: '3.2.0'
 ---
 
 # User Story Reviewer
@@ -68,7 +68,7 @@ Review every acceptance criterion and examine:
 - relevant docs, examples, CLI/API/UI terminology, diagnostics, and operations;
 - actual verification results rather than claimed results.
 
-Run appropriate local verification when possible. For meaningful UI changes, perform browser/visual verification when the runtime supports it. State anything not verified and its residual risk.
+Run focused independent verification for the changed behavior and highest risks. Reuse a valid immutable exact-head broad-gate result when the feature verification policy permits; rerun it when repository policy, changed configuration, suspicious evidence, or risk requires it. For meaningful UI changes, perform browser/visual verification only when the policy assigns it to the agent and the feature-wide runtime budget remains. Preserve authorized owner-manual criteria as pending rather than retrying them or calling them passed.
 
 ## Decisions
 
@@ -179,3 +179,5 @@ Rationale:
 ```
 
 After `Merge`, re-read the PR and issue and report actual merged/closed state. Do not claim story completion solely from the action command succeeding.
+
+Keep review output concise. Findings and changed evidence belong in the review body; the handoff should reference that body and contain only the current identity, decision, finding IDs, verification delta, and merge result.

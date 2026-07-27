@@ -7,6 +7,8 @@ description: Coordinate reliable iOS Simulator automation across agent-device an
 
 Compose `agent-device` and `serve-sim`; do not replace or restate their versioned guidance.
 
+Treat simulator automation as a shared feature capability, not a fresh experiment for every story.
+
 ## Load the Upstream Guidance
 
 Before planning or running automation:
@@ -35,6 +37,8 @@ Stay with one tool while it can observe and control the current surface. Switch 
 3. Run `scripts/check-simulator-environment.sh` from this skill. Use `--device` when multiple Simulators are booted and raise `--min-free-gib` for native builds when the project requires it.
 4. Inspect existing Metro and `serve-sim` listeners before starting new ones. Reuse a healthy project-owned Metro process; remove only stale task-owned helpers.
 5. Record the app identifier, artifact or source revision, Simulator/runtime, session, and expected observable result.
+6. Record a non-secret runtime manifest: exact head/artifact, device UDID/runtime, app identifier, Metro project/port/interface, public-environment fingerprint, backend topology, session/state directory, and consumed retry budget.
+7. Before the first authenticated flow, prove that the selected Simulator can reach the configured synthetic backend and that the served bundle uses the intended environment. Do this once and reuse the healthy context until an invalidating change occurs.
 
 Never erase a Simulator, reset app data, kill unrelated processes, or replace an installed build without authorization.
 
@@ -49,6 +53,7 @@ Use `agent-device` for app-owned UI:
 - Use coordinates only after `snapshot -i -c --json` exposes the target rectangle and refs/selectors cannot act.
 - Keep mutating commands against one session serial.
 - Verify named expectations with `wait`, `is`, `get`, or `find`; a screenshot alone is not an assertion.
+- When the software keyboard obscures a form action, prefer the field's semantic submit or the documented hardware Return/HID path before coordinate tapping.
 
 For an Expo dev client, read [references/expo-dev-client.md](references/expo-dev-client.md).
 
@@ -75,6 +80,8 @@ Classify a failure before retrying:
 - **Unobservable criterion:** no supported tool exposes the required state. Defer it to manual verification explicitly.
 
 Read [references/recovery-and-stop-conditions.md](references/recovery-and-stop-conditions.md) before a fallback or second attempt.
+
+The retry ledger is shared across implementers, reviewers, replacement agents, and resumed turns. Do not reset it by creating a new session or worker. Once the budget is exhausted, return `manual verification required` unless a materially different capability becomes available.
 
 ## Clean Up and Hand Off
 

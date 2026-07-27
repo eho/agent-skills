@@ -3,15 +3,18 @@ set -euo pipefail
 
 min_free_gib=10
 device=""
+ports=(8081 3100 3200)
 
 usage() {
   cat <<'EOF'
 Usage: check-simulator-environment.sh [--min-free-gib N] [--device NAME_OR_UDID]
+                                      [--port PORT]
 
 Read-only preflight for iOS Simulator automation. Reports tool versions, booted
-Simulators, free disk, and common listener ownership. Exits non-zero when a hard
-prerequisite is missing, free disk is below the threshold, or --device is not
-present in the booted-device list.
+Simulators, CoreSimulator health, free disk, and listener ownership. Repeat
+--port to add project-specific listeners to the default port set. Exits non-zero
+when a hard prerequisite is missing, free disk is below the threshold, or
+--device is not present in the booted-device list.
 EOF
 }
 
@@ -23,6 +26,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --device)
       device="${2:?missing value for --device}"
+      shift 2
+      ;;
+    --port)
+      ports+=("${2:?missing value for --port}")
       shift 2
       ;;
     --help|-h)
@@ -42,6 +49,13 @@ if [[ ! "$min_free_gib" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
+for port in "${ports[@]}"; do
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || (( port < 1 || port > 65535 )); then
+    printf 'ERROR: --port must be an integer from 1 to 65535\n' >&2
+    exit 2
+  fi
+done
+
 if [[ "$(uname -s)" != "Darwin" ]]; then
   printf 'ERROR: iOS Simulator automation requires macOS\n' >&2
   exit 1
@@ -56,6 +70,9 @@ done
 
 printf 'agent-device: %s\n' "$(agent-device --version)"
 printf 'xcrun: %s\n' "$(xcrun --version | head -n 1)"
+
+xcrun simctl list devices --json >/dev/null
+printf 'CoreSimulator service: healthy\n'
 
 booted_devices="$(xcrun simctl list devices booted)"
 printf '%s\n' "$booted_devices"
@@ -86,7 +103,7 @@ if (( available_gib < min_free_gib )); then
 fi
 
 if command -v lsof >/dev/null 2>&1; then
-  for port in 8081 3100 3200; do
+  for port in "${ports[@]}"; do
     listener="$(lsof -nP -iTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
     if [[ -n "$listener" ]]; then
       printf 'listener on port %s:\n%s\n' "$port" "$listener"

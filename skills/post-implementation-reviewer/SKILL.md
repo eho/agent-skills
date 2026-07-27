@@ -3,7 +3,7 @@ name: post-implementation-reviewer
 description: 'Run an independent, report-only final audit of a delivered design document or multi-story feature. Reconcile every current design story with canonical GitHub Issues, merged PRs, review and acceptance evidence, integration behavior, documentation, and verification, then decide Ready, Ready with follow-ups, or Not ready. Use for final audits, release-readiness checks, goal completion gates, and feature-delivery audit-remediation loops.'
 metadata:
   author: eho
-  version: '3.1.0'
+  version: '3.2.0'
 ---
 
 # Post-Implementation Reviewer
@@ -41,6 +41,9 @@ This skill is always report-first and report-only. Do not edit code, push commit
     - blocking documentation/operational gap;
     - product decision required;
     - genuinely non-blocking follow-up.
+12. Complete every audit category even after discovering a blocker. Return one exhaustive finding set so remediation does not require another full pass merely to discover a pre-existing documentation or operational gap.
+
+Reuse immutable story/PR/review evidence from a prior audit pass when its identity and ancestry remain valid. Recompute the current default-branch head, changed delivery leaves, affected integrations, documentation, and strongest-gate validity. Evidence reuse reduces repeated history traversal; it never permits a partial audit or hides newly introduced drift.
 
 ## Decision
 
