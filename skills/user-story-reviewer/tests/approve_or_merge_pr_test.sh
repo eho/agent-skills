@@ -22,10 +22,7 @@ if [ "$1" = "pr" ] && [ "$2" = "view" ]; then
   field=""
   previous=""
   for argument in "$@"; do
-    if [ "$previous" = "--json" ]; then
-      field=$argument
-      break
-    fi
+    if [ "$previous" = "--json" ]; then field=$argument; break; fi
     previous=$argument
   done
   case "$field" in
@@ -43,7 +40,7 @@ if [ "$1" = "pr" ] && [ "$2" = "view" ]; then
       fi
       ;;
     baseRefName) printf '%s\n' "${GH_PR_BASE:-main}" ;;
-    statusCheckRollup) printf '%b\n' "${GH_CHECK_LINES:-ci\tSUCCESS\t}" ;;
+    statusCheckRollup) printf '%b\n' "${GH_OPTIONAL_CHECK_LINES:-optional\tFAILURE}" ;;
     mergeable) printf '%s\n' "${GH_MERGEABLE:-MERGEABLE}" ;;
     mergeStateStatus) printf '%s\n' "${GH_MERGE_STATE:-CLEAN}" ;;
     author) printf '%s\n' "${GH_PR_AUTHOR:-test-user}" ;;
@@ -52,6 +49,11 @@ if [ "$1" = "pr" ] && [ "$2" = "view" ]; then
     *) echo "Unexpected pr view field: $field" >&2; exit 1 ;;
   esac
   exit 0
+fi
+
+if [ "$1" = "pr" ] && [ "$2" = "checks" ]; then
+  printf '%b\n' "${GH_REQUIRED_CHECK_LINES:-ci\tpass}"
+  exit "${GH_REQUIRED_CHECK_STATUS:-0}"
 fi
 
 if [ "$1" = "repo" ] && [ "$2" = "view" ]; then
@@ -68,32 +70,8 @@ if [ "$1" = "api" ] && [ "$2" = "user" ]; then
   printf '%s\n' "test-user"
   exit 0
 fi
-
 if [ "$1" = "api" ] && [ "$2" = "graphql" ]; then
   printf '%s\n' "${GH_QUEUE_STATE:-QUEUED}"
-  exit 0
-fi
-
-if [ "$1" = "api" ] && [ "$2" = "--method" ] && [ "$3" = "POST" ]; then
-  printf '%s\n' "$*" >> "$GH_CALL_LOG"
-  exit 0
-fi
-
-if [ "$1" = "api" ] &&
-   { [ "$2" = "repos/owner/repo/rules/branches/main" ] ||
-     [ "$2" = "repos/owner/repo/rules/branches/release%2F1" ]; }; then
-  case "$*" in
-    *required_status_checks*) printf '%s\n' "${GH_POLICY_REQUIRED:-}" ;;
-    *merge_queue*) printf '%s\n' "${GH_QUEUE_RULES:-1}" ;;
-    *) echo "Unexpected branch rules query: $*" >&2; exit 1 ;;
-  esac
-  exit 0
-fi
-
-if [ "$1" = "api" ] &&
-   { [ "$2" = "repos/owner/repo/branches/main/protection/required_status_checks" ] ||
-     [ "$2" = "repos/owner/repo/branches/release%2F1/protection/required_status_checks" ]; }; then
-  printf '%b\n' "${GH_CLASSIC_REQUIRED:-}"
   exit 0
 fi
 
@@ -108,27 +86,29 @@ export PATH="$FAKE_BIN:$PATH"
 reset_state() {
   : > "$CALL_LOG"
   rm -f "$HEAD_COUNT"
-  unset GH_PR_STATE GH_PR_DRAFT GH_PR_HEAD GH_PR_BASE GH_CHECK_LINES
+  unset GH_PR_STATE GH_PR_DRAFT GH_PR_HEAD GH_PR_BASE
+  unset GH_REQUIRED_CHECK_LINES GH_REQUIRED_CHECK_STATUS GH_OPTIONAL_CHECK_LINES
   unset GH_MERGEABLE GH_MERGE_STATE GH_PR_AUTHOR GH_REVIEW_DECISION
   unset GH_MERGED_AT GH_CHANGE_HEAD_AFTER_REVIEW
-  unset GH_MERGE_METHOD_ALLOWED GH_QUEUE_STATE GH_QUEUE_RULES GH_POLICY_REQUIRED
-  unset GH_CLASSIC_REQUIRED
+  unset GH_MERGE_METHOD_ALLOWED GH_QUEUE_STATE
 }
 
 assert_log_contains() {
-  if ! grep -Fq "$1" "$CALL_LOG"; then
+  grep -Fq "$1" "$CALL_LOG" || {
     echo "Expected gh call containing: $1" >&2
     cat "$CALL_LOG" >&2
     exit 1
-  fi
+  }
 }
 
 assert_rejected() {
   if "$SCRIPT" 42 "$REVIEW_FILE" "$@" >/dev/null 2>&1; then
-    echo "Expected arguments or state to be rejected: $*" >&2
+    echo "Expected rejection: $*" >&2
     exit 1
   fi
 }
+
+"$SCRIPT" --help >/dev/null 2>&1
 
 reset_state
 "$SCRIPT" 42 "$REVIEW_FILE" --comment-only --expected-head expected-head
@@ -137,53 +117,33 @@ assert_log_contains "event=COMMENT"
 
 reset_state
 export GH_PR_AUTHOR=other-user
-"$SCRIPT" 42 "$REVIEW_FILE" --approve --expected-head expected-head --required-check ci
+export GH_OPTIONAL_CHECK_LINES='optional\tFAILURE'
+"$SCRIPT" 42 "$REVIEW_FILE" --approve --expected-head expected-head
 assert_log_contains "event=APPROVE"
-assert_log_contains "commit_id=expected-head"
 
 reset_state
 export GH_PR_DRAFT=true
-assert_rejected --approve --expected-head expected-head --required-check ci
+assert_rejected --approve --expected-head expected-head
 
 reset_state
-export GH_CHECK_LINES='ci\tFAILURE'
-assert_rejected --approve --expected-head expected-head --required-check ci
+export GH_REQUIRED_CHECK_LINES='ci\tfail'
+assert_rejected --approve --expected-head expected-head
 
 reset_state
-export GH_PR_AUTHOR=other-user
-assert_rejected --approve --expected-head expected-head --required-check missing
-
-reset_state
-export GH_PR_AUTHOR=other-user
-export GH_POLICY_REQUIRED=ci
-assert_rejected --approve --expected-head expected-head --no-required-checks
-
-reset_state
-export GH_PR_AUTHOR=other-user
-export GH_POLICY_REQUIRED=ci
-export GH_CHECK_LINES='other\tSUCCESS\t'
-assert_rejected --approve --expected-head expected-head --required-check other
-
-reset_state
-export GH_PR_AUTHOR=other-user
-export GH_CLASSIC_REQUIRED='classic-ci\t321'
-export GH_CHECK_LINES='classic-ci\tSUCCESS\t321'
-assert_rejected --approve --expected-head expected-head --no-required-checks
-"$SCRIPT" 42 "$REVIEW_FILE" --approve --expected-head expected-head \
-  --required-check classic-ci@321
+export GH_REQUIRED_CHECK_LINES='ci\tpending'
+export GH_REQUIRED_CHECK_STATUS=8
+assert_rejected --approve --expected-head expected-head
 
 reset_state
 export GH_PR_AUTHOR=other-user
 export GH_CHANGE_HEAD_AFTER_REVIEW=true
-assert_rejected --approve --expected-head expected-head --required-check ci
+assert_rejected --approve --expected-head expected-head
 assert_log_contains "event=APPROVE"
-assert_log_contains "commit_id=expected-head"
 
 reset_state
 export GH_PR_AUTHOR=other-user
 export GH_CHANGE_HEAD_AFTER_REVIEW=true
-assert_rejected --merge --expected-head expected-head --merge-method squash --required-check ci
-assert_log_contains "event=APPROVE"
+assert_rejected --merge --expected-head expected-head --merge-method squash
 if grep -Fq "pr merge" "$CALL_LOG"; then
   echo "Head-change rejection must happen before merge." >&2
   exit 1
@@ -192,42 +152,28 @@ fi
 reset_state
 export GH_MERGED_AT=2026-07-26T00:00:00Z
 "$SCRIPT" 42 "$REVIEW_FILE" --merge --expected-head expected-head \
-  --merge-method rebase --allow-self-merge --required-check ci
+  --merge-method rebase --allow-self-merge
 assert_log_contains "pr merge 42 --rebase --match-head-commit expected-head"
 
 reset_state
 export GH_MERGE_STATE=BLOCKED
 "$SCRIPT" 42 "$REVIEW_FILE" --merge --expected-head expected-head \
-  --queue --allow-self-merge --required-check ci
+  --queue --allow-self-merge
 assert_log_contains "pr merge 42 --match-head-commit expected-head"
-
-reset_state
-export GH_MERGE_STATE=BLOCKED
-export GH_QUEUE_RULES=0
-assert_rejected --merge --expected-head expected-head \
-  --queue --allow-self-merge --required-check ci
-
-reset_state
-export GH_PR_AUTHOR=other-user
-export GH_POLICY_REQUIRED='ci\t123'
-export GH_CHECK_LINES='ci\tSUCCESS\t999'
-assert_rejected --approve --expected-head expected-head --required-check ci@123
 
 reset_state
 export GH_PR_AUTHOR=other-user
 export GH_PR_BASE=release/1
 "$SCRIPT" 42 "$REVIEW_FILE" --approve --expected-head expected-head \
-  --expected-base release/1 --required-check ci
+  --expected-base release/1
 assert_log_contains "event=APPROVE"
 
 reset_state
 assert_rejected --comment-only
 assert_rejected --comment-only --approve --expected-head expected-head
 assert_rejected --merge --expected-head expected-head
-assert_rejected --merge --expected-head expected-head --queue --merge-method squash --required-check ci
+assert_rejected --merge --expected-head expected-head --queue --merge-method squash
 assert_rejected --merge-method squash --expected-head expected-head
-assert_rejected --delete-branch --expected-head expected-head
 assert_rejected --queue --expected-head expected-head
-assert_rejected --approve --expected-head expected-head --required-check ci --no-required-checks
 
 echo "approve_or_merge_pr tests passed"

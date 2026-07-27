@@ -119,15 +119,28 @@ class StoryContractTest(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("exactly one 'Depends on:'", result.stderr)
 
-    def test_rejects_unknown_or_forward_dependencies(self) -> None:
+    def test_rejects_unknown_and_accepts_forward_dependencies(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             unknown = rejected(root, BASE.replace("Depends on: DEMO-001", "Depends on: DEMO-999"))
-            forward = rejected(root, BASE.replace("Depends on: None", "Depends on: DEMO-002", 1))
+            forward = manifest(
+                root,
+                BASE.replace("Depends on: None", "Depends on: DEMO-002", 1).replace(
+                    "Depends on: DEMO-001", "Depends on: None"
+                ),
+            )
         self.assertNotEqual(unknown.returncode, 0)
         self.assertIn("unknown story", unknown.stderr)
-        self.assertNotEqual(forward.returncode, 0)
-        self.assertIn("must appear earlier", forward.stderr)
+        self.assertEqual(forward["stories"][0]["dependencies"], ["DEMO-002"])
+
+    def test_rejects_dependency_cycles(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = rejected(
+                Path(directory),
+                BASE.replace("Depends on: None", "Depends on: DEMO-002", 1),
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cyclic story dependencies", result.stderr)
 
     def test_rejects_self_dependency(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

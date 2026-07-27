@@ -3,231 +3,48 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Resume the active goal to fully deliver docs/design/auth-refresh.md. AUTH-001 is merged, AUTH-002 has an open PR with changes requested, AUTH-003 depends on AUTH-002, and AUTH-004 is independent. Continue until the design is actually release-ready.",
-      "expected_output": "Rehydrates GitHub state, resumes AUTH-002 before opening duplicate work, continues AUTH-004 if AUTH-002 becomes externally blocked, and does not mark the goal complete before all stories and the final audit satisfy completion invariants.",
+      "prompt": "Fully deliver docs/design/auth-refresh.md. The design has three stories with explicit dependencies and acceptance criteria. One issue already has an open PR, another issue is closed with a merged PR, and the final story has not started.",
+      "expected_output": "Synchronizes the design stories with canonical GitHub Issues, treats the closed merged story as complete, resumes the existing PR through user-story-delivery, then delivers the dependency-ready remaining story without creating duplicate branches or PRs.",
       "files": [],
       "assertions": [
-        "Treats the active goal as the outer completion contract rather than a story ledger.",
-        "Reconstructs state from the design document and GitHub before acting.",
-        "Does not stop the feature merely because one story is blocked when independent work remains.",
-        "Requires a final Ready audit before default goal completion."
+        "Uses GitHub Issues as the progress record.",
+        "Delegates each open story to user-story-delivery.",
+        "Resumes existing work instead of creating a duplicate.",
+        "Respects story dependencies."
       ]
     },
     {
       "id": 2,
-      "prompt": "Use feature delivery for docs/design/team-export.md. GitHub already has closed issues for all stories, but the design doc was revised yesterday and two acceptance criteria changed after those issues were delivered.",
-      "expected_output": "Detects design drift through reconciliation, treats affected delivered stories as stale, reopens or otherwise re-enters their delivery, and refuses to accept old closed issues or merged PRs as proof of current completion.",
+      "prompt": "Resume delivery of docs/design/team-export.md after its EXP-002 acceptance criteria changed. EXP-002 was previously merged and its issue is closed; the other story contracts are unchanged.",
+      "expected_output": "Updates and reopens the changed EXP-002 issue, leaves unchanged completed stories closed, redelivers EXP-002 through user-story-delivery, and obtains fresh independent review.",
       "files": [],
       "assertions": [
-        "Reconciles existing issues instead of only creating missing issues.",
-        "Detects delivered stories whose design revision is stale.",
-        "Requires new acceptance-criteria evidence for changed stories.",
-        "Avoids reporting the feature Ready from historical closure alone."
+        "Reopens the issue whose managed story contract changed.",
+        "Does not reopen unchanged completed stories.",
+        "Requires acceptance-criteria evidence and independent review for the changed story."
       ]
     },
     {
       "id": 3,
-      "prompt": "Fully ship docs/design/offline-mode.md. All story PRs were approved, but one remains unmerged. The final audit then finds a blocking integration bug that is not owned by a single original story.",
-      "expected_output": "Does not treat approval as story completion, merges according to repository policy, turns the integration finding into traceable delivery work, implements and independently reviews it, and reruns the complete audit.",
+      "prompt": "All story issues for docs/design/offline-mode.md are closed with merged reviewed PRs. Run the overall audit. The audit finds one blocking integration bug that does not belong to a single original story.",
+      "expected_output": "Creates one ordinary integration-gap issue with concrete acceptance criteria, delivers it through user-story-delivery, and reruns the overall audit before declaring the feature complete.",
       "files": [],
       "assertions": [
-        "Does not classify an approved but unmerged PR as done.",
-        "Routes a blocking integration finding back into implementation.",
-        "Does not equate creation of a follow-up issue with remediation.",
-        "Reruns the complete final audit after remediation."
+        "Does not treat filing the gap issue as remediation.",
+        "Routes the gap through normal implementation and independent review.",
+        "Reruns the overall audit after remediation."
       ]
     },
     {
       "id": 4,
-      "prompt": "Resume delivery of docs/design/billing.md. BILL-002 was delivered for revision abc123 and later reopened for revision def456. Two merged PRs link the same canonical issue, and there is one open replacement PR. Determine what to resume without losing the history.",
-      "expected_output": "Uses story and design-revision PR markers to distinguish historical delivery from the current revision chain, resumes the current replacement PR, and does not reject valid history under an exactly-one-lifetime-PR rule.",
+      "prompt": "Deliver docs/design/mobile-settings.md. One story is blocked on a product decision, but two unrelated stories are dependency-ready. Simulator verification cannot complete and the user has not authorized deferring it.",
+      "expected_output": "Records the concrete blocker, continues the unrelated stories, preserves simulator verification as not verified rather than passed, and requests the missing authority before completing the affected story or feature.",
       "files": [],
       "assertions": [
-        "Distinguishes PRs by both story ID and design revision.",
-        "Preserves older-revision PRs as history.",
-        "Selects exactly one non-superseded current-revision delivery leaf.",
-        "Does not treat the older merged PR as proof of current completion."
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Reconcile docs/design/imports.md. IMP-001 has the current design-revision marker but someone manually deleted half its acceptance criteria. IMP-LEGACY is an older markerless closed issue with the right title. A previously managed IMP-OLD issue was removed from the design.",
-      "expected_output": "Repairs body drift despite a matching marker, conservatively migrates the markerless legacy issue based on content equivalence, and discovers the removed story by enumerating issues with the design identity.",
-      "files": [],
-      "assertions": [
-        "Compares actual and desired issue bodies even when revision markers match.",
-        "Defines a conservative migration path for markerless legacy issues.",
-        "Enumerates managed issues by design identity to detect orphans.",
-        "Does not silently close or ignore the removed story."
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "The final audit for docs/design/search.md says Ready with follow-ups, but the active goal requires Ready. One follow-up is a small in-scope documentation omission; another is an optional redesign outside the design doc. Continue correctly.",
-      "expected_output": "Delivers the in-scope omission and reruns the audit, while asking for an explicit scope expansion or acceptance decision for the out-of-scope redesign instead of looping forever or silently completing.",
-      "files": [],
-      "assertions": [
-        "Routes in-scope follow-ups through implementation and review.",
-        "Requests an explicit choice for out-of-scope expansion.",
-        "Does not repeat an unchanged audit indefinitely.",
-        "Does not complete a Ready-only goal at Ready with follow-ups."
-      ]
-    },
-    {
-      "id": 7,
-      "prompt": "Deliver docs/design/notifications.md while an unrelated active goal says to migrate the database. The repo requires its merge queue, does not permit selecting a direct merge method, and retains source branches.",
-      "expected_output": "Runs feature delivery without mutating the unrelated goal and submits through the required merge queue without forcing a merge method or deleting the branch.",
-      "files": [],
-      "assertions": [
-        "Does not adopt or complete the unrelated active goal.",
-        "Discovers repository merge policy before merging.",
-        "Submits to the merge queue without forcing a direct merge method.",
-        "Does not delete the source branch."
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "Resume STORY-009 from before the workflow refactor. There is one markerless open PR linked to the canonical issue. Its branch and diff might reflect the prior design revision, but the issue now carries a newer revision marker.",
-      "expected_output": "Inspects the issue, branch, commits, and diff before adopting the legacy PR; adds current markers only if equivalence with current requirements is unambiguous, otherwise blocks for disambiguation rather than stamping it as current.",
-      "files": [],
-      "assertions": [
-        "Does not automatically assign the current revision to a markerless PR.",
-        "Requires issue, branch, commit, and diff evidence before migration.",
-        "Adds markers before treating an equivalent legacy PR as current.",
-        "Blocks when equivalence is uncertain."
-      ]
-    },
-    {
-      "id": 9,
-      "prompt": "Resume docs/design/payments.md after its shared API & Data Contracts section changed, but PAY-001's story text and old merged PR are unchanged. Decide whether PAY-001 is still delivered.",
-      "expected_output": "Computes a changed whole-document revision, updates the composite issue identity, and reopens PAY-001 by default because shared design evidence changed rather than carrying forward its old merge automatically.",
-      "files": [],
-      "assertions": [
-        "Distinguishes whole-document revision from per-story revision.",
-        "Does not accept an unchanged story hash as proof that shared design contracts are unchanged.",
-        "Reopens before any carry-forward decision, then permits re-closing only after independent revalidation and a durable current-tuple record.",
-        "Requires current-revision acceptance and review evidence."
-      ]
-    },
-    {
-      "id": 10,
-      "prompt": "Resume NOTIF-003 after interruption. A canonical remote branch exists but no PR was opened, the current checkout has unrelated dirty changes, and NOTIF-003 depends on two PRs merged to main.",
-      "expected_output": "Discovers and resumes the existing remote branch without replacing it, preserves the dirty checkout, and verifies that both dependency merge SHAs are ancestors of the fetched remote default branch before continuing.",
-      "files": [],
-      "assertions": [
-        "Searches local branches, remote branches, and worktree ownership before creating work.",
-        "Does not create a duplicate branch or PR.",
-        "Does not switch or rewrite the dirty worktree.",
-        "Verifies dependency merge ancestry against the fetched remote default branch."
-      ]
-    },
-    {
-      "id": 11,
-      "prompt": "Review and merge PR #88 for STORY-014. Checks pass at reviewed head abc123, but another commit is pushed immediately after review. The repository requires squash merge and does not use a queue.",
-      "expected_output": "Records abc123 as the reviewed head, rechecks the PR after review, refuses the changed head, and uses a head-match guard so no unreviewed commit can be merged.",
-      "files": [],
-      "assertions": [
-        "Treats head changes as invalidating sign-off.",
-        "Rechecks draft, base, checks, mergeability, review decision, and policy before merge.",
-        "Uses the reviewed head SHA as an atomic merge guard.",
-        "Requires a fresh independent review of the new head."
-      ]
-    },
-    {
-      "id": 12,
-      "prompt": "The report-only final audit finds a blocking bug owned by STORY-004, whose canonical issue is closed and PR is merged. Remediate without rewriting merged history.",
-      "expected_output": "Leaves the auditor report-only, has the coordinator reopen the canonical issue with traceable audit-gap evidence, creates one new delivery attempt that supersedes the merged leaf, independently reviews it, and reruns the full audit.",
-      "files": [],
-      "assertions": [
-        "The final auditor makes no mutations.",
-        "The coordinator explicitly reopens the canonical issue.",
-        "Creates one replacement PR instead of modifying the merged PR.",
-        "Routes the replacement through independent review and reruns the full audit."
-      ]
-    },
-    {
-      "id": 13,
-      "prompt": "A revised design removed LEGACY-002. On the prior pass the user explicitly decided it was removed, but the next resumed run discovers its old issue again.",
-      "expected_output": "Reads the terminal scope marker and deciding design revision, reports the issue as a resolved removed orphan, and does not repeatedly block or silently restore it.",
-      "files": [],
-      "assertions": [
-        "Requires an explicit scope decision before marking removal.",
-        "Persists removal identity, revision, and reason.",
-        "Distinguishes resolved orphans from unresolved ones.",
-        "Does not rediscover the same resolved orphan as a blocker."
-      ]
-    },
-    {
-      "id": 14,
-      "prompt": "DOC-002 was merged for the current revision, then a final audit reopened the same canonical issue for a blocking gap without changing the design text. Resume after the replacement PR also merged.",
-      "expected_output": "Builds the immutable delivery-attempt and supersession graph, selects the replacement as the unique current leaf, preserves the original merge as history, and does not report duplicate current delivery.",
-      "files": [],
-      "assertions": [
-        "Distinguishes delivery attempt identity from design and story revision identity.",
-        "Requires the replacement PR to supersede the previous leaf.",
-        "Selects one non-superseded current delivery leaf.",
-        "Does not rewrite markers on the historical merged PR."
-      ]
-    },
-    {
-      "id": 15,
-      "prompt": "Reconcile a revised design where one story has no Depends on declaration, another references a missing story ID, and two headings form a dependency cycle.",
-      "expected_output": "Fails before GitHub mutation with precise design-contract errors instead of treating malformed dependencies as None or beginning stories in unsafe order.",
-      "files": [],
-      "assertions": [
-        "Requires exactly one dependency declaration per story.",
-        "Rejects unknown and self dependencies.",
-        "Rejects cyclic or out-of-order dependency graphs.",
-        "Makes no issue or milestone mutation after manifest validation fails."
-      ]
-    },
-    {
-      "id": 16,
-      "prompt": "Fully deliver docs/design/mobile-settings.md. The user says that if simulator automation cannot complete after a bounded attempt, preserve the remaining iPhone matrix for owner verification after delivery. The first story already consumed one agent-device attempt and one serve-sim fallback.",
-      "expected_output": "Records one durable feature verification policy, carries the consumed retry state into later workers and reviewers, stops further simulator retries, preserves the rows as owner-manual pending rather than passed, and continues delivery when the goal permits that residual risk.",
-      "files": [],
-      "assertions": [
-        "Persists the owner-manual policy once with criterion scope, authority, owner, and residual risk.",
-        "Treats runtime attempts as feature-wide rather than resetting them for a replacement agent.",
-        "Does not convert pending owner verification into a pass.",
-        "Does not block later stories solely to repeat the exhausted automation path."
-      ]
-    },
-    {
-      "id": 17,
-      "prompt": "Resume a seven-story feature after STORY-003 merged. The design and earlier issue bodies are unchanged, the default branch advanced only by that merge, and STORY-004 is now dependency-ready. Continue efficiently without weakening exact-head review.",
-      "expected_output": "Rehydrates STORY-003, its dependents, default-branch head, and volatile PR state instead of rereading immutable history for all stories; it still performs a full rehydration before final audit and preserves exact-head review checks.",
-      "files": [],
-      "assertions": [
-        "Uses incremental rehydration between stable story transitions.",
-        "Rechecks the completed story, dependents, default head, and volatile PR/check state.",
-        "Passes specialists a minimal task packet instead of the complete feature transcript when context inheritance is configurable.",
-        "Retains full rehydration for inconsistency, resumption, scope change, and final audit.",
-        "Does not weaken exact-head merge protection."
-      ]
-    },
-    {
-      "id": 18,
-      "prompt": "A PR reviewer receives an immutable full-suite result for the exact current head plus focused tests for the changed files. Repository policy does not require the full suite to be rerun by every reviewer. Review and merge efficiently.",
-      "expected_output": "Validates and reuses the exact-head broad result, independently reruns focused risk-relevant checks, and avoids duplicating the entire suite unless suspicious evidence, changed configuration, risk, or repository policy requires it.",
-      "files": [],
-      "assertions": [
-        "Binds reused evidence to the exact head and environment contract.",
-        "Runs focused independent verification.",
-        "Does not rerun a broad gate merely for ceremony.",
-        "Still reruns when policy, configuration, evidence quality, or risk invalidates reuse."
-      ]
-    },
-    {
-      "id": 19,
-      "prompt": "The final audit finds a concurrency bug in STORY-004 early in its inspection. The same merged feature also contains a stale operator runbook and an outdated lifecycle index. Return the audit result.",
-      "expected_output": "Completes code, integration, lifecycle, user-facing documentation, and operational-documentation inspection before returning one exhaustive Not ready report containing all three blockers.",
-      "files": [],
-      "assertions": [
-        "Does not stop auditing after the first blocking finding.",
-        "Reports the concurrency, runbook, and lifecycle blockers in one pass.",
-        "Classifies and fingerprints every blocking finding.",
-        "Allows the coordinator to remediate the complete set before rerunning the audit."
+        "Continues independent dependency-ready stories.",
+        "Does not report unperformed verification as passed.",
+        "Does not remove or defer scope without user authority.",
+        "Does not declare the feature complete while a blocking story remains."
       ]
     }
   ]

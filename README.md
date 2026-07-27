@@ -55,13 +55,10 @@ The nine development skills form a pipeline from idea to shipped feature. `/feat
      ↓
 /feature-delivery
      ├─ /design-to-issues
-     ├─ /user-story-implementer  ◄───────┐
-     ├─ /user-story-reviewer ────────────┤ next story / revision
+     ├─ /user-story-delivery  ◄──────────┐
+     │    ├─ /user-story-implementer     │
+     │    └─ /user-story-reviewer ───────┤ next story / revision
      └─ /post-implementation-reviewer
-
-/user-story-delivery
-     ├─ /user-story-implementer
-     └─ /user-story-reviewer
 ```
 
 **1. Discuss the design** — Before triggering any skill, have a free-form conversation with the AI about the feature. This is an exploratory back-and-forth to get the general direction and key ideas into shape. No structure needed yet — just think out loud.
@@ -70,9 +67,9 @@ The nine development skills form a pipeline from idea to shipped feature. `/feat
 
 **3. Review and revise the design** — Use `/design-doc-review-loop` when you want the agent to run the full loop: start an independent `/design-doc-reviewer` pass, revise the design with `/design-doc`, repeat until no Critical Gaps or Minor Issues remain, and then mark the design `Status: Revised`. Use `/design-doc-reviewer` directly only when you want a one-time, read-only critique artifact without automatic revision.
 
-**4. Deliver the feature** — Use `/feature-delivery` when you want the agent to run the full design-to-release workflow from a revised design document. It is designed to run inside a durable goal when that capability is available, but can also run normally. On every initial or resumed pass it reconstructs state from the design document and GitHub, reconciles changed issues, delivers actionable stories through independent implementation and review, verifies merge and issue closure, and runs `/post-implementation-reviewer`. Blocking audit findings re-enter implementation; the workflow finishes only when the complete feature reaches the goal's release-readiness threshold.
+**4. Deliver the feature** — Use `/feature-delivery` to synchronize a revised design document with GitHub Issues, deliver each open dependency-ready issue through `/user-story-delivery`, and run `/post-implementation-reviewer` after every story is complete. GitHub Issues and Pull Requests remain the progress record. Blocking audit findings return through the same issue-delivery workflow before the feature finishes.
 
-**5. Push stories to GitHub manually when needed** — Use `/design-to-issues` directly when you only want to reconcile reviewed, agent-ready user stories with GitHub Issues. It preserves each story's implementation context and acceptance criteria, creates missing issues, updates changed open issues, reopens stale delivered issues when the design revision changed, repairs dependency metadata and labels, and creates or reuses the feature Milestone.
+**5. Push stories to GitHub manually when needed** — Use `/design-to-issues` directly when you only want to synchronize reviewed, agent-ready user stories with GitHub Issues. It creates missing issues, updates changed story contracts in place, reopens changed completed stories, preserves unchanged completed stories, repairs dependency metadata and labels, and creates or reuses the feature milestone.
 
 **6. Implement and review one story manually when needed** — Use `/user-story-delivery` directly for the full loop around a single issue. It runs `/user-story-implementer`, hands the resulting PR to an independent `/user-story-reviewer`, addresses findings on the same PR, and verifies repository-policy merge and issue closure before declaring the story done. Use `/user-story-implementer` or `/user-story-reviewer` directly when you only want one half of the workflow.
 
@@ -83,7 +80,9 @@ The nine development skills form a pipeline from idea to shipped feature. `/feat
 Use a goal when you want the agent to persist until the complete design document is delivered, including review and final-audit remediation:
 
 ```text
-/goal Fully deliver docs/design/<feature>.md using the feature-delivery skill.
+/goal
+
+Use $feature-delivery to fully deliver @docs/design/<feature>.md.
 Continue through issue reconciliation, implementation, independent review,
 merge, and final-audit remediation until the feature is Ready.
 ```
@@ -92,19 +91,17 @@ The design document should have `Status: Revised` and contain stable, agent-read
 
 While the goal is active, `/feature-delivery`:
 
-1. Uses the goal as the durable completion contract and the design document as the source of scope.
-2. Reconstructs progress from the design document, GitHub Issues, PRs, reviews, checks, and merge state whenever work starts or resumes.
-3. Reconciles every story with a canonical GitHub Issue, repairing drift and reopening delivered stories when their design revision changed.
-4. Implements actionable stories in dependency order, resuming existing PRs instead of creating duplicates.
-5. Runs an independent review for each story, addresses findings on the same delivery chain, and repeats until the story passes.
-6. Merges according to repository policy and verifies both the merge and canonical issue closure.
-7. Continues independent work when another story is blocked.
-8. Runs a report-only full-feature audit after the stories appear complete.
-9. Routes blocking audit findings back through implementation and independent review, then reruns the complete audit.
+1. Reads the design document and synchronizes every story with one canonical GitHub Issue.
+2. Uses issue state, linked PRs, reviews, checks, and merge state to determine remaining work.
+3. Sends each dependency-ready open issue through `/user-story-delivery`.
+4. Verifies the reviewed PR merged and the issue closed before treating a story as done.
+5. Continues unrelated stories when another story is blocked.
+6. Runs a report-only overall audit after all stories are complete.
+7. Routes blocking audit findings through ordinary issue delivery and reruns the audit.
 
-The goal completes only when every in-scope story matches the current design revision, is implemented and independently reviewed, satisfies repository merge policy, has current acceptance-criteria evidence, and the required tests and documentation are complete. The latest final audit must report `Ready`, unless the goal explicitly permits `Ready with follow-ups`.
+The goal completes only when every in-scope story is implemented, independently reviewed, merged, closed, and backed by acceptance-criteria evidence, and the overall audit finds no blocking issue.
 
-Creating issues, opening or approving PRs, reaching a review-cycle checkpoint, or filing follow-up issues does not count as completion. If the task is interrupted, paused, or resumed later, the workflow reconstructs current external state and continues from there.
+Creating issues, opening or approving PRs, or filing follow-up issues does not count as completion. After interruption, the workflow reads current GitHub state and continues.
 
 ---
 

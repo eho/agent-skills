@@ -154,18 +154,38 @@ def build_manifest(design_path: Path, repo_root: Path, include_source: bool) -> 
             story["source"] = source
         stories.append(story)
 
-    order = {story["id"]: index for index, story in enumerate(stories)}
+    graph = {
+        str(story["id"]): [str(dependency) for dependency in story["dependencies"]]
+        for story in stories
+    }
     for story in stories:
         story_id = str(story["id"])
         for dependency in story["dependencies"]:
-            if dependency not in order:
+            if dependency not in graph:
                 raise ValueError(f"{story_id} depends on unknown story {dependency}")
             if dependency == story_id:
                 raise ValueError(f"{story_id} cannot depend on itself")
-            if order[dependency] >= order[story_id]:
-                raise ValueError(
-                    f"{story_id} depends on {dependency}, which must appear earlier in document order"
-                )
+
+    state: dict[str, int] = {}
+    path: list[str] = []
+
+    def visit(story_id: str) -> None:
+        status = state.get(story_id, 0)
+        if status == 2:
+            return
+        if status == 1:
+            cycle_start = path.index(story_id)
+            cycle = path[cycle_start:] + [story_id]
+            raise ValueError(f"cyclic story dependencies: {' -> '.join(cycle)}")
+        state[story_id] = 1
+        path.append(story_id)
+        for dependency in graph[story_id]:
+            visit(dependency)
+        path.pop()
+        state[story_id] = 2
+
+    for story_id in graph:
+        visit(story_id)
 
     return {
         "design_identity": identity,

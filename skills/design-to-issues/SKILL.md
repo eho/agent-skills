@@ -1,47 +1,38 @@
 ---
 name: design-to-issues
-description: 'Reconcile every user story in a revised design document with canonical GitHub Issues and a milestone. Use for creating, syncing, refreshing, or resuming issues from a design doc, including goal-based feature delivery. This workflow is idempotent: it creates missing issues, updates changed open issues, reopens stale delivered issues when requirements changed, and repairs labels, milestone, and dependency metadata.'
+description: 'Synchronize every user story in a revised design document with one canonical GitHub Issue and milestone. Use for creating, updating, or resuming story issues from a design doc, including feature-delivery. Existing issues are updated in place and changed completed stories are reopened.'
 metadata:
   author: eho
-  version: '2.1.0'
+  version: '3.0.0'
 ---
 
 # Design to Issues
 
-Publish the current design contract into GitHub without losing traceability. “Sync” means reconcile desired state, not merely create anything missing.
+Synchronize the current user stories into GitHub. The design document defines desired scope; GitHub Issues track delivery progress.
 
 ## Prerequisites
 
-- Authenticated GitHub CLI.
-- An exact design document path.
-- A `## User Stories` section with stable story IDs.
-- Repository and scoped `AGENTS.md` plus project documentation read before GitHub mutations.
-
-Require `Status: Revised` or equivalent unless the user explicitly accepts the risk of publishing an unrevised design.
+- Read repository instructions and the complete design document.
+- Require an exact design path and stable story IDs.
+- Require a ready or revised design unless the user explicitly accepts the risk.
+- Use the authenticated GitHub CLI and repository policy.
 
 ## Canonical identity
 
-Use repository-relative design identity plus story ID as the stable composite key. Story IDs must be unique within one design, but need not be globally unique across the repository. Every managed issue body must contain:
+Identify a managed issue by repository-relative design path plus story ID:
 
 ```markdown
 <!-- feature-delivery:design=<REPO-RELATIVE-DESIGN-PATH> -->
 <!-- feature-delivery:story=<STORY-ID> -->
-<!-- feature-delivery:design-revision=<DOCUMENT-REVISION> -->
-<!-- feature-delivery:story-revision=<STORY-REVISION> -->
 ```
 
-Resolve and invoke `scripts/story_contract.py` to compute identities. It normalizes CRLF to LF, removes trailing horizontal whitespace, trims leading and trailing blank lines, adds exactly one final newline, and computes:
+Resolve and run `scripts/story_contract.py` to parse the stories and validate their dependencies. Use its normalized story source as the managed issue contract. The script's hashes may help compare content, but GitHub progress does not require a separate tracking system.
 
-- `DOCUMENT-REVISION`: SHA-256 of the complete normalized design document;
-- `STORY-REVISION`: SHA-256 of the exact normalized story source slice.
+Search open and closed issues for the exact marker pair. Use an exact story-ID title only to discover a legacy candidate, and adopt it only when its design path, content, and history make the match unambiguous. Stop on duplicate candidates.
 
-Do not reimplement this normalization ad hoc. The document revision makes shared architecture and contract changes visible; the story revision distinguishes directly changed stories.
+## Synchronization
 
-Search open and closed issues for the exact design-and-story marker pair first. Use exact `<STORY-ID>:` title only to discover legacy candidates, and require design path, milestone/label history, body equivalence, and discussion evidence before adoption. Apply the equivalence check to open and closed legacy issues. More than one canonical candidate is a blocker; do not guess.
-
-## Reconciliation
-
-1. Read the complete design document and run:
+1. Run:
 
    ```bash
    python3 /absolute/path/to/scripts/story_contract.py \
@@ -49,59 +40,24 @@ Search open and closed issues for the exact design-and-story marker pair first. 
      > <temporary-manifest.json>
    ```
 
-   Treat its manifest as the identity and ordering source. Also extract:
-   - feature name and story prefix;
-   - every in-scope story in document order;
-   - description, outcome, design references, implementation context, dependencies, out-of-scope boundaries, acceptance criteria, verification, and technical notes;
-   - explicit milestone, or feature name as the default milestone.
-2. Read the repository default branch and owner with `gh repo view`.
-3. Ensure `user-story` and feature-prefix labels exist.
-4. Do not paraphrase managed issue bodies. Build them with `scripts/render_issue_body.py` from the manifest's exact normalized story source, canonical issue-number map, and stable design URL. The design-document revision makes every shared architecture or contract change visible and reopens closed delivery by default; each self-contained story slice remains the executable issue contract.
-5. Build the complete current issue map before mutating anything:
-   - find exact current design-and-story marker pairs and conservative legacy exact-title matches;
-   - enumerate every issue under the milestone and feature-prefix label;
-   - inspect design identity markers to find previously managed stories no longer present in the design.
-6. Create or reuse the milestone with `scripts/create_milestone.sh`. A closed historical milestone is a policy decision, not an automatic mutation: report it unless the user/repository explicitly authorizes invoking the script with `--reopen`.
-7. Reconcile in two deterministic phases so forward dependencies are safe:
-   - Phase A: adopt verified legacy candidates and use the renderer's `--allow-unresolved-dependencies` mode to create every missing issue with exact source, identity markers, and dependency story IDs. Do not finalize numbered dependency links until every canonical issue number exists.
-   - Phase B: write the complete story-to-issue JSON map, rerun the renderer without the unresolved flag for every story, then reconcile content and metadata.
-8. During Phase B:
-   - both revisions and complete desired body identical: leave content unchanged, but repair title, labels, and milestone;
-   - either revision changed and issue open: update title and complete body;
-   - document revision changed and issue closed: update and reopen because shared design evidence changed. Issue reconciliation never creates or assumes carry-forward evidence; the feature coordinator may close it later only after the independent carry-forward transition defined in `feature-delivery/references/contracts.md`;
-   - story revision changed and issue closed: update, reopen, and comment that the story contract invalidated prior completion evidence;
-   - revisions match but managed body drifted: rewrite the complete desired body; if the issue is closed, reopen because acceptance evidence no longer matches the canonical contract;
-   - verified markerless legacy issue: adopt it by writing the complete desired body and markers, preserving discussion history; reopen a closed candidate unless equivalence with the complete current contract is proven.
-9. Put dependencies in a managed section of the issue body rather than appending repeated comments:
+2. Determine the repository, default branch, milestone, labels, and stable design URL.
+3. Build the complete current issue map before mutating anything.
+4. Create or reuse the milestone. Do not reopen a closed milestone without user or repository-policy authority.
+5. Create every missing story issue. Use the bundled renderer so issue bodies contain the exact normalized story source and canonical dependency links.
+6. Update existing issues in place when the managed story body, title, dependencies, labels, or milestone differ.
+7. Reopen a completed issue when its story contract changed. Leave an unchanged completed issue closed.
+8. Re-read every canonical issue and verify its markers, managed body, dependencies, labels, milestone, and state.
 
-   ```markdown
-   ## Dependencies
-   - Depends on: #<issue-number> (`<STORY-ID>`)
-   ```
+Do not silently close stories removed from the design. Report their existing issues and ask whether they should be removed, deferred, or restored. Persist the user's decision on the issue so later runs do not ask again.
 
-   Rewriting the managed body makes repeat runs idempotent.
-10. Attach every canonical issue to the milestone, then re-read every issue, including unchanged candidates, and verify complete desired body equality, all four markers, revisions, labels, milestone, state, dependencies, and acceptance criteria. Repair any mismatch and verify once more; if drift persists, report a blocker.
-
-Do not silently close removed stories. Compare all issues with the same design identity marker against the desired story set. Report unresolved removed stories as orphans requiring an explicit scope decision.
-
-After the user explicitly changes scope, persist one terminal orphan resolution:
-
-- `removed`: add `<!-- feature-delivery:scope=removed;decided-at-revision=<REVISION> -->`, comment with the decision and reason, close the issue if open, and keep it as history;
-- `deferred`: add `<!-- feature-delivery:scope=deferred;decided-at-revision=<REVISION> -->`, comment with the target/follow-up and reason, and apply repository-approved deferred state/label;
-- `restored`: remove the terminal scope marker by rebuilding the canonical active body, reopen, and return it to normal reconciliation.
-
-A terminal scope marker remains effective across later unrelated document revisions until an explicit restoration/supersession decision or the story reappears in the design. Report it with its deciding revision in `Orphan resolutions`; do not rediscover it as a blocker. Never infer one of these resolutions merely from story absence.
-
-## Issue body
+## Managed issue body
 
 ```markdown
 <!-- feature-delivery:design=<REPO-RELATIVE-DESIGN-PATH> -->
 <!-- feature-delivery:story=<STORY-ID> -->
-<!-- feature-delivery:design-revision=<DOCUMENT-REVISION> -->
-<!-- feature-delivery:story-revision=<STORY-REVISION> -->
 
 ## Managed Story Contract
-<exact normalized story source slice from the design document>
+<exact normalized story source>
 
 ## Canonical Dependencies
 <canonical numbered issue references or None>
@@ -110,29 +66,26 @@ A terminal scope marker remains effective across later unrelated document revisi
 [View in Design Doc](<repository blob URL>)
 ```
 
-## Handoff
+The manifest hashes may help synchronization compare content, but consumers should rely on the canonical issue body and current GitHub state rather than reproducing hash-transition rules.
+
+## Result
 
 ```markdown
-## Issue Sync Handoff
-- Design doc:
-- Design revision:
+- Design:
 - Milestone:
-- Story prefix:
-- Issues:
-  - <Story ID>: #<number> <url> (<Created|Updated|Reopened|Unchanged>; story revision: <SHA-256>)
-- Dependencies reconciled: yes/no
-- Stale delivered stories reopened:
-- Orphaned issues:
-- Orphan resolutions:
-- Blocked: yes/no
+- Issues created:
+- Issues updated:
+- Changed completed issues reopened:
+- Unchanged completed issues:
+- Removed-story issues requiring a decision:
 - Blocker:
 ```
 
-## Available scripts
+## Scripts
 
-- `scripts/create_issue.sh "<title>" "<labels>" "<body-file>"`
-- `scripts/create_milestone.sh "<milestone-title>" [--reopen]`
-- `scripts/story_contract.py "<design-doc>" --repo-root "<repository-root>"`
-- `scripts/render_issue_body.py --manifest <manifest.json> --story-id <ID> --issue-map <map.json> --design-url <url> --output <body.md>`
+- `scripts/create_issue.sh`
+- `scripts/create_milestone.sh`
+- `scripts/story_contract.py`
+- `scripts/render_issue_body.py`
 
-Resolve scripts relative to this `SKILL.md`. Use temporary files for multiline bodies and preserve unrelated repository changes.
+Resolve scripts relative to this skill. Use temporary files for multiline bodies and preserve unrelated repository changes.

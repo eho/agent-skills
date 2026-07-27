@@ -42,12 +42,7 @@ def render(
     if not dependency_lines:
         dependency_lines.append("- None")
 
-    values = [
-        manifest.get("design_identity"),
-        manifest.get("design_revision"),
-        story.get("story_revision"),
-        design_url,
-    ]
+    values = [manifest.get("design_identity"), design_url]
     if not all(isinstance(value, str) and value and "\n" not in value for value in values):
         raise ValueError("manifest identity and design URL values must be non-empty single lines")
     if "<!--" in manifest["design_identity"] or "-->" in manifest["design_identity"]:
@@ -55,9 +50,7 @@ def render(
 
     return (
         f"<!-- feature-delivery:design={manifest['design_identity']} -->\n"
-        f"<!-- feature-delivery:story={story_id} -->\n"
-        f"<!-- feature-delivery:design-revision={manifest['design_revision']} -->\n"
-        f"<!-- feature-delivery:story-revision={story['story_revision']} -->\n\n"
+        f"<!-- feature-delivery:story={story_id} -->\n\n"
         "## Managed Story Contract\n\n"
         f"{source}\n"
         "## Canonical Dependencies\n\n"

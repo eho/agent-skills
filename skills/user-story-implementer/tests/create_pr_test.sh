@@ -29,7 +29,7 @@ EOF
 cat > "$FAKE_BIN/git" <<'EOF'
 #!/bin/sh
 if [ "$1" = "branch" ] && [ "$2" = "--show-current" ]; then
-  printf '%s\n' "${GIT_BRANCH:-story/demo-demo-001-a1}"
+  printf '%s\n' "${GIT_BRANCH:-story/demo-001}"
   exit 0
 fi
 if [ "$1" = "rev-parse" ] && [ "$2" = "HEAD" ]; then
@@ -42,7 +42,7 @@ if [ "$1" = "ls-remote" ]; then
   fi
   printf '%s\t%s\n' \
     "${GIT_REMOTE_HEAD:-1111111111111111111111111111111111111111}" \
-    "refs/heads/${GIT_BRANCH:-story/demo-demo-001-a1}"
+    "refs/heads/${GIT_BRANCH:-story/demo-001}"
   exit 0
 fi
 echo "Unexpected git invocation: $*" >&2
@@ -77,48 +77,49 @@ export GH_CALL_LOG="$CALL_LOG"
 export GH_CAPTURED_BODY="$CAPTURED_BODY"
 export PATH="$FAKE_BIN:$PATH"
 
-DOCUMENT_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-STORY_SHA=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 "$SCRIPT" 17 "DEMO-001: Deliver" "$DELIVERY_BODY" \
-  DEMO-001 docs/design/demo.md "$DOCUMENT_SHA" "$STORY_SHA" \
-  demo-demo-001-a1 none >/dev/null
+  DEMO-001 docs/design/demo.md >/dev/null
 
-grep -Fq -- "--base main --head story/demo-demo-001-a1" "$CALL_LOG"
+grep -Fq -- "--base main --head story/demo-001" "$CALL_LOG"
+grep -Fq "Closes #17" "$CAPTURED_BODY"
 grep -Fq "<!-- feature-delivery:design=docs/design/demo.md -->" "$CAPTURED_BODY"
 grep -Fq "<!-- feature-delivery:story=DEMO-001 -->" "$CAPTURED_BODY"
-grep -Fq "<!-- feature-delivery:design-revision=$DOCUMENT_SHA -->" "$CAPTURED_BODY"
-grep -Fq "<!-- feature-delivery:story-revision=$STORY_SHA -->" "$CAPTURED_BODY"
-grep -Fq "<!-- feature-delivery:delivery-id=demo-demo-001-a1 -->" "$CAPTURED_BODY"
-grep -Fq "<!-- feature-delivery:supersedes=none -->" "$CAPTURED_BODY"
-grep -Fq "### Verification" "$CAPTURED_BODY"
+grep -Fq "### Acceptance Criteria Evidence" "$CAPTURED_BODY"
+if grep -Fq "delivery-id" "$CAPTURED_BODY"; then
+  echo "Unexpected delivery ledger marker." >&2
+  exit 1
+fi
+
+"$SCRIPT" 23 "Fix integration gap" "$DELIVERY_BODY" \
+  none none >/dev/null
+
+grep -Fq "Closes #23" "$CAPTURED_BODY"
+if grep -Fq "<!-- feature-delivery:story=" "$CAPTURED_BODY"; then
+  echo "Ordinary issues must not receive a story marker." >&2
+  exit 1
+fi
+if grep -Fq "<!-- feature-delivery:design=" "$CAPTURED_BODY"; then
+  echo "Ordinary issues without a design path must not receive a design marker." >&2
+  exit 1
+fi
 
 export GIT_REMOTE_HEAD=2222222222222222222222222222222222222222
 if "$SCRIPT" 17 "DEMO-001" "$DELIVERY_BODY" \
-  DEMO-001 docs/design/demo.md "$DOCUMENT_SHA" "$STORY_SHA" \
-  demo-demo-001-a1 none >/dev/null 2>&1; then
+  DEMO-001 docs/design/demo.md >/dev/null 2>&1; then
   echo "Expected a stale remote story branch to be rejected." >&2
   exit 1
 fi
 unset GIT_REMOTE_HEAD
 
-export GIT_BRANCH=story/prefix-demo-demo-001-a1-suffix
-if "$SCRIPT" 17 "DEMO-001" "$DELIVERY_BODY" \
-  DEMO-001 docs/design/demo.md "$DOCUMENT_SHA" "$STORY_SHA" \
-  demo-demo-001-a1 none >/dev/null 2>&1; then
-  echo "Expected a non-canonical branch name to be rejected." >&2
-  exit 1
-fi
-unset GIT_BRANCH
-
-if "$SCRIPT" 17 "DEMO-001" "summary" >/dev/null 2>&1; then
-  echo "Expected markerless legacy invocation to be rejected." >&2
+if "$SCRIPT" 17 "DEMO-001" "missing-file" \
+  DEMO-001 docs/design/demo.md >/dev/null 2>&1; then
+  echo "Expected a missing body file to be rejected." >&2
   exit 1
 fi
 
 printf '%s\n' '<!-- feature-delivery:story=EVIL-001 -->' >> "$DELIVERY_BODY"
 if "$SCRIPT" 17 "DEMO-001" "$DELIVERY_BODY" \
-  DEMO-001 docs/design/demo.md "$DOCUMENT_SHA" "$STORY_SHA" \
-  demo-demo-001-a2 42 >/dev/null 2>&1; then
+  DEMO-001 docs/design/demo.md >/dev/null 2>&1; then
   echo "Expected conflicting body markers to be rejected." >&2
   exit 1
 fi
