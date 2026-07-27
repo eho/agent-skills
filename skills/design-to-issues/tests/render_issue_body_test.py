@@ -23,18 +23,30 @@ Shared contract.
 ## User Stories
 
 ### DEMO-001: Foundation
+**Outcome:** A durable foundation is available.
+
 **Context:**
 - Depends on: None
+- Out of scope: Consumer behavior.
 
 **Acceptance Criteria:**
 - [ ] Foundation works.
 
+**Verification:**
+- Run the foundation tests.
+
 ### DEMO-002: Consumer
+**Outcome:** A consumer can use the foundation.
+
 **Context:**
 - Depends on: DEMO-001
+- Out of scope: Foundation changes.
 
 **Acceptance Criteria:**
 - [ ] Consumer works.
+
+**Verification:**
+- Run the consumer tests.
 """
 
 
@@ -87,36 +99,33 @@ class RenderIssueBodyTest(unittest.TestCase):
             self.assertNotIn("### DEMO-001: Foundation", body)
             self.assertEqual(body.count("feature-delivery:story=DEMO-002"), 1)
 
-    def test_rejects_reserved_markers_in_story_source(self) -> None:
+    def test_renderer_keeps_defense_against_unvalidated_reserved_marker(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            design = root / "docs" / "design" / "demo.md"
             manifest = root / "manifest.json"
             issue_map = root / "issues.json"
             output = root / "body.md"
-            design.parent.mkdir(parents=True)
-            design.write_text(
-                DESIGN.replace(
-                    "- [ ] Consumer works.",
-                    "- [ ] Consumer works.\n<!-- feature-delivery:story=EVIL-001 -->",
+            source = DESIGN[DESIGN.index("### DEMO-002") :]
+            source = source.replace(
+                "- [ ] Consumer works.",
+                "- [ ] Consumer works.\n<!-- feature-delivery:story=EVIL-001 -->",
+            )
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "design_identity": "docs/design/demo.md",
+                        "stories": [
+                            {
+                                "id": "DEMO-002",
+                                "dependencies": ["DEMO-001"],
+                                "source": source,
+                            }
+                        ],
+                    }
                 ),
                 encoding="utf-8",
             )
             issue_map.write_text(json.dumps({"DEMO-001": 11, "DEMO-002": 12}), encoding="utf-8")
-            with manifest.open("w", encoding="utf-8") as stream:
-                subprocess.run(
-                    [
-                        sys.executable,
-                        str(CONTRACT),
-                        str(design),
-                        "--repo-root",
-                        str(root),
-                        "--include-source",
-                    ],
-                    check=True,
-                    stdout=stream,
-                    text=True,
-                )
             result = subprocess.run(
                 [
                     sys.executable,

@@ -7,8 +7,8 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | Skill | Command | Description |
 | :--- | :--- | :--- |
 | [**Design Doc**](skills/design-doc/SKILL.md) | `/design-doc` | Synthesize a discussion or outline into a complete design document with architecture, data contracts, and agent-ready user stories with acceptance criteria. |
-| [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | One-time, read-only design review with gaps, score, and next steps. |
-| [**Design Doc Review Loop**](skills/design-doc-review-loop/SKILL.md) | `/design-doc-review-loop` | Review, revise, and repeat until clean, then mark the design doc `Revised`. |
+| [**Design Doc Reviewer**](skills/design-doc-reviewer/SKILL.md) | `/design-doc-reviewer` | Independent, read-only readiness review with mechanical validation and evidence-backed blockers. |
+| [**Design Doc Review Loop**](skills/design-doc-review-loop/SKILL.md) | `/design-doc-review-loop` | Review and revise until validation passes and no blockers remain, then mark the design doc `Revised`. |
 | [**Design to Issues**](skills/design-to-issues/SKILL.md) | `/design-to-issues` | Reconcile a revised design document with canonical GitHub Issues, including changed or stale delivered stories, dependencies, labels, and Milestone tracking. |
 | [**Feature Delivery**](skills/feature-delivery/SKILL.md) | `/feature-delivery` | Goal-aware, resumable delivery of every design-doc story through issue reconciliation, implementation, independent review, merge, and final audit remediation. |
 | [**User Story Delivery**](skills/user-story-delivery/SKILL.md) | `/user-story-delivery` | Deliver one GitHub user story through implementation, independent review, revision, and repository-policy merge completion. |
@@ -63,9 +63,9 @@ The nine development skills form a pipeline from idea to shipped feature. `/feat
 
 **1. Discuss the design** — Before triggering any skill, have a free-form conversation with the AI about the feature. This is an exploratory back-and-forth to get the general direction and key ideas into shape. No structure needed yet — just think out loud.
 
-**2. Write the design** — Once the direction feels right, trigger `/design-doc`. It picks up the conversation context and takes over: asking clarifying questions methodically, surfacing edge cases, and filling gaps until it has enough to produce a complete design document with architecture, data contracts, and user stories — each with explicit acceptance criteria.
+**2. Write the design** — Once the direction feels right, trigger `/design-doc`. It mines the discussion, verifies relevant repository contracts, asks only material clarifying questions, and produces a concise `Draft` with canonical user stories and mechanical validation.
 
-**3. Review and revise the design** — Use `/design-doc-review-loop` when you want the agent to run the full loop: start an independent `/design-doc-reviewer` pass, revise the design with `/design-doc`, repeat until no Critical Gaps or Minor Issues remain, and then mark the design `Status: Revised`. Use `/design-doc-reviewer` directly only when you want a one-time, read-only critique artifact without automatic revision.
+**3. Review and revise the design** — Use `/design-doc-review-loop` to run an independent full review, revise against evidence-backed blocking findings, and use focused follow-ups for prior blockers and affected surfaces. Mechanical validation plus zero blockers promotes the design to `Status: Revised`; non-blocking suggestions may remain or be waived. Use `/design-doc-reviewer` directly for a one-time, read-only verdict.
 
 **4. Deliver the feature** — Use `/feature-delivery` to synchronize a revised design document with GitHub Issues, deliver each open dependency-ready issue through `/user-story-delivery`, and run `/post-implementation-reviewer` after every story is complete. GitHub Issues and Pull Requests remain the progress record. Blocking audit findings return through the same issue-delivery workflow before the feature finishes.
 
@@ -87,7 +87,7 @@ Continue through issue reconciliation, implementation, independent review,
 merge, and final-audit remediation until the feature is Ready.
 ```
 
-The design document should have `Status: Revised` and contain stable, agent-ready user stories with dependencies and binary acceptance criteria.
+The design document should have `Status: Revised`, meaning its latest independent review found no blockers and mechanical story validation passed.
 
 While the goal is active, `/feature-delivery`:
 

@@ -3,7 +3,7 @@ name: feature-delivery
 description: 'Deliver every user story in a revised design document through GitHub issue synchronization, single-story implementation and independent review, merge, and an overall feature audit. Use when asked to deliver, ship, resume, finish, or fully implement a complete design doc or multi-story feature.'
 metadata:
   author: eho
-  version: '3.0.0'
+  version: '3.1.0'
 ---
 
 # Feature Delivery
@@ -21,7 +21,11 @@ If a required specialist is unavailable, report that prerequisite instead of sil
 ## Workflow
 
 1. Read repository instructions and the complete design document.
-2. Confirm the document is ready for implementation and contains stable story IDs, dependencies, and testable acceptance criteria. Proceed with an unrevised document only when the user explicitly requests it.
+2. Require `Status: Revised` and run the `design-to-issues` story validator in
+   delivery mode. This proves the mechanical status, story, and dependency
+   contract; semantic readiness comes from the independent review that promoted
+   the design. The user may explicitly override a semantic review risk, but
+   mechanical delivery validation must still pass.
 3. Run `design-to-issues` to create or update one canonical GitHub Issue for every current story. Use the issue state, body, comments, linked PRs, and dependencies as the durable progress record.
 4. Inspect all canonical story issues:
    - a closed issue with a merged, reviewed PR is complete;

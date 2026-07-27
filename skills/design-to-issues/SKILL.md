@@ -3,7 +3,7 @@ name: design-to-issues
 description: 'Synchronize every user story in a revised design document with one canonical GitHub Issue and milestone. Use for creating, updating, or resuming story issues from a design doc, including feature-delivery. Existing issues are updated in place and changed completed stories are reopened.'
 metadata:
   author: eho
-  version: '3.0.0'
+  version: '3.1.0'
 ---
 
 # Design to Issues
@@ -13,8 +13,11 @@ Synchronize the current user stories into GitHub. The design document defines de
 ## Prerequisites
 
 - Read repository instructions and the complete design document.
-- Require an exact design path and stable story IDs.
-- Require a ready or revised design unless the user explicitly accepts the risk.
+- Require an exact design path.
+- Normal synchronization requires `Status: Revised`, meaning the latest
+  independent review had zero blockers and mechanical validation passed. The
+  user may explicitly override a semantic review risk, but delivery-mode
+  mechanical validation still must pass.
 - Use the authenticated GitHub CLI and repository policy.
 
 ## Canonical identity
@@ -26,7 +29,15 @@ Identify a managed issue by repository-relative design path plus story ID:
 <!-- feature-delivery:story=<STORY-ID> -->
 ```
 
-Resolve and run `scripts/story_contract.py` to parse the stories and validate their dependencies. Use its normalized story source as the managed issue contract. The script's hashes may help compare content, but GitHub progress does not require a separate tracking system.
+Resolve and run `scripts/story_contract.py` in delivery mode to validate status,
+story structure, stable IDs, and dependencies. Use its normalized story source
+as the managed issue contract. The script's hashes may help compare content,
+but GitHub progress does not require a separate tracking system.
+
+Each story is canonical and must contain every shared architecture, data,
+security, migration, compatibility, or rollout requirement that affects its
+implementation. When such a requirement changes, update every affected story;
+the changed story body is what causes completed work to reopen.
 
 Search open and closed issues for the exact marker pair. Use an exact story-ID title only to discover a legacy candidate, and adopt it only when its design path, content, and history make the match unambiguous. Stop on duplicate candidates.
 
@@ -36,7 +47,8 @@ Search open and closed issues for the exact marker pair. Use an exact story-ID t
 
    ```bash
    python3 /absolute/path/to/scripts/story_contract.py \
-     <design-doc> --repo-root <repository-root> --include-source \
+     <design-doc> --repo-root <repository-root> --mode delivery \
+     --include-source \
      > <temporary-manifest.json>
    ```
 

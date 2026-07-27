@@ -76,11 +76,16 @@ Design-doc statuses:
 
 - `Draft` - new or in-progress proposal
 - `Active` - approved current implementation plan
-- `Revised` - updated proposal or plan that remains actionable
+- `Revised` - implementation plan whose latest independent design review found
+  no blockers and whose mechanical story validation passed
 - `Implemented` - shipped and still useful as a recent implementation reference
 - `Implemented (Historical)` - shipped and now mainly historical
 - `Superseded` - replaced by a newer design
 - `Abandoned` - explicitly not moving forward
+
+The feature-delivery pipeline accepts only actionable `Draft` documents during
+authoring/review and `Revised` documents for delivery. Move an `Active` plan
+back to `Draft` before revising it; historical statuses are not delivery input.
 
 ## Current Source Of Truth
 
