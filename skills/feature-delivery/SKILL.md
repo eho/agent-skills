@@ -3,7 +3,7 @@ name: feature-delivery
 description: 'Deliver every user story in a revised design document through GitHub issue synchronization, single-story implementation and independent review, merge, and an overall feature audit. Use when asked to deliver, ship, resume, finish, or fully implement a complete design doc or multi-story feature.'
 metadata:
   author: eho
-  version: '3.1.0'
+  version: '3.2.0'
 ---
 
 # Feature Delivery
@@ -26,21 +26,30 @@ If a required specialist is unavailable, report that prerequisite instead of sil
    contract; semantic readiness comes from the independent review that promoted
    the design. The user may explicitly override a semantic review risk, but
    mechanical delivery validation must still pass.
-3. Run `design-to-issues` to create or update one canonical GitHub Issue for every current story. Use the issue state, body, comments, linked PRs, and dependencies as the durable progress record.
-4. Inspect all canonical story issues:
+3. Before mutation, inventory delivery gates that require credentials,
+   permissions, deployment, physical hardware, human observation, or elapsed
+   time. Report each gate, its responsible actor, evidence, and earliest
+   dependency point. Continue repository-local work that does not depend on
+   it; the inventory is not permission to defer scope or invent verification
+   requirements.
+4. Run `design-to-issues` to create or update one canonical GitHub Issue for every current story. Use the issue state, body, comments, linked PRs, and dependencies as the durable progress record.
+5. Inspect all canonical story issues:
    - a closed issue with a merged, reviewed PR is complete;
    - an open issue is remaining work;
    - resume an existing branch or PR rather than creating a duplicate;
    - work only on stories whose dependencies are complete.
-5. Invoke `user-story-delivery` for one dependency-ready open issue. Require it to implement every acceptance criterion, obtain independent review, address blocking findings, merge according to repository policy, and verify issue closure.
-6. Re-read the issue and PR after the handoff. Continue until every in-scope story issue is complete. If one story is blocked, continue unrelated dependency-ready stories.
-7. Invoke `post-implementation-reviewer` with the original design document. The auditor must inspect the assembled implementation, story completion, cross-story behavior, documentation, and relevant verification.
-8. Handle audit results:
+6. Invoke `user-story-delivery` for one dependency-ready open issue. Require it to implement every acceptance criterion, obtain independent review, address blocking findings, merge according to repository policy, and verify issue closure.
+7. While a specialist is making progress, wait for its handoff rather than
+   polling or replacing it. Communicate state changes, completed milestones,
+   blockers, and decisions; do not repeat unchanged status.
+8. Re-read the issue and PR after the handoff. Continue until every in-scope story issue is complete. If one story is blocked, continue unrelated dependency-ready stories.
+9. Invoke `post-implementation-reviewer` with the original design document. The auditor must inspect the assembled implementation, story completion, cross-story behavior, documentation, and relevant verification.
+10. Handle audit results:
    - attach a story-specific blocking finding to its canonical issue, reopen it if necessary, and deliver it again through `user-story-delivery`;
    - create one ordinary GitHub Issue for a blocking integration or documentation gap that does not belong to an existing story, give it concrete acceptance criteria, and deliver it through `user-story-delivery`;
    - request the user's decision when remediation would expand the approved design scope;
    - rerun the overall audit after blocking remediation.
-9. Finish only when every in-scope story is complete and the latest overall audit reports no blocking findings.
+11. Finish only when every in-scope story is complete and the latest overall audit reports no blocking findings.
 
 ## Completion rules
 
@@ -63,6 +72,9 @@ The feature is complete only when all current stories satisfy those rules and th
 - Never replace active work merely because a worker is slow or interrupted.
 - Do not remove or defer a design story without explicit user authority.
 - Do not treat unperformed manual verification as passed.
+- When only an external, human, or time-dependent gate remains, record the
+  exact continuation condition and return control instead of repeatedly
+  retrying unchanged state.
 - Follow repository-specific branch, review, check, merge, and branch-retention policy.
 - Never create or complete a runtime goal unless the user authorized that goal and this feature satisfies it.
 

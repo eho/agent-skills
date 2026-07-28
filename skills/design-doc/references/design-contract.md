@@ -55,6 +55,17 @@ Use sections that help this design. Do not add placeholder sections, arbitrary
 alternative counts, or generic operational detail merely to satisfy a
 checklist.
 
+Shape delivery so costly work follows the cheapest decisive evidence. Put a
+feasibility spike before substantial dependent implementation when a platform,
+integration, or operational assumption could invalidate that work.
+
+Distinguish implementation from rollout evidence. Credentialed operations,
+physical-device checks, observation windows, and other human or time-dependent
+gates must name the responsible actor, required evidence, and continuation
+point. They may remain explicit delivery gates, but should not obscure which
+code and repository-local verification can finish beforehand. Follow the
+repository's and user's verification policy; do not invent CI requirements.
+
 ## Canonical user stories
 
 `design-to-issues` copies each story into its canonical GitHub Issue. Each story
@@ -95,8 +106,10 @@ Mechanical rules:
   required section.
 - Do not place `<!-- feature-delivery:` management markers in story source;
   issue synchronization owns those reserved markers.
-- Keep each story to one focused, dependency-ordered implementation slice.
-  Name relevant files and contracts when known, but do not invent them.
+- Keep each story to one focused, dependency-ordered outcome. Split work when
+  its parts have independent acceptance evidence, failure domains, rollout, or
+  review decisions; do not use an arbitrary criterion-count limit. Name
+  relevant files and contracts when known, but do not invent them.
 
 The story is the implementation contract, not merely a pointer to shared prose.
 When a shared architecture, API, data, security, migration, compatibility, or

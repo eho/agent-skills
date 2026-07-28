@@ -46,6 +46,31 @@
         "Does not remove or defer scope without user authority.",
         "Does not declare the feature complete while a blocking story remains."
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Fully deliver docs/design/device-rollout.md as a sole developer. Local Mac verification is sufficient and CI is not required. Three implementation stories can be completed locally, but the final rollout story requires a physical iPhone, hosted credentials, and a 48-hour observation window.",
+      "expected_output": "Reports the device, credential, and elapsed-time gates before mutation, completes all dependency-ready local work without inventing CI, then returns control at the first unresolved operator gate with an exact continuation condition instead of polling unchanged state or claiming completion.",
+      "files": [],
+      "assertions": [
+        "Reports external and time-dependent gates before implementation begins.",
+        "Continues repository-local work that is not blocked by those gates.",
+        "Does not add a CI requirement contrary to the stated verification policy.",
+        "Returns control with an exact continuation condition when only an operator or time gate remains.",
+        "Does not repeatedly poll unchanged external state or declare the feature complete."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Deliver docs/design/audit-export.md. The active story has twelve explicit acceptance criteria. Its implementer reports a PR ready, but the acceptance-evidence table has no implementation or verification for three criteria.",
+      "expected_output": "Rejects the incomplete implementation handoff before independent review, returns the complete missing criterion set to the same implementer, waits for one complete revised handoff, and only then starts a fresh reviewer.",
+      "files": [],
+      "assertions": [
+        "Treats the criterion-by-criterion evidence table as a pre-review gate.",
+        "Does not start independent review while required criteria lack evidence.",
+        "Returns the complete missing criterion set to the same implementer.",
+        "Waits for one complete revised handoff before starting a fresh review."
+      ]
     }
   ]
 }

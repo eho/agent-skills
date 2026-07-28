@@ -3,7 +3,7 @@ name: user-story-implementer
 description: 'Implement or revise exactly one canonical GitHub Issue, satisfy and verify all acceptance criteria, and create or update its focused Pull Request. Use for a specific story or issue, requested changes on its PR, or as the implementation worker in user-story-delivery.'
 metadata:
   author: eho
-  version: '4.0.0'
+  version: '4.1.0'
 ---
 
 # User Story Implementer
@@ -30,6 +30,21 @@ Own implementation for one GitHub Issue. Do not act as the independent reviewer 
 7. Self-review the diff for regressions, security, permissions, data safety, migrations, compatibility, concurrency, diagnostics, and documentation.
 
 If a product decision, credential, external service, or unfinished dependency prevents a correct implementation, record the exact blocker on the issue and stop.
+
+## Acceptance gate
+
+Before creating a new PR or handing any PR to review, re-read the issue and
+account for every acceptance criterion in a concise table:
+
+| Criterion | Implementation evidence | Verification |
+| --- | --- | --- |
+
+Evidence must name the concrete code, test, observation, or documentation
+change. If any required row is missing, contradicted by the diff, or not yet
+verified, continue implementation or report the blocker; do not present the PR
+as reviewable. Put the completed table in `### Acceptance Criteria Evidence`.
+For revision work, address the complete review finding set and rerun this gate
+before requesting a fresh review.
 
 ## Branch and Pull Request
 
