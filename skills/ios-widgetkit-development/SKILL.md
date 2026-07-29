@@ -23,9 +23,11 @@ behavior.
    values that appear stale or ignored.
 5. Read [references/expo-widgets.md](references/expo-widgets.md) when the project
    uses Expo, `expo-widgets`, serialized JavaScript layouts, or prebuild.
-6. Read [references/validation-ladder.md](references/validation-ladder.md) before
+6. Invoke `expo-native-module-bridges` when a product-owned Expo `Function` or
+   `AsyncFunction` carries JavaScript arguments into WidgetKit or ActivityKit.
+7. Read [references/validation-ladder.md](references/validation-ladder.md) before
    native verification, interaction measurement, or declaring the work done.
-7. Invoke `ios-simulator-automation` for app-to-SpringBoard or Widget Gallery
+8. Invoke `ios-simulator-automation` for app-to-SpringBoard or Widget Gallery
    automation. Keep this skill focused on WidgetKit architecture and evidence.
 
 ## Map the Runtime Pipeline

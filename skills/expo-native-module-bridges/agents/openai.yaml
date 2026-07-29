@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expo Native Module Bridges"
+  short_description: "Diagnose Expo JavaScript-to-native boundaries"
+  default_prompt: "Use $expo-native-module-bridges to implement or diagnose this Expo native module boundary."
