@@ -1,0 +1,23 @@
+{
+  "skill_name": "expo-app-icon",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I’m building an Expo app for neighbors to lend tools. Give me three app icon directions that feel trustworthy but not corporate, generate a chosen direction, and wire the final assets into apps/mobile/app.json.",
+      "expected_output": "A concise set of distinct concepts generated with a structured context/concept/art-direction/constraints/quality-filter prompt, a selected square master and transparent mark, native launcher/adaptive assets, merged Expo icon configuration, and validation evidence. Splash and web assets are not added unless the project or user request puts them in scope.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Use this 1024px square PNG as the app icon for my existing Expo project. Please make whatever Android adaptive and themed icon files are actually needed and update app.json without damaging the other plugins.",
+      "expected_output": "The supplied art is inspected rather than blindly reused; a transparent mark is obtained, platform-specific files are derived without unapproved overwrites, existing config is merged safely, and alpha/safe-bound/config checks pass.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our designer sent an Apple Icon Composer .icon bundle and a transparent SVG mark. Configure it for Expo SDK 55, Android Material You, splash, and web, and tell me what still needs a real build to verify.",
+      "expected_output": "Current official Expo support is checked, the .icon bundle is used only for iOS, PNG derivatives are created for Android/splash/web, configuration is adapted to the project, and runtime verification limits are explicit.",
+      "files": []
+    }
+  ]
+}

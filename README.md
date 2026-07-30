@@ -24,6 +24,7 @@ Skills I've built for my own AI-assisted development workflow. The design-to-imp
 | [**Project Bootstrap**](skills/project-bootstrap/SKILL.md) | `/project-bootstrap` | Initialize or refresh repository conventions so coding agents have accurate project commands, docs rules, and guardrails. |
 | [**Expo Scaffold**](skills/expo-scaffold/SKILL.md) | `/expo-scaffold` | Create a production-oriented Expo starter with Expo Router, development builds, NativeWind, gluestack, EAS, and agent-friendly project context. |
 | [**Expo gluestack Setup**](skills/expo-gluestack-setup/SKILL.md) | `/expo-gluestack-setup` | Add, repair, or verify official gluestack-ui setup for Expo or React Native projects. |
+| [**Expo App Icon**](skills/expo-app-icon/SKILL.md) | `/expo-app-icon` | Design app-icon concepts, generate platform-safe Expo assets, configure iOS/Android/web/splash icons, and validate adaptive and themed layers. |
 
 ## Project Bootstrap Workflow
 
