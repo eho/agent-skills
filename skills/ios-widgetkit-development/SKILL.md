@@ -1,6 +1,6 @@
 ---
 name: ios-widgetkit-development
-description: Implement, debug, review, and verify iOS WidgetKit extensions, ActivityKit Live Activities, and AppIntent-configurable widgets, including Expo or expo-widgets generated targets. Use for new widget features, blank or red widgets, missing, gray, tinted, or incorrectly scaled Live Activity images, stale or ignored Edit Widget configuration, timeline and shared-storage failures, interactive Button/AppIntent behavior, generated Swift ownership, target membership, rebuild and fresh-widget decisions, performance diagnosis, or native acceptance evidence.
+description: Implement, debug, review, and verify iOS WidgetKit extensions, ActivityKit Live Activities, and AppIntent-configurable widgets, including Expo or expo-widgets generated targets. Use for new widget features, blank or red widgets, missing or incorrectly rendered Live Activity images, excessively wide or empty compact Dynamic Island layouts, missing live timers, stale or ignored Edit Widget configuration, timeline and shared-storage failures, interactive Button/AppIntent behavior, generated Swift ownership, target membership, rebuild and fresh-widget decisions, performance diagnosis, or native acceptance evidence.
 ---
 
 # iOS WidgetKit Development
@@ -27,11 +27,15 @@ behavior.
    when a Live Activity or Dynamic Island image is missing, blank, monochrome,
    gray, tinted, blurry, incorrectly scaled, or present in source but wrong at
    runtime.
-7. Invoke `expo-native-module-bridges` when a product-owned Expo `Function` or
+7. Read
+   [references/compact-dynamic-island-layout.md](references/compact-dynamic-island-layout.md)
+   when the compact Dynamic Island is excessively wide, has an unexplained
+   center gap, loses a live timer, or behaves differently after rebuilds.
+8. Invoke `expo-native-module-bridges` when a product-owned Expo `Function` or
    `AsyncFunction` carries JavaScript arguments into WidgetKit or ActivityKit.
-8. Read [references/validation-ladder.md](references/validation-ladder.md) before
+9. Read [references/validation-ladder.md](references/validation-ladder.md) before
    native verification, interaction measurement, or declaring the work done.
-9. Invoke `ios-simulator-automation` for app-to-SpringBoard or Widget Gallery
+10. Invoke `ios-simulator-automation` for app-to-SpringBoard or Widget Gallery
    automation. Keep this skill focused on WidgetKit architecture and evidence.
 
 ## Map the Runtime Pipeline

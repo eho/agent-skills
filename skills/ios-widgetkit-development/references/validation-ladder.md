@@ -31,7 +31,7 @@ Use different fixtures for different questions:
 
 Never use visually identical maximum entries to prove an interaction changed.
 
-## Fresh-widget rule
+## Fresh-presentation rule
 
 Remove and add a new widget after changing:
 
@@ -42,6 +42,14 @@ Remove and add a new widget after changing:
 
 Record whether the observed widget was fresh or retained. Do not infer fresh
 schema behavior from an existing instance.
+
+For Live Activity presentation changes, rebuilding or reinstalling does not by
+itself prove that the visible activity is fresh. Positively end the prior test
+activity, create a new identifiable activity after installing the candidate,
+and record the exact artifact. If the fixture launcher ends zero activities or
+ActivityKit enumeration is unreliable, repeat in a controlled disposable
+simulator with a consistent uninstall/reinstall reset before accepting a visual
+comparison.
 
 ## Performance measurement
 
